@@ -116,7 +116,7 @@ export default function FacilityDesigner() {
       }
       return prev;
     });
-  }, [equipment?.length, zones?.length]); // Only depend on array lengths
+  }, [Array.isArray(equipment) ? equipment.length : 0, Array.isArray(zones) ? zones.length : 0]); // Only depend on array lengths
 
   const handleCommandExecuted = (command: string, result: any) => {
     toast({

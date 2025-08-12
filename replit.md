@@ -5,6 +5,7 @@ This is a facility design application for mycology (mushroom cultivation) operat
 # User Preferences
 
 Preferred communication style: Simple, everyday language.
+Interface Design Direction: Professional AutoCAD-style technical drawing system with clean, dark theme. Quantum consciousness elements should be states within the drawing system rather than primary interface styling.
 
 # System Architecture
 
@@ -34,10 +35,11 @@ The application uses a hierarchical data model:
 
 ## Component Architecture
 - **Canvas System**: SVG-based facility visualization with drag-and-drop equipment placement
-- **Equipment Library**: Categorized component library with search and filtering
+- **Equipment Library**: Categorized component library with search and filtering (CAD-style palette)
 - **Properties Panel**: Dynamic form system for equipment configuration
-- **Command Interface**: Natural language processing for facility operations
+- **Command Interface**: Natural language processing for facility operations (terminal-style)
 - **Project Explorer**: Hierarchical navigation and project management
+- **CAD Interface**: Professional dark theme with technical grid background and clean typography
 
 ## Key Design Patterns
 - **Repository Pattern**: Storage abstraction layer for database operations
