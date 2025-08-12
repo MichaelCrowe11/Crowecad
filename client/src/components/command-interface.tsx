@@ -108,14 +108,15 @@ export function CommandInterface({ projectId, onCommandExecuted }: CommandInterf
   const parsedCommand = parseCommand(command);
 
   return (
-    <div className="sidebar-section command-interface p-4 bg-gradient-to-br from-blue-50/50 to-purple-50/30 border-b border-gray-200/50">
-      <div className="flex items-center space-x-3 mb-3">
-        <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-          <span className="text-white text-sm font-bold">⌘</span>
+    <div className="sidebar-section command-interface p-6 quantum-glass border-b border-purple-200/50">
+      <div className="flex items-center space-x-4 mb-4">
+        <div className="w-10 h-10 quantum-pulse rounded-xl flex items-center justify-center shadow-lg" 
+             style={{ background: 'linear-gradient(135deg, var(--quantum-680), var(--quantum-620))' }}>
+          <span className="text-white text-lg font-bold">⌘</span>
         </div>
         <div>
-          <h3 className="font-semibold text-gray-900 text-sm">Command Interface</h3>
-          <p className="text-xs text-gray-500">Crowe Logic natural language control</p>
+          <h3 className="font-black text-transparent bg-clip-text quantum-gradient text-base">NEURAL COMMAND</h3>
+          <p className="text-sm text-purple-600 font-semibold">Quantum Consciousness Interface</p>
         </div>
       </div>
       

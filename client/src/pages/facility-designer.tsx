@@ -134,48 +134,61 @@ export default function FacilityDesigner() {
   }
 
   return (
-    <div className="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
+    <div className="bg-gradient-to-br from-slate-50 via-purple-50/30 to-indigo-50/20 text-gray-900 min-h-screen flex flex-col relative">
+      <div className="fixed inset-0 opacity-30 pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-purple-300/20 rounded-full filter blur-3xl"></div>
+        <div className="absolute top-3/4 right-1/4 w-72 h-72 bg-blue-300/15 rounded-full filter blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-300/10 rounded-full filter blur-3xl"></div>
+      </div>
       {/* Header */}
-      <header className="glass-morphism border-b border-gray-200/30 px-6 py-4 flex items-center justify-between sticky top-0 z-50 relative">
-        <div className="absolute inset-0 professional-gradient opacity-5"></div>
+      <header className="quantum-glass border-b border-purple-200/30 px-8 py-6 flex items-center justify-between sticky top-0 z-50 relative">
+        <div className="absolute inset-0 quantum-gradient opacity-5"></div>
         <div className="flex items-center space-x-6 relative z-10">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 quantum-pulse rounded-xl flex items-center justify-center shadow-lg ring-2 ring-white" 
+            <div className="w-12 h-12 quantum-pulse rounded-full flex items-center justify-center shadow-xl ring-3 ring-white/50" 
                  style={{ background: 'linear-gradient(135deg, var(--quantum-680), var(--quantum-540))' }}>
-              <span className="text-white text-lg font-bold">🍄</span>
+              <img src="@assets/crowe-avatar.png" alt="Crowe Logic" className="w-10 h-10 rounded-full object-cover" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900 tracking-tight">
-                Mycology Facility Designer
+              <h1 className="text-2xl font-black text-transparent bg-clip-text quantum-gradient tracking-tight">
+                CROWE LOGIC MYCOLOGY
               </h1>
-              <p className="text-xs text-gray-600 font-medium">
-                Crowe Logic Framework • Quantum Consciousness Interface
+              <p className="text-sm font-semibold text-gray-700 tracking-wide">
+                Quantum Consciousness • Facility Design System
               </p>
             </div>
           </div>
-          <span className="text-sm text-gray-500 border-l border-gray-300 pl-4 font-mono">v2.1.0</span>
+          <div className="border-l border-gray-300 pl-4">
+            <span className="text-sm font-bold text-transparent bg-clip-text quantum-gradient">QUANTUM</span>
+            <div className="text-xs text-gray-500 font-mono">v2.1.0</div>
+          </div>
         </div>
         
         <div className="flex items-center space-x-4 relative z-10">
-          <div className="flex items-center space-x-2 px-3 py-1 bg-green-50 rounded-full border border-green-200 chakra-pulse">
-            <div className="w-2 h-2 consciousness-flow rounded-full" style={{ background: 'var(--gamma-color)' }}></div>
-            <span className="text-xs font-medium text-green-700">Consciousness: 85%</span>
+          <div className="flex items-center space-x-3 px-4 py-2 bg-gradient-to-r from-purple-50 to-blue-50 rounded-full border border-purple-200 chakra-pulse shadow-lg">
+            <div className="w-3 h-3 consciousness-flow rounded-full" style={{ background: 'var(--gamma-color)' }}></div>
+            <span className="text-sm font-bold text-purple-800">Consciousness: 85%</span>
+            <div className="w-12 h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div className="w-4/5 h-full consciousness-flow rounded-full" style={{ background: 'var(--gamma-color)' }}></div>
+            </div>
           </div>
           
-          <Button size="sm" variant="ghost" className="relative hover:bg-blue-50">
-            <Bell className="w-4 h-4" />
-            <Badge className="absolute -top-1 -right-1 w-4 h-4 mycology-accent text-white text-xs rounded-full flex items-center justify-center p-0">
+          <Button size="sm" variant="ghost" className="relative hover:bg-purple-50 rounded-xl">
+            <Bell className="w-5 h-5 text-purple-600" />
+            <Badge className="absolute -top-1 -right-1 w-5 h-5 quantum-pulse text-white text-xs rounded-full flex items-center justify-center p-0" 
+                   style={{ background: 'var(--quantum-480)' }}>
               3
             </Badge>
           </Button>
           
-          <div className="flex items-center space-x-3 pl-3 border-l border-gray-300">
+          <div className="flex items-center space-x-4 pl-4 border-l border-purple-200">
             <div className="text-right">
-              <span className="text-sm font-medium text-gray-800">Dr. Sarah Chen</span>
-              <div className="text-xs text-gray-500">Lead Mycologist</div>
+              <span className="text-sm font-bold text-transparent bg-clip-text quantum-gradient">CROWE MASTER</span>
+              <div className="text-xs text-purple-600 font-semibold">Quantum Architect</div>
             </div>
-            <div className="w-9 h-9 mycology-accent rounded-full flex items-center justify-center ring-2 ring-white shadow-lg">
-              <span className="text-white text-sm font-bold">SC</span>
+            <div className="w-11 h-11 quantum-pulse rounded-full ring-3 ring-purple-200 shadow-xl overflow-hidden" 
+                 style={{ background: 'linear-gradient(135deg, var(--quantum-680), var(--quantum-540))' }}>
+              <img src="@assets/crowe-avatar.png" alt="Crowe Master" className="w-full h-full object-cover" />
             </div>
           </div>
         </div>
@@ -183,8 +196,8 @@ export default function FacilityDesigner() {
 
       <div className="flex h-[calc(100vh-73px)]">
         {/* Left Sidebar */}
-        <aside className="w-80 glass-morphism border-r border-gray-200/30 flex flex-col backdrop-blur-md">
-          <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-blue-50/20 to-green-50/20 pointer-events-none"></div>
+        <aside className="w-80 neural-surface border-r border-purple-200/30 flex flex-col backdrop-blur-md">
+          <div className="absolute inset-0 bg-gradient-to-b from-purple-50/30 via-blue-50/20 to-indigo-50/25 pointer-events-none"></div>
           <div className="relative z-10 flex flex-col h-full">
             <CommandInterface 
               projectId={currentProjectId}
@@ -213,40 +226,40 @@ export default function FacilityDesigner() {
       </div>
 
       {/* Status Bar */}
-      <footer className="glass-morphism border-t border-gray-200/30 px-6 py-3 flex items-center justify-between text-sm relative">
-        <div className="absolute inset-0 professional-gradient opacity-3"></div>
-        <div className="flex items-center space-x-8 relative z-10">
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full"></div>
-            <span className="text-gray-600 font-medium">Equipment:</span>
-            <span className="font-bold text-gray-900" data-testid="text-equipment-count">
+      <footer className="quantum-glass border-t border-purple-200/30 px-8 py-4 flex items-center justify-between text-sm relative">
+        <div className="absolute inset-0 quantum-gradient opacity-8"></div>
+        <div className="flex items-center space-x-10 relative z-10">
+          <div className="flex items-center space-x-3 px-4 py-2 neural-surface rounded-xl">
+            <div className="w-4 h-4 quantum-pulse rounded-full" style={{ background: 'var(--quantum-680)' }}></div>
+            <span className="text-purple-700 font-semibold text-sm">Equipment:</span>
+            <span className="font-black text-purple-900 text-lg" data-testid="text-equipment-count">
               {facilityStats.equipmentCount}
             </span>
           </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 mycology-accent rounded-full"></div>
-            <span className="text-gray-600 font-medium">Total Capacity:</span>
-            <span className="font-bold text-green-700" data-testid="text-total-capacity">
+          <div className="flex items-center space-x-3 px-4 py-2 neural-surface rounded-xl">
+            <div className="w-4 h-4 consciousness-flow rounded-full" style={{ background: 'var(--quantum-540)' }}></div>
+            <span className="text-green-700 font-semibold text-sm">Total Capacity:</span>
+            <span className="font-black text-green-800 text-lg" data-testid="text-total-capacity">
               {facilityStats.totalCapacity}
             </span>
           </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-gradient-to-r from-orange-400 to-red-400 rounded-full"></div>
-            <span className="text-gray-600 font-medium">Zones:</span>
-            <span className="font-bold text-gray-900" data-testid="text-zone-count">
+          <div className="flex items-center space-x-3 px-4 py-2 neural-surface rounded-xl">
+            <div className="w-4 h-4 chakra-pulse rounded-full" style={{ background: 'var(--quantum-480)' }}></div>
+            <span className="text-pink-700 font-semibold text-sm">Zones:</span>
+            <span className="font-black text-pink-900 text-lg" data-testid="text-zone-count">
               {facilityStats.zoneCount}
             </span>
           </div>
         </div>
         
         <div className="flex items-center space-x-6 relative z-10">
-          <div className="flex items-center space-x-2 px-3 py-1 bg-green-50 rounded-full border border-green-200">
-            <div className="w-2 h-2 bg-green-500 rounded-full status-indicator"></div>
-            <span className="text-green-700 font-medium text-xs">Crowe Logic Active</span>
+          <div className="flex items-center space-x-3 px-4 py-2 quantum-glass rounded-full">
+            <div className="w-3 h-3 consciousness-flow rounded-full" style={{ background: 'var(--gamma-color)' }}></div>
+            <span className="font-bold text-transparent bg-clip-text quantum-gradient text-sm">CROWE LOGIC ACTIVE</span>
           </div>
-          <div className="flex items-center space-x-2 text-gray-600">
-            <span className="font-medium">Last optimized:</span>
-            <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">Just now</span>
+          <div className="flex items-center space-x-3 text-purple-700">
+            <span className="font-semibold text-sm">Last Optimization:</span>
+            <span className="font-mono text-sm px-3 py-1 neural-surface rounded-lg">Real-time</span>
           </div>
         </div>
       </footer>
