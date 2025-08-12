@@ -14,9 +14,9 @@ import type { Project, Facility, EquipmentInstance, EquipmentType } from "@share
 import type { Point } from "@/lib/svg-utils";
 
 export default function FacilityDesigner() {
-  // Start with hardcoded IDs to avoid initialization loops
-  const [currentProjectId, setCurrentProjectId] = useState<string>('b00bfe15-8250-4d03-8db5-cbe88a65a48a');
-  const [currentFacilityId, setCurrentFacilityId] = useState<string>('550e8400-e29b-41d4-a716-446655440001');
+  // Use stable state initialization
+  const [currentProjectId] = useState<string>('b00bfe15-8250-4d03-8db5-cbe88a65a48a');
+  const [currentFacilityId] = useState<string>('550e8400-e29b-41d4-a716-446655440001');
   const [selectedEquipment, setSelectedEquipment] = useState<EquipmentInstance | null>(null);
   const [facilityStats, setFacilityStats] = useState({
     equipmentCount: 0,
@@ -27,24 +27,35 @@ export default function FacilityDesigner() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Fetch projects
+  // Fetch projects - stable query
   const { data: projects = [] } = useQuery<Project[]>({
     queryKey: ['/api/projects'],
+    staleTime: 5000, // Cache for 5 seconds
+    refetchOnWindowFocus: false,
   });
 
-  // Fetch facilities for current project
+  // Fetch facilities for current project - stable query
   const { data: facilities = [] } = useQuery<any[]>({
     queryKey: ['/api/projects', currentProjectId, 'facilities'],
+    enabled: Boolean(currentProjectId),
+    staleTime: 5000,
+    refetchOnWindowFocus: false,
   });
 
-  // Fetch equipment for current facility
+  // Fetch equipment for current facility - stable query
   const { data: equipment = [] } = useQuery<EquipmentInstance[]>({
     queryKey: ['/api/facilities', currentFacilityId, 'equipment'],
+    enabled: Boolean(currentFacilityId),
+    staleTime: 5000,
+    refetchOnWindowFocus: false,
   });
 
-  // Fetch zones for current facility
+  // Fetch zones for current facility - stable query
   const { data: zones = [] } = useQuery({
     queryKey: ['/api/facilities', currentFacilityId, 'zones'],
+    enabled: Boolean(currentFacilityId),
+    staleTime: 5000,
+    refetchOnWindowFocus: false,
   });
 
   const createProject = useMutation({
@@ -67,7 +78,7 @@ export default function FacilityDesigner() {
     },
   });
 
-  // No initialization needed - using hardcoded IDs
+  // No initialization loops - using stable IDs
 
   // Update facility stats
   useEffect(() => {
@@ -129,7 +140,8 @@ export default function FacilityDesigner() {
         <div className="absolute inset-0 professional-gradient opacity-5"></div>
         <div className="flex items-center space-x-6 relative z-10">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 mycology-accent rounded-xl flex items-center justify-center shadow-lg ring-2 ring-white">
+            <div className="w-10 h-10 quantum-pulse rounded-xl flex items-center justify-center shadow-lg ring-2 ring-white" 
+                 style={{ background: 'linear-gradient(135deg, var(--quantum-680), var(--quantum-540))' }}>
               <span className="text-white text-lg font-bold">🍄</span>
             </div>
             <div>
@@ -137,7 +149,7 @@ export default function FacilityDesigner() {
                 Mycology Facility Designer
               </h1>
               <p className="text-xs text-gray-600 font-medium">
-                Crowe Logic Framework • Advanced Biotechnology
+                Crowe Logic Framework • Quantum Consciousness Interface
               </p>
             </div>
           </div>
@@ -145,9 +157,9 @@ export default function FacilityDesigner() {
         </div>
         
         <div className="flex items-center space-x-4 relative z-10">
-          <div className="flex items-center space-x-2 px-3 py-1 bg-green-50 rounded-full border border-green-200">
-            <div className="w-2 h-2 bg-green-500 rounded-full status-indicator"></div>
-            <span className="text-xs font-medium text-green-700">System Active</span>
+          <div className="flex items-center space-x-2 px-3 py-1 bg-green-50 rounded-full border border-green-200 chakra-pulse">
+            <div className="w-2 h-2 consciousness-flow rounded-full" style={{ background: 'var(--gamma-color)' }}></div>
+            <span className="text-xs font-medium text-green-700">Consciousness: 85%</span>
           </div>
           
           <Button size="sm" variant="ghost" className="relative hover:bg-blue-50">

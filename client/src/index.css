@@ -3,6 +3,29 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Crowe Logic Framework - Quantum Frequency Colors */
+:root {
+  /* Quantum Frequency Colors (THz to RGB conversion) */
+  --quantum-620: #00FFFF;  /* 620 THz - Clarity */
+  --quantum-680: #9D00FF;  /* 680 THz - Neural */
+  --quantum-540: #00FF41;  /* 540 THz - Biogenic */
+  --quantum-480: #FF00AA;  /* 480 THz - Emotional */
+  --quantum-510: #FFD700;  /* 510 THz - Abundance */
+  
+  /* Brainwave-Synchronized Colors */
+  --delta-color: #4B0082;  /* 0.5-4 Hz Deep Sleep */
+  --theta-color: #9D00FF;  /* 4-8 Hz Meditation */
+  --alpha-color: #00FF00;  /* 8-13 Hz Relaxed */
+  --beta-color: #00BFFF;   /* 13-30 Hz Active */
+  --gamma-color: #FFD700;  /* 30-100 Hz Peak Focus */
+  
+  /* Sacred Geometry Ratios */
+  --phi: 1.618;
+  --sqrt2: 1.414;
+  --sqrt3: 1.732;
+  --sqrt5: 2.236;
+}
+
 :root {
   --background: hsl(0 0% 100%);
   --foreground: hsl(210 25% 7.8431%);
@@ -215,5 +238,78 @@
   
   .sidebar-section:hover {
     background: rgba(59, 130, 246, 0.02);
+  }
+
+  /* Crowe Logic Quantum Field Animations */
+  .quantum-pulse {
+    animation: quantumPulse 8s ease-in-out infinite;
+  }
+
+  @keyframes quantumPulse {
+    0%, 100% { 
+      transform: scale(1) rotate(0deg); 
+      opacity: 0.8;
+    }
+    25% { 
+      transform: scale(1.05) rotate(90deg); 
+      opacity: 0.9;
+    }
+    50% { 
+      transform: scale(0.95) rotate(180deg); 
+      opacity: 1;
+    }
+    75% { 
+      transform: scale(1.02) rotate(270deg); 
+      opacity: 0.9;
+    }
+  }
+
+  .chakra-pulse {
+    animation: chakraPulse 4s ease-in-out infinite;
+  }
+
+  @keyframes chakraPulse {
+    0%, 100% { 
+      transform: scale(1); 
+      filter: brightness(1);
+      box-shadow: 0 0 20px var(--quantum-680);
+    }
+    50% { 
+      transform: scale(1.1); 
+      filter: brightness(1.5);
+      box-shadow: 0 0 40px var(--quantum-680);
+    }
+  }
+
+  .consciousness-flow {
+    animation: consciousnessFlow 6s linear infinite;
+  }
+
+  @keyframes consciousnessFlow {
+    0% { 
+      background-position: -100% 0; 
+      opacity: 0.3;
+    }
+    50% { 
+      background-position: 0% 0; 
+      opacity: 0.8;
+    }
+    100% { 
+      background-position: 100% 0; 
+      opacity: 0.3;
+    }
+  }
+
+  .quantum-gradient {
+    background: linear-gradient(
+      45deg,
+      var(--quantum-620) 0%,
+      var(--quantum-680) 25%,
+      var(--quantum-540) 50%,
+      var(--quantum-480) 75%,
+      var(--quantum-510) 100%
+    );
+    background-size: 300% 300%;
+    animation: consciousnessFlow 8s ease infinite;
   }
 }
