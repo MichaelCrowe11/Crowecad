@@ -93,12 +93,18 @@ export function EquipmentLibrary({ onEquipmentDrag }: EquipmentLibraryProps) {
   }
 
   return (
-    <div className="flex-1 overflow-y-auto">
+    <div className="flex-1 overflow-y-auto sidebar-section">
       <div className="p-4">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-gray-700">Equipment Library</h3>
-          <Button size="sm" variant="ghost" className="p-1 h-auto">
-            <Plus className="w-4 h-4 text-primary" />
+        <div className="flex items-center space-x-3 mb-4">
+          <div className="w-8 h-8 mycology-accent rounded-lg flex items-center justify-center shadow-md">
+            <FlaskConical className="w-4 h-4 text-white" />
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold text-gray-900">Equipment Library</h3>
+            <p className="text-xs text-gray-500">Mycology biotechnology components</p>
+          </div>
+          <Button size="sm" variant="ghost" className="p-1 h-auto ml-auto hover:bg-green-50">
+            <Plus className="w-4 h-4 text-green-600" />
           </Button>
         </div>
 
@@ -109,7 +115,7 @@ export function EquipmentLibrary({ onEquipmentDrag }: EquipmentLibraryProps) {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
+            className="pl-10 bg-white/60 backdrop-blur-sm border-gray-200 focus:bg-white focus:border-green-300 transition-all"
             placeholder="Search equipment..."
             data-testid="input-search-equipment"
           />
@@ -131,18 +137,20 @@ export function EquipmentLibrary({ onEquipmentDrag }: EquipmentLibraryProps) {
                   <CollapsibleTrigger asChild>
                     <Button
                       variant="ghost"
-                      className="w-full justify-between text-left p-2 h-auto hover:bg-gray-50"
+                      className="w-full justify-between text-left p-3 h-auto hover:bg-gradient-to-r hover:from-green-50 hover:to-blue-50 rounded-lg transition-all border border-transparent hover:border-green-200/50"
                       data-testid={`button-toggle-${categoryName}`}
                     >
-                      <span className="flex items-center space-x-2 text-sm font-medium text-gray-700">
-                        <IconComponent className="w-4 h-4" />
-                        <span className="capitalize">{categoryName}</span>
-                        <Badge variant="secondary" className="text-xs">
+                      <span className="flex items-center space-x-3 text-sm font-medium text-gray-800">
+                        <div className="w-6 h-6 bg-gradient-to-r from-green-400 to-blue-500 rounded-md flex items-center justify-center">
+                          <IconComponent className="w-3 h-3 text-white" />
+                        </div>
+                        <span className="capitalize font-semibold">{categoryName}</span>
+                        <Badge variant="outline" className="text-xs bg-white/80 border-green-200">
                           {types.length}
                         </Badge>
                       </span>
                       {isExpanded ? (
-                        <ChevronDown className="w-4 h-4 text-gray-400" />
+                        <ChevronDown className="w-4 h-4 text-green-600" />
                       ) : (
                         <ChevronRight className="w-4 h-4 text-gray-400" />
                       )}

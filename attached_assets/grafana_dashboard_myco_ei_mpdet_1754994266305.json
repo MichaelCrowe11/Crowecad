@@ -1,0 +1,164 @@
+{
+  "dashboard": {
+    "id": null,
+    "uid": "mpdet-mycoei",
+    "title": "Myco‑EI • MPDET Telemetry & Alerts",
+    "timezone": "browser",
+    "schemaVersion": 39,
+    "version": 1,
+    "refresh": "10s",
+    "tags": ["Myco-EI", "MPDET", "Crowe Logic"],
+    "templating": {
+      "list": [
+        {
+          "name": "DS_MYCOEI",
+          "type": "datasource",
+          "query": "influxdb-flux",
+          "current": {"text": "Select Myco‑EI DS", "value": "influxdb-flux"}
+        },
+        {
+          "name": "room",
+          "type": "query",
+          "datasource": "${DS_MYCOEI}",
+          "query": "import \"influxdata/influxdb/schema\"\nschema.tagValues(bucket: \"mycoei\", tag: \"room\")",
+          "refresh": 2,
+          "current": {"text": "Fruiting_Tent_A", "value": "Fruiting_Tent_A"}
+        }
+      ]
+    },
+    "annotations": {
+      "list": [
+        {
+          "name": "Alert Webhook Events",
+          "type": "tags",
+          "datasource": "${DS_MYCOEI}",
+          "enable": true,
+          "iconColor": "rgba(255, 96, 96, 1)",
+          "query": "from(bucket: \"mycoei\")\n  |> range(start: -24h)\n  |> filter(fn: (r) => r._measurement == \"alerts\")\n  |> filter(fn: (r) => r.room == v.room)\n  |> keep(columns: [\"_time\", \"_value\", \"severity\", \"metric\"])",
+          "titleFormat": "{{severity}}: {{metric}}",
+          "textFormat": "{{_value}}"
+        }
+      ]
+    },
+    "panels": [
+      {
+        "type": "timeseries",
+        "title": "CO₂ (ppm)",
+        "gridPos": {"x": 0, "y": 0, "w": 12, "h": 8},
+        "datasource": "${DS_MYCOEI}",
+        "fieldConfig": {
+          "defaults": {
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 1000},
+                {"color": "red", "value": 1200}
+              ]
+            }
+          }
+        },
+        "targets": [
+          {
+            "query": "from(bucket: \"mycoei\")\n  |> range(start: -6h)\n  |> filter(fn: (r) => r._measurement == \"env\")\n  |> filter(fn: (r) => r.room == v.room)\n  |> filter(fn: (r) => r._field == \"co2_ppm\")"
+          }
+        ]
+      },
+      {
+        "type": "timeseries",
+        "title": "Relative Humidity (%)",
+        "gridPos": {"x": 12, "y": 0, "w": 12, "h": 8},
+        "datasource": "${DS_MYCOEI}",
+        "fieldConfig": {
+          "defaults": {
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "red", "value": null},
+                {"color": "yellow", "value": 90},
+                {"color": "green", "value": 92},
+                {"color": "yellow", "value": 95}
+              ]
+            }
+          }
+        },
+        "targets": [
+          {
+            "query": "from(bucket: \"mycoei\")\n  |> range(start: -6h)\n  |> filter(fn: (r) => r._measurement == \"env\")\n  |> filter(fn: (r) => r.room == v.room)\n  |> filter(fn: (r) => r._field == \"rh_pct\")"
+          }
+        ]
+      },
+      {
+        "type": "timeseries",
+        "title": "Temperature (°C)",
+        "gridPos": {"x": 0, "y": 8, "w": 12, "h": 8},
+        "datasource": "${DS_MYCOEI}",
+        "fieldConfig": {
+          "defaults": {
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "red", "value": null},
+                {"color": "yellow", "value": 14},
+                {"color": "green", "value": 16},
+                {"color": "green", "value": 21},
+                {"color": "yellow", "value": 23}
+              ]
+            }
+          }
+        },
+        "targets": [
+          {
+            "query": "from(bucket: \"mycoei\")\n  |> range(start: -6h)\n  |> filter(fn: (r) => r._measurement == \"env\")\n  |> filter(fn: (r) => r.room == v.room)\n  |> filter(fn: (r) => r._field == \"temp_c\")"
+          }
+        ]
+      },
+      {
+        "type": "timeseries",
+        "title": "VOC Index",
+        "gridPos": {"x": 12, "y": 8, "w": 12, "h": 8},
+        "datasource": "${DS_MYCOEI}",
+        "fieldConfig": {
+          "defaults": {
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 1.2},
+                {"color": "red", "value": 1.5}
+              ]
+            }
+          }
+        },
+        "targets": [
+          {
+            "query": "from(bucket: \"mycoei\")\n  |> range(start: -6h)\n  |> filter(fn: (r) => r._measurement == \"env\")\n  |> filter(fn: (r) => r.room == v.room)\n  |> filter(fn: (r) => r._field == \"voc_index\")"
+          }
+        ]
+      },
+      {
+        "type": "stat",
+        "title": "Alert State (last 10m)",
+        "gridPos": {"x": 0, "y": 16, "w": 6, "h": 5},
+        "datasource": "${DS_MYCOEI}",
+        "options": {"reduceOptions": {"calcs": ["lastNotNull"], "fields": "_value", "values": false}},
+        "fieldConfig": {"defaults": {"mappings": [{"type": "value", "options": {"Critical": {"color": "red", "index": 2}, "Warning": {"color": "yellow", "index": 1}, "OK": {"color": "green", "index": 0}}}] }},
+        "targets": [
+          {"query": "from(bucket: \"mycoei\")\n  |> range(start: -10m)\n  |> filter(fn: (r) => r._measurement == \"alert_state\")\n  |> filter(fn: (r) => r.room == v.room)\n  |> last()"}
+        ]
+      },
+      {
+        "type": "table",
+        "title": "Latest Sensor Snapshot",
+        "gridPos": {"x": 6, "y": 16, "w": 18, "h": 5},
+        "datasource": "${DS_MYCOEI}",
+        "targets": [
+          {
+            "query": "import \"influxdata/influxdb/schema\"\nfrom(bucket: \"mycoei\")\n  |> range(start: -15m)\n  |> filter(fn: (r) => r._measurement == \"env\")\n  |> filter(fn: (r) => r.room == v.room)\n  |> last()\n  |> pivot(rowKey:[\"_time\"], columnKey:[\"_field\"], valueColumn:\"_value\")\n  |> keep(columns: [\"_time\", \"co2_ppm\", \"rh_pct\", \"temp_c\", \"voc_index\"])"
+          }
+        ]
+      }
+    ]
+  },
+  "overwrite": true
+}

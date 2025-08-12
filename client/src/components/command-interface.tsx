@@ -108,10 +108,16 @@ export function CommandInterface({ projectId, onCommandExecuted }: CommandInterf
   const parsedCommand = parseCommand(command);
 
   return (
-    <div className="p-4 border-b border-gray-200">
-      <label className="block text-sm font-medium text-gray-700 mb-2">
-        Command Interface
-      </label>
+    <div className="sidebar-section command-interface p-4 bg-gradient-to-br from-blue-50/50 to-purple-50/30 border-b border-gray-200/50">
+      <div className="flex items-center space-x-3 mb-3">
+        <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+          <span className="text-white text-sm font-bold">⌘</span>
+        </div>
+        <div>
+          <h3 className="font-semibold text-gray-900 text-sm">Command Interface</h3>
+          <p className="text-xs text-gray-500">Crowe Logic natural language control</p>
+        </div>
+      </div>
       
       <div className="relative">
         <div className="relative">
@@ -123,7 +129,7 @@ export function CommandInterface({ projectId, onCommandExecuted }: CommandInterf
             onKeyDown={handleKeyDown}
             onFocus={() => setShowSuggestions(command.length > 0)}
             onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-            className="w-full px-3 py-2 bg-gray-900 text-green-400 font-mono text-sm"
+            className="w-full px-4 py-2 bg-gray-900 text-green-400 font-mono text-sm rounded-lg border-2 border-gray-700 focus:border-green-500 transition-colors"
             placeholder="$ create bioreactor --type=stirred --capacity=500L"
             data-testid="command-input"
           />
@@ -133,7 +139,7 @@ export function CommandInterface({ projectId, onCommandExecuted }: CommandInterf
             variant="ghost"
             onClick={handleExecuteCommand}
             disabled={executeCommand.isPending || !command.trim()}
-            className="absolute right-2 top-1/2 -translate-y-1/2 text-green-400 hover:text-green-300 p-1 h-auto"
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-green-400 hover:text-green-300 p-1 h-auto hover:bg-green-400/10 rounded"
             data-testid="button-execute-command"
           >
             <Play className="w-3 h-3" />
