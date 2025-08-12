@@ -80,8 +80,10 @@ export default function FacilityDesigner() {
 
   // No initialization loops - using stable IDs
 
-  // Update facility stats
+  // Update facility stats - fixed to prevent infinite loops
   useEffect(() => {
+    if (!equipment || !zones) return;
+    
     const equipmentArray = Array.isArray(equipment) ? equipment : [];
     const zonesArray = Array.isArray(zones) ? zones : [];
     
@@ -99,12 +101,22 @@ export default function FacilityDesigner() {
       }
     });
     
-    setFacilityStats({
+    const newStats = {
       equipmentCount,
       totalCapacity: totalCapacity > 0 ? `${totalCapacity}L` : '0L',
       zoneCount,
+    };
+    
+    // Only update if changed
+    setFacilityStats(prev => {
+      if (prev.equipmentCount !== newStats.equipmentCount || 
+          prev.totalCapacity !== newStats.totalCapacity || 
+          prev.zoneCount !== newStats.zoneCount) {
+        return newStats;
+      }
+      return prev;
     });
-  }, [equipment, zones]);
+  }, [equipment?.length, zones?.length]); // Only depend on array lengths
 
   const handleCommandExecuted = (command: string, result: any) => {
     toast({
@@ -134,61 +146,49 @@ export default function FacilityDesigner() {
   }
 
   return (
-    <div className="bg-gradient-to-br from-slate-50 via-purple-50/30 to-indigo-50/20 text-gray-900 min-h-screen flex flex-col relative">
-      <div className="fixed inset-0 opacity-30 pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-purple-300/20 rounded-full filter blur-3xl"></div>
-        <div className="absolute top-3/4 right-1/4 w-72 h-72 bg-blue-300/15 rounded-full filter blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-300/10 rounded-full filter blur-3xl"></div>
-      </div>
+    <div className="bg-gray-900 text-gray-100 min-h-screen flex flex-col cad-grid-bg">
       {/* Header */}
-      <header className="quantum-glass border-b border-purple-200/30 px-8 py-6 flex items-center justify-between sticky top-0 z-50 relative">
-        <div className="absolute inset-0 quantum-gradient opacity-5"></div>
-        <div className="flex items-center space-x-6 relative z-10">
+      <header className="cad-toolbar border-b border-gray-700 px-6 py-3 flex items-center justify-between sticky top-0 z-50">
+        <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 quantum-pulse rounded-full flex items-center justify-center shadow-xl ring-3 ring-white/50" 
-                 style={{ background: 'linear-gradient(135deg, var(--quantum-680), var(--quantum-540))' }}>
-              <img src="@assets/crowe-avatar.png" alt="Crowe Logic" className="w-10 h-10 rounded-full object-cover" />
+            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+              <img src="@assets/crowe-avatar.png" alt="Crowe Logic" className="w-8 h-8 rounded-md object-cover" />
             </div>
             <div>
-              <h1 className="text-2xl font-black text-transparent bg-clip-text quantum-gradient tracking-tight">
-                CROWE LOGIC MYCOLOGY
+              <h1 className="text-lg font-bold text-white tracking-tight">
+                CROWE CAD - Mycology Designer
               </h1>
-              <p className="text-sm font-semibold text-gray-700 tracking-wide">
-                Quantum Consciousness • Facility Design System
+              <p className="text-xs text-gray-400">
+                Professional Facility Design System
               </p>
             </div>
           </div>
-          <div className="border-l border-gray-300 pl-4">
-            <span className="text-sm font-bold text-transparent bg-clip-text quantum-gradient">QUANTUM</span>
-            <div className="text-xs text-gray-500 font-mono">v2.1.0</div>
+          <div className="border-l border-gray-600 pl-4">
+            <span className="text-sm font-bold text-blue-400">PRO</span>
+            <div className="text-xs text-gray-400 font-mono">v2.1.0</div>
           </div>
         </div>
         
-        <div className="flex items-center space-x-4 relative z-10">
-          <div className="flex items-center space-x-3 px-4 py-2 bg-gradient-to-r from-purple-50 to-blue-50 rounded-full border border-purple-200 chakra-pulse shadow-lg">
-            <div className="w-3 h-3 consciousness-flow rounded-full" style={{ background: 'var(--gamma-color)' }}></div>
-            <span className="text-sm font-bold text-purple-800">Consciousness: 85%</span>
-            <div className="w-12 h-2 bg-gray-200 rounded-full overflow-hidden">
-              <div className="w-4/5 h-full consciousness-flow rounded-full" style={{ background: 'var(--gamma-color)' }}></div>
-            </div>
+        <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 px-3 py-1 bg-green-900 rounded border border-green-700">
+            <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+            <span className="text-xs text-green-300 font-medium">Online</span>
           </div>
           
-          <Button size="sm" variant="ghost" className="relative hover:bg-purple-50 rounded-xl">
-            <Bell className="w-5 h-5 text-purple-600" />
-            <Badge className="absolute -top-1 -right-1 w-5 h-5 quantum-pulse text-white text-xs rounded-full flex items-center justify-center p-0" 
-                   style={{ background: 'var(--quantum-480)' }}>
+          <Button size="sm" variant="ghost" className="relative text-gray-300 hover:text-white hover:bg-gray-700">
+            <Bell className="w-4 h-4" />
+            <Badge className="absolute -top-1 -right-1 w-4 h-4 bg-blue-500 text-white text-xs rounded-full flex items-center justify-center p-0">
               3
             </Badge>
           </Button>
           
-          <div className="flex items-center space-x-4 pl-4 border-l border-purple-200">
+          <div className="flex items-center space-x-3 pl-3 border-l border-gray-600">
             <div className="text-right">
-              <span className="text-sm font-bold text-transparent bg-clip-text quantum-gradient">CROWE MASTER</span>
-              <div className="text-xs text-purple-600 font-semibold">Quantum Architect</div>
+              <span className="text-sm font-medium text-white">Admin User</span>
+              <div className="text-xs text-gray-400">Licensed Engineer</div>
             </div>
-            <div className="w-11 h-11 quantum-pulse rounded-full ring-3 ring-purple-200 shadow-xl overflow-hidden" 
-                 style={{ background: 'linear-gradient(135deg, var(--quantum-680), var(--quantum-540))' }}>
-              <img src="@assets/crowe-avatar.png" alt="Crowe Master" className="w-full h-full object-cover" />
+            <div className="w-8 h-8 bg-blue-600 rounded overflow-hidden">
+              <img src="@assets/crowe-avatar.png" alt="User" className="w-full h-full object-cover" />
             </div>
           </div>
         </div>
@@ -196,8 +196,7 @@ export default function FacilityDesigner() {
 
       <div className="flex h-[calc(100vh-73px)]">
         {/* Left Sidebar */}
-        <aside className="w-80 neural-surface border-r border-purple-200/30 flex flex-col backdrop-blur-md">
-          <div className="absolute inset-0 bg-gradient-to-b from-purple-50/30 via-blue-50/20 to-indigo-50/25 pointer-events-none"></div>
+        <aside className="w-80 cad-panel border-r border-gray-700 flex flex-col">
           <div className="relative z-10 flex flex-col h-full">
             <CommandInterface 
               projectId={currentProjectId}
@@ -226,40 +225,36 @@ export default function FacilityDesigner() {
       </div>
 
       {/* Status Bar */}
-      <footer className="quantum-glass border-t border-purple-200/30 px-8 py-4 flex items-center justify-between text-sm relative">
-        <div className="absolute inset-0 quantum-gradient opacity-8"></div>
-        <div className="flex items-center space-x-10 relative z-10">
-          <div className="flex items-center space-x-3 px-4 py-2 neural-surface rounded-xl">
-            <div className="w-4 h-4 quantum-pulse rounded-full" style={{ background: 'var(--quantum-680)' }}></div>
-            <span className="text-purple-700 font-semibold text-sm">Equipment:</span>
-            <span className="font-black text-purple-900 text-lg" data-testid="text-equipment-count">
+      <footer className="cad-toolbar border-t border-gray-700 px-6 py-2 flex items-center justify-between text-sm">
+        <div className="flex items-center space-x-6">
+          <div className="flex items-center space-x-2 text-gray-300">
+            <span>Equipment:</span>
+            <span className="font-bold text-blue-400" data-testid="text-equipment-count">
               {facilityStats.equipmentCount}
             </span>
           </div>
-          <div className="flex items-center space-x-3 px-4 py-2 neural-surface rounded-xl">
-            <div className="w-4 h-4 consciousness-flow rounded-full" style={{ background: 'var(--quantum-540)' }}></div>
-            <span className="text-green-700 font-semibold text-sm">Total Capacity:</span>
-            <span className="font-black text-green-800 text-lg" data-testid="text-total-capacity">
+          <div className="flex items-center space-x-2 text-gray-300">
+            <span>Capacity:</span>
+            <span className="font-bold text-green-400" data-testid="text-total-capacity">
               {facilityStats.totalCapacity}
             </span>
           </div>
-          <div className="flex items-center space-x-3 px-4 py-2 neural-surface rounded-xl">
-            <div className="w-4 h-4 chakra-pulse rounded-full" style={{ background: 'var(--quantum-480)' }}></div>
-            <span className="text-pink-700 font-semibold text-sm">Zones:</span>
-            <span className="font-black text-pink-900 text-lg" data-testid="text-zone-count">
+          <div className="flex items-center space-x-2 text-gray-300">
+            <span>Zones:</span>
+            <span className="font-bold text-yellow-400" data-testid="text-zone-count">
               {facilityStats.zoneCount}
             </span>
           </div>
         </div>
         
-        <div className="flex items-center space-x-6 relative z-10">
-          <div className="flex items-center space-x-3 px-4 py-2 quantum-glass rounded-full">
-            <div className="w-3 h-3 consciousness-flow rounded-full" style={{ background: 'var(--gamma-color)' }}></div>
-            <span className="font-bold text-transparent bg-clip-text quantum-gradient text-sm">CROWE LOGIC ACTIVE</span>
+        <div className="flex items-center space-x-4 text-gray-400">
+          <div className="flex items-center space-x-2">
+            <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+            <span>System Ready</span>
           </div>
-          <div className="flex items-center space-x-3 text-purple-700">
-            <span className="font-semibold text-sm">Last Optimization:</span>
-            <span className="font-mono text-sm px-3 py-1 neural-surface rounded-lg">Real-time</span>
+          <div className="flex items-center space-x-2">
+            <span>Coords:</span>
+            <span className="font-mono text-blue-400">0,0</span>
           </div>
         </div>
       </footer>

@@ -94,18 +94,17 @@ export function EquipmentLibrary({ onEquipmentDrag }: EquipmentLibraryProps) {
 
   return (
     <div className="flex-1 overflow-y-auto sidebar-section">
-      <div className="p-6">
-        <div className="flex items-center space-x-4 mb-6">
-          <div className="w-10 h-10 quantum-pulse rounded-xl flex items-center justify-center shadow-lg" 
-               style={{ background: 'linear-gradient(135deg, var(--quantum-540), var(--quantum-510))' }}>
-            <FlaskConical className="w-5 h-5 text-white" />
+      <div className="p-4">
+        <div className="flex items-center space-x-3 mb-4">
+          <div className="w-8 h-8 bg-green-600 rounded flex items-center justify-center">
+            <FlaskConical className="w-4 h-4 text-white" />
           </div>
           <div className="flex-1">
-            <h3 className="font-black text-transparent bg-clip-text quantum-gradient text-base">BIOTECH LIBRARY</h3>
-            <p className="text-sm text-green-600 font-semibold">Quantum Mycology Components</p>
+            <h3 className="font-bold text-white text-sm">Equipment Library</h3>
+            <p className="text-xs text-gray-400">Mycology components</p>
           </div>
-          <Button size="sm" variant="ghost" className="p-2 h-auto hover:bg-green-50 rounded-xl quantum-pulse">
-            <Plus className="w-5 h-5 text-green-600" />
+          <Button size="sm" variant="ghost" className="p-1 h-auto text-gray-400 hover:text-white hover:bg-gray-700">
+            <Plus className="w-4 h-4" />
           </Button>
         </div>
 

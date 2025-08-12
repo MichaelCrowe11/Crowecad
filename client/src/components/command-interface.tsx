@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Play, HelpCircle } from "lucide-react";
+import { Play, HelpCircle, Terminal } from "lucide-react";
 import { parseCommand, getCommandSuggestions, type CommandSuggestion } from "@/lib/command-parser";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -108,15 +108,14 @@ export function CommandInterface({ projectId, onCommandExecuted }: CommandInterf
   const parsedCommand = parseCommand(command);
 
   return (
-    <div className="sidebar-section command-interface p-6 quantum-glass border-b border-purple-200/50">
-      <div className="flex items-center space-x-4 mb-4">
-        <div className="w-10 h-10 quantum-pulse rounded-xl flex items-center justify-center shadow-lg" 
-             style={{ background: 'linear-gradient(135deg, var(--quantum-680), var(--quantum-620))' }}>
-          <span className="text-white text-lg font-bold">⌘</span>
+    <div className="sidebar-section command-interface p-4 border-b border-gray-600">
+      <div className="flex items-center space-x-3 mb-3">
+        <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center">
+          <Play className="w-4 h-4 text-white" />
         </div>
         <div>
-          <h3 className="font-black text-transparent bg-clip-text quantum-gradient text-base">NEURAL COMMAND</h3>
-          <p className="text-sm text-purple-600 font-semibold">Quantum Consciousness Interface</p>
+          <h3 className="font-bold text-white text-sm">Command Console</h3>
+          <p className="text-xs text-gray-400">Natural language facility control</p>
         </div>
       </div>
       

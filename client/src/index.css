@@ -201,35 +201,34 @@
     background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
   }
   
-  .glass-morphism {
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  /* CAD-Style Technical Interface */
+  .cad-panel {
+    background: #1e1e1e;
+    border: 1px solid #404040;
+    color: #e0e0e0;
   }
 
-  .quantum-glass {
-    background: linear-gradient(135deg, 
-      rgba(157, 0, 255, 0.1) 0%, 
-      rgba(0, 255, 255, 0.08) 50%, 
-      rgba(255, 215, 0, 0.06) 100%);
-    backdrop-filter: blur(30px) saturate(200%);
-    border: 2px solid rgba(157, 0, 255, 0.2);
-    box-shadow: 
-      0 8px 32px rgba(157, 0, 255, 0.2),
-      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  .cad-toolbar {
+    background: #2d2d2d;
+    border: 1px solid #505050;
+    color: #ffffff;
   }
 
-  .neural-surface {
-    background: linear-gradient(135deg, 
-      rgba(75, 0, 130, 0.05) 0%, 
-      rgba(138, 43, 226, 0.08) 50%, 
-      rgba(72, 61, 139, 0.06) 100%);
-    backdrop-filter: blur(25px) saturate(150%);
-    border: 1px solid rgba(138, 43, 226, 0.15);
-    box-shadow: 
-      0 4px 20px rgba(138, 43, 226, 0.1),
-      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  .cad-surface {
+    background: #0d1117;
+    border: 1px solid #30363d;
+    color: #f0f6fc;
+  }
+
+  .technical-accent {
+    color: #58a6ff;
+  }
+
+  .cad-grid-bg {
+    background-image: 
+      linear-gradient(rgba(88, 166, 255, 0.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(88, 166, 255, 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
   }
   
   .status-indicator {
