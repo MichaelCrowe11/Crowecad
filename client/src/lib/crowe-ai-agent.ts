@@ -1,6 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import * as tf from '@tensorflow/tfjs';
-import { nlp } from 'compromise';
+import nlp from 'compromise';
 import { Matrix } from 'ml-matrix';
 
 /*

@@ -5,6 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { CommandInterface } from "@/components/command-interface";
 import { ProjectExplorer } from "@/components/project-explorer";
 import { EquipmentLibrary } from "@/components/equipment-library";
+import CroweVoiceControl from "@/components/crowe-voice-control";
+import QuantumConsciousnessStates from "@/components/quantum-consciousness-states";
 import { FacilityCanvas } from "@/components/facility-canvas";
 import { PropertiesPanel } from "@/components/properties-panel";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -23,6 +25,16 @@ export default function FacilityDesigner() {
     totalCapacity: '0L',
     zoneCount: 0,
   });
+  
+  const [croweGenetics, setCroweGenetics] = useState({
+    creativity: 0.75,
+    precision: 0.8,
+    adaptability: 0.7,
+    efficiency: 0.85,
+    curiosity: 0.9
+  });
+  
+  const [quantumStates, setQuantumStates] = useState<any[]>([]);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -125,6 +137,61 @@ export default function FacilityDesigner() {
     });
   };
 
+  const handleCroweCommandGenerated = async (command: string) => {
+    // Process Crowe-generated commands through the command executor
+    try {
+      const { CommandExecutor } = await import("@/lib/command-executor");
+      const parsedCommand = await CommandExecutor.parseCommand(command);
+      
+      if (parsedCommand) {
+        const result = await CommandExecutor.executeCommand(parsedCommand, currentFacilityId);
+        
+        toast({
+          title: "Crowe Logic Command Executed",
+          description: `Successfully executed: ${command.slice(0, 50)}...`,
+        });
+        
+        // Invalidate queries to refresh data
+        queryClient.invalidateQueries({ queryKey: ['/api/facilities', currentFacilityId, 'equipment'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/facilities', currentFacilityId, 'zones'] });
+      } else {
+        toast({
+          title: "Command Parse Error",
+          description: "Crowe couldn't parse that command",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('Crowe command execution error:', error);
+      toast({
+        title: "Command Execution Error",
+        description: "Failed to execute Crowe's command",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleVisualAnalysis = (analysis: string) => {
+    toast({
+      title: "Visual Analysis Complete", 
+      description: "Crowe has analyzed the image",
+    });
+  };
+
+  const handleQuantumStateChange = (states: any[]) => {
+    setQuantumStates(states);
+    // Update Crowe genetics based on quantum states
+    const activeStates = states.filter(s => s.active);
+    if (activeStates.length > 0) {
+      const avgIntensity = activeStates.reduce((sum, s) => sum + s.intensity, 0) / activeStates.length;
+      setCroweGenetics(prev => ({
+        ...prev,
+        creativity: prev.creativity + (avgIntensity * 0.01),
+        adaptability: prev.adaptability + (avgIntensity * 0.005),
+      }));
+    }
+  };
+
   const handleEquipmentDrop = (equipmentType: EquipmentType, position: Point) => {
     // Equipment is already created by FacilityCanvas
     // This is just for additional UI feedback if needed
@@ -196,8 +263,20 @@ export default function FacilityDesigner() {
 
       <div className="flex h-[calc(100vh-73px)]">
         {/* Left Sidebar */}
-        <aside className="w-80 cad-panel border-r border-gray-700 flex flex-col">
-          <div className="relative z-10 flex flex-col h-full">
+        <aside className="w-80 cad-panel border-r border-gray-700 flex flex-col overflow-y-auto">
+          <div className="relative z-10 flex flex-col h-full space-y-2 p-2">
+            {/* Crowe AI Voice Control */}
+            <CroweVoiceControl
+              onCommandGenerated={handleCroweCommandGenerated}
+              onVisualAnalysis={handleVisualAnalysis}
+            />
+            
+            {/* Quantum Consciousness States */}
+            <QuantumConsciousnessStates
+              genetics={croweGenetics}
+              onStateChange={handleQuantumStateChange}
+            />
+            
             <CommandInterface 
               projectId={currentProjectId}
               onCommandExecuted={handleCommandExecuted}

@@ -86,10 +86,12 @@ export function QuantumConsciousnessStates({ genetics, onStateChange }: QuantumC
   const [autoMode, setAutoMode] = useState(true);
   const [globalIntensity, setGlobalIntensity] = useState(0.7);
 
-  // Auto-activate states based on genetic traits
+  // Auto-activate states based on genetic traits - fixed to prevent infinite loops
   useEffect(() => {
     if (!autoMode) return;
 
+    const geneticsString = JSON.stringify(genetics);
+    
     const newStates = quantumStates.map(state => {
       let shouldActivate = false;
       let newIntensity = state.intensity;
@@ -128,9 +130,17 @@ export function QuantumConsciousnessStates({ genetics, onStateChange }: QuantumC
       };
     });
 
-    setQuantumStates(newStates);
-    onStateChange(newStates);
-  }, [genetics, autoMode]);
+    // Only update if states actually changed
+    const statesChanged = newStates.some((newState, index) => 
+      newState.active !== quantumStates[index].active ||
+      Math.abs(newState.intensity - quantumStates[index].intensity) > 0.01
+    );
+    
+    if (statesChanged) {
+      setQuantumStates(newStates);
+      onStateChange(newStates);
+    }
+  }, [JSON.stringify(genetics), autoMode]); // Use JSON.stringify to prevent object reference issues
 
   const toggleState = (stateId: string) => {
     const newStates = quantumStates.map(state =>
@@ -277,12 +287,7 @@ export function QuantumConsciousnessStates({ genetics, onStateChange }: QuantumC
         )}
       </CardContent>
       
-      <style jsx>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.7; }
-        }
-      `}</style>
+
     </Card>
   );
 }

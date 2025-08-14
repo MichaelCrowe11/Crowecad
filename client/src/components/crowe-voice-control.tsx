@@ -35,17 +35,26 @@ export function CroweVoiceControl({ onCommandGenerated, onVisualAnalysis }: Crow
 
   useEffect(() => {
     // Initialize Crowe AI Agent
-    try {
-      croweAgent.current = new CroweAIAgent();
-      updateStats();
-    } catch (error) {
-      console.error('Failed to initialize Crowe Agent:', error);
-      toast({
-        title: "Initialization Error",
-        description: "Could not initialize Crowe AI Agent. Please check API configuration.",
-        variant: "destructive"
-      });
-    }
+    const initializeAgent = async () => {
+      try {
+        // Check if API key is available
+        if (!process.env.ANTHROPIC_API_KEY) {
+          console.warn('ANTHROPIC_API_KEY not found, Crowe AI will have limited functionality');
+        }
+        
+        croweAgent.current = new CroweAIAgent();
+        updateStats();
+      } catch (error) {
+        console.error('Failed to initialize Crowe Agent:', error);
+        toast({
+          title: "Initialization Warning",
+          description: "Crowe AI Agent initialized with limited functionality. Voice and vision features may not work.",
+          variant: "destructive"
+        });
+      }
+    };
+    
+    initializeAgent();
   }, []);
 
   const updateStats = () => {
