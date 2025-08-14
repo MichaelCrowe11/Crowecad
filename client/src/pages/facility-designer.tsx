@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { Bell, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +13,7 @@ import { PropertiesPanel } from "@/components/properties-panel";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { usePerformance } from "@/hooks/use-performance";
 import type { Project, Facility, EquipmentInstance, EquipmentType } from "@shared/schema";
 import type { Point } from "@/lib/svg-utils";
 
@@ -39,6 +40,8 @@ export default function FacilityDesigner() {
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { debounce, throttle, enableGPUAcceleration } = usePerformance();
+  const canvasRef = useRef<HTMLDivElement>(null);
 
   // Fetch projects - stable query
   const { data: projects = [] } = useQuery<Project[]>({

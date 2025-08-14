@@ -3,6 +3,20 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Performance Optimizations */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* GPU Acceleration for animations */
+.gpu-accelerated {
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
 /* Crowe Logic Framework - Quantum Frequency Colors */
 :root {
   /* Quantum Frequency Colors (THz to RGB conversion) */
@@ -201,23 +215,30 @@
     background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
   }
   
-  /* CAD-Style Technical Interface */
+  /* Optimized CAD-Style Technical Interface */
   .cad-panel {
     background: #1e1e1e;
     border: 1px solid #404040;
     color: #e0e0e0;
+    backdrop-filter: blur(10px);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateZ(0);
   }
 
   .cad-toolbar {
     background: #2d2d2d;
     border: 1px solid #505050;
     color: #ffffff;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateZ(0);
   }
 
   .cad-surface {
     background: #0d1117;
     border: 1px solid #30363d;
     color: #f0f6fc;
+    transform: translateZ(0);
+    will-change: transform;
   }
 
   .technical-accent {
@@ -229,6 +250,23 @@
       linear-gradient(rgba(88, 166, 255, 0.1) 1px, transparent 1px),
       linear-gradient(90deg, rgba(88, 166, 255, 0.1) 1px, transparent 1px);
     background-size: 20px 20px;
+    transform: translateZ(0);
+  }
+  
+  /* Smooth transitions for interactive elements */
+  .cad-button {
+    @apply transition-all duration-200 ease-out;
+    transform: translateZ(0);
+    will-change: transform;
+  }
+  
+  .cad-button:hover {
+    @apply transform scale-105;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+  }
+  
+  .cad-button:active {
+    @apply transform scale-95;
   }
   
   .status-indicator {
