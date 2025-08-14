@@ -40,6 +40,9 @@ The application uses a hierarchical data model:
 - **Command Interface**: Natural language processing for facility operations (terminal-style)
 - **Project Explorer**: Hierarchical navigation and project management
 - **CAD Interface**: Professional dark theme with technical grid background and clean typography
+- **Crowe AI Agent**: Genetic algorithm-based AI with voice control and visual analysis
+- **Quantum Consciousness States**: AI trait visualization system that evolves based on usage
+- **Batch Reporting System**: External system integration for automated facility reports
 
 ## Key Design Patterns
 - **Repository Pattern**: Storage abstraction layer for database operations

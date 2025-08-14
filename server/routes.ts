@@ -274,6 +274,155 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Batch Reporting API Routes
+  app.post("/api/reports/generate", async (req, res) => {
+    try {
+      const { templateId, facilityId, parameters } = req.body;
+      
+      // Mock report generation
+      const reportData = {
+        id: `report_${Date.now()}`,
+        facilityId,
+        templateId,
+        generatedAt: new Date().toISOString(),
+        status: 'generated',
+        downloadUrl: `/api/reports/download/${facilityId}_${Date.now()}`,
+        parameters: parameters || {}
+      };
+
+      res.json(reportData);
+    } catch (error) {
+      res.status(400).json({ error: 'Failed to generate report' });
+    }
+  });
+
+  app.get("/api/reports/download/:reportId", async (req, res) => {
+    try {
+      const { reportId } = req.params;
+      const format = req.query.format as string || 'pdf';
+      
+      // Generate mock report content
+      let reportContent = '';
+      let contentType = 'text/plain';
+      
+      switch (format.toLowerCase()) {
+        case 'pdf':
+          reportContent = `Mock PDF Report Content for ${reportId}`;
+          contentType = 'application/pdf';
+          break;
+        case 'csv':
+          reportContent = `Report ID,Generated At,Status\n${reportId},${new Date().toISOString()},Complete`;
+          contentType = 'text/csv';
+          break;
+        case 'json':
+          reportContent = JSON.stringify({
+            reportId,
+            generatedAt: new Date().toISOString(),
+            status: 'complete',
+            data: { message: 'Mock report data' }
+          }, null, 2);
+          contentType = 'application/json';
+          break;
+        default:
+          reportContent = `Mock report content for ${reportId}`;
+      }
+      
+      const filename = `${reportId}.${format}`;
+      
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.setHeader('Content-Type', contentType);
+      res.send(reportContent);
+    } catch (error) {
+      res.status(404).json({ error: 'Report not found' });
+    }
+  });
+
+  app.post("/api/external-systems", async (req, res) => {
+    try {
+      const system = req.body;
+      
+      // Mock external system configuration
+      res.json({ 
+        success: true, 
+        message: 'External system configured successfully',
+        systemId: system.id 
+      });
+    } catch (error) {
+      res.status(400).json({ error: 'Failed to configure external system' });
+    }
+  });
+
+  app.post("/api/external-systems/:systemId/test", async (req, res) => {
+    try {
+      const { systemId } = req.params;
+      
+      // Mock connection test
+      const testResult = {
+        systemId,
+        connected: true,
+        latency: Math.floor(Math.random() * 200) + 50,
+        lastTested: new Date().toISOString(),
+        status: 'healthy'
+      };
+
+      res.json(testResult);
+    } catch (error) {
+      res.status(500).json({ error: 'Connection test failed' });
+    }
+  });
+
+  app.post("/api/reports/:reportId/send/:systemId", async (req, res) => {
+    try {
+      const { reportId, systemId } = req.params;
+      
+      // Mock report sending
+      const sendResult = {
+        reportId,
+        systemId,
+        sent: true,
+        sentAt: new Date().toISOString(),
+        externalId: `ext_${Date.now()}`,
+        status: 'delivered'
+      };
+
+      res.json(sendResult);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to send report' });
+    }
+  });
+
+  app.get("/api/reports/analytics", async (req, res) => {
+    try {
+      const { facilityId, timeframe = '30d' } = req.query;
+      
+      // Mock analytics data
+      const analytics = {
+        facilityId,
+        timeframe,
+        generatedAt: new Date().toISOString(),
+        metrics: {
+          totalReports: Math.floor(Math.random() * 100) + 50,
+          successRate: Math.floor(Math.random() * 10) + 90,
+          averageGenerationTime: Math.floor(Math.random() * 30) + 15,
+          popularTemplates: [
+            { name: 'Facility Overview', count: Math.floor(Math.random() * 20) + 10 },
+            { name: 'Equipment Performance', count: Math.floor(Math.random() * 15) + 8 },
+            { name: 'Production Metrics', count: Math.floor(Math.random() * 12) + 5 }
+          ],
+          externalSystemUsage: [
+            { systemName: 'ERP System', reports: Math.floor(Math.random() * 25) + 10 },
+            { systemName: 'LIMS', reports: Math.floor(Math.random() * 15) + 5 },
+            { systemName: 'Quality Management', reports: Math.floor(Math.random() * 10) + 3 }
+          ]
+        }
+      };
+
+      res.json(analytics);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to retrieve analytics' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

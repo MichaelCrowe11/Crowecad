@@ -7,6 +7,7 @@ import { ProjectExplorer } from "@/components/project-explorer";
 import { EquipmentLibrary } from "@/components/equipment-library";
 import CroweVoiceControl from "@/components/crowe-voice-control";
 import QuantumConsciousnessStates from "@/components/quantum-consciousness-states";
+import BatchReportingPanel from "@/components/batch-reporting-panel";
 import { FacilityCanvas } from "@/components/facility-canvas";
 import { PropertiesPanel } from "@/components/properties-panel";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -281,6 +282,18 @@ export default function FacilityDesigner() {
               projectId={currentProjectId}
               onCommandExecuted={handleCommandExecuted}
             />
+            
+            {/* Batch Reporting Panel */}
+            <BatchReportingPanel
+              facilityId={currentFacilityId}
+              onReportGenerated={(reportData) => {
+                toast({
+                  title: "Report Generated",
+                  description: `${reportData.reportType} report completed`,
+                });
+              }}
+            />
+            
             <ProjectExplorer projectId={currentProjectId} />
             <EquipmentLibrary />
           </div>
