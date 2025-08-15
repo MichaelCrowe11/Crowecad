@@ -4,6 +4,7 @@
  */
 
 import { useState } from 'react';
+import { DemoVideo } from '@/components/demo-video';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -130,43 +131,7 @@ export function LandingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
-      {/* Navigation */}
-      <nav className="border-b border-white/10 backdrop-blur-sm sticky top-0 z-40 bg-slate-950/50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-8">
-              <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-                <Box className="w-8 h-8 text-blue-500" />
-                CroweCad
-              </h1>
-              <div className="hidden md:flex items-center gap-6">
-                <a href="#features" className="text-gray-300 hover:text-white transition">Features</a>
-                <a href="#industries" className="text-gray-300 hover:text-white transition">Industries</a>
-                <a href="#pricing" className="text-gray-300 hover:text-white transition">Pricing</a>
-                <a href="https://github.com/MichaelCrowe11/Crowecad" className="text-gray-300 hover:text-white transition flex items-center gap-1">
-                  <Github className="w-4 h-4" />
-                  GitHub
-                </a>
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <Link href="/workspace">
-                <Button variant="ghost" className="text-gray-300 hover:text-white">
-                  Workspace
-                </Button>
-              </Link>
-              <Button 
-                onClick={() => setShowIDE(true)}
-                className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
-              >
-                Launch IDE
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </nav>
+    <div className="">
 
       {/* Hero Section */}
       <section className="relative overflow-hidden">
@@ -250,24 +215,18 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* Demo Video Section - New */}
+      {/* Demo Video Section - Auto-Generated */}
       <section id="demo-video" className="border-y border-white/10 bg-slate-900/50 backdrop-blur">
         <div className="container mx-auto px-4 py-16">
-          <div className="max-w-4xl mx-auto">
-            <h3 className="text-2xl font-bold text-white text-center mb-8">
+          <div className="text-center mb-8">
+            <h3 className="text-3xl font-bold text-white mb-2">
               From Idea to Model in Seconds
             </h3>
-            <div className="aspect-video bg-slate-800 rounded-xl overflow-hidden border border-white/10">
-              {/* Placeholder for demo video/GIF */}
-              <div className="flex items-center justify-center h-full">
-                <div className="text-center">
-                  <Play className="w-16 h-16 text-white/50 mx-auto mb-4" />
-                  <p className="text-white/50">Demo video coming soon</p>
-                  <p className="text-sm text-white/30 mt-2">Watch natural language turn into 3D models instantly</p>
-                </div>
-              </div>
-            </div>
+            <p className="text-lg text-gray-400">
+              Watch natural language turn into CAD models instantly
+            </p>
           </div>
+          <DemoVideo />
         </div>
       </section>
 

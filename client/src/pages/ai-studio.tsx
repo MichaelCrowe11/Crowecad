@@ -11,38 +11,24 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export function AIStudioPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 to-black">
-      {/* Header */}
-      <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto px-4">
-          <div className="flex h-16 items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link href="/">
-                <Button variant="ghost" size="sm">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Back
-                </Button>
-              </Link>
-              <div className="flex items-center gap-2">
-                <Brain className="h-6 w-6 text-purple-500" />
-                <h1 className="text-xl font-bold">CroweCad AI Studio</h1>
-                <Badge variant="outline" className="ml-2 border-purple-400 text-purple-400">
-                  GPT-5 Inspired
-                </Badge>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Badge className="bg-green-500/10 text-green-500">
-                <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse" />
-                AI Systems Active
-              </Badge>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="bg-gradient-to-br from-gray-950 to-black">
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-6">
+        {/* Page Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-2">
+            <Brain className="h-8 w-8 text-purple-500" />
+            <h1 className="text-2xl font-bold">CroweCad AI Studio</h1>
+            <Badge variant="outline" className="ml-2 border-purple-400 text-purple-400">
+              GPT-5 Inspired
+            </Badge>
+          </div>
+          <Badge className="bg-green-500/10 text-green-500">
+            <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse" />
+            AI Systems Active
+          </Badge>
+        </div>
         <Tabs defaultValue="wireframe" className="h-[calc(100vh-8rem)]">
           <TabsList className="grid w-full grid-cols-4 max-w-3xl mx-auto">
             <TabsTrigger value="wireframe" className="flex items-center gap-2">
