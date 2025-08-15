@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from "react";
-import { Bell, Settings } from "lucide-react";
+import { Bell, Settings, Bot, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CommandInterface } from "@/components/command-interface";
@@ -17,6 +17,9 @@ import { DxfImportExport } from "@/components/dxf-import-export";
 import { VisionAnalysis } from "@/components/vision-analysis";
 import { PDFImport } from "@/components/pdf-import";
 import { AIOptimizationPanel } from "@/components/ai-optimization-panel";
+import { CroweCADInterface } from "@/components/crowe-cad-interface";
+import { InteractiveDemo } from "@/components/interactive-demo";
+import { EnhancedToolsPanel } from "@/components/enhanced-tools-panel";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -53,6 +56,8 @@ export default function FacilityDesigner() {
   const [zoom, setZoom] = useState(100);
   const [gridEnabled, setGridEnabled] = useState(true);
   const [snapEnabled, setSnapEnabled] = useState(true);
+  const [showCroweCAD, setShowCroweCAD] = useState(false);
+  const [showDemo, setShowDemo] = useState(false);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -297,8 +302,25 @@ export default function FacilityDesigner() {
               onCommandExecuted={handleCommandExecuted}
             />
             
-            {/* DXF Import/Export and Vision Analysis */}
+            {/* CAD Tools and Import/Export */}
             <div className="p-2 border-b space-y-2">
+              <Button 
+                onClick={() => setShowCroweCAD(!showCroweCAD)}
+                className="w-full gap-2 bg-[#00b4d8] hover:bg-[#0090b8] text-white"
+              >
+                <Bot className="w-4 h-4" />
+                {showCroweCAD ? 'Close' : 'Open'} Crowe CAD Engine
+              </Button>
+              
+              <Button 
+                onClick={() => setShowDemo(!showDemo)}
+                variant="outline"
+                className="w-full gap-2"
+              >
+                <Activity className="w-4 h-4" />
+                {showDemo ? 'Hide' : 'Show'} Live Demo
+              </Button>
+              
               <DxfImportExport
                 facilityId={currentFacilityId}
                 facilityName={currentProject?.name}
@@ -394,12 +416,23 @@ export default function FacilityDesigner() {
               />
             </div>
             
+            {/* Enhanced Tools Panel */}
+            <EnhancedToolsPanel
+              facilityId={currentFacilityId}
+              selectedTool={currentTool}
+              onToolSelect={handleToolSelect}
+              onParameterChange={(parameter, value) => {
+                // Handle parameter changes for precision tools
+                console.log(`Parameter ${parameter} changed to:`, value);
+              }}
+            />
+            
             {/* AI Optimization Panel */}
             <AIOptimizationPanel
               facilityId={currentFacilityId}
               facilityData={{
-                equipment: [],
-                zones: [],
+                equipment: equipment || [],
+                zones: zones || [],
                 area: 5000
               }}
             />
@@ -436,6 +469,57 @@ export default function FacilityDesigner() {
           onEquipmentUpdated={handleEquipmentUpdated}
         />
       </div>
+
+      {/* Crowe CAD Interface Modal */}
+      {showCroweCAD && (
+        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center">
+          <div className="w-full h-full max-w-[95vw] max-h-[95vh] bg-[#1e1e1e] rounded-lg overflow-hidden">
+            <div className="flex justify-between items-center p-2 bg-[#2d2d30] border-b border-[#3e3e42]">
+              <h2 className="text-white font-semibold">Crowe CAD Engine - Professional AutoCAD System</h2>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setShowCroweCAD(false)}
+                className="text-white hover:bg-[#3e3e42]"
+              >
+                ✕
+              </Button>
+            </div>
+            <CroweCADInterface 
+              facilityId={currentFacilityId}
+              onDesignComplete={(design) => {
+                toast({
+                  title: "Design Saved",
+                  description: "CAD design has been integrated into facility"
+                });
+                setShowCroweCAD(false);
+                queryClient.invalidateQueries({ queryKey: ['/api/facilities', currentFacilityId] });
+              }}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Interactive Demo Modal */}
+      {showDemo && (
+        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-8">
+          <div className="w-full max-w-4xl bg-white dark:bg-gray-900 rounded-lg overflow-hidden">
+            <div className="flex justify-between items-center p-4 border-b">
+              <h2 className="text-xl font-semibold">Live Facility Simulation</h2>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setShowDemo(false)}
+              >
+                ✕
+              </Button>
+            </div>
+            <div className="p-6 max-h-[80vh] overflow-y-auto">
+              <InteractiveDemo />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Professional Status Bar */}
       <StatusBar

@@ -36,14 +36,33 @@ export class DxfRenderer {
   }
 
   private initializeMaterials() {
-    // AutoCAD color index to RGB mapping (simplified)
+    // Enhanced AutoCAD color index to RGB mapping
     const aciColors = [
-      0x000000, 0xFF0000, 0xFFFF00, 0x00FF00, 0x00FFFF,
-      0x0000FF, 0xFF00FF, 0xFFFFFF, 0x808080, 0xC0C0C0
+      0x000000, // 0 - Black
+      0xFF0000, // 1 - Red
+      0xFFFF00, // 2 - Yellow
+      0x00FF00, // 3 - Green
+      0x00FFFF, // 4 - Cyan
+      0x0000FF, // 5 - Blue
+      0xFF00FF, // 6 - Magenta
+      0xFFFFFF, // 7 - White
+      0x808080, // 8 - Dark Gray
+      0xC0C0C0, // 9 - Light Gray
+      0xFF8080, // 10 - Light Red
+      0xFF8000, // 11 - Orange
+      0x80FF80, // 12 - Light Green
+      0x8080FF, // 13 - Light Blue
+      0xFF80FF, // 14 - Light Magenta
+      0x404040, // 15 - Very Dark Gray
     ];
 
     aciColors.forEach((color, index) => {
-      this.materials.set(index, new THREE.LineBasicMaterial({ color }));
+      this.materials.set(index, new THREE.LineBasicMaterial({ 
+        color, 
+        linewidth: 2,
+        transparent: index === 7 ? false : true,
+        opacity: index === 7 ? 1.0 : 0.9
+      }));
     });
   }
 
@@ -157,7 +176,11 @@ export class DxfRenderer {
    */
   dxfToSvg(dxfData: any, width: number = 1200, height: number = 800): string {
     let svg = `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">`;
+    // Professional dark background for technical drawings
+    svg += `<rect width="100%" height="100%" fill="#1a1a1a"/>`;
     svg += '<g transform="scale(1, -1) translate(0, -800)">';
+    // Add grid pattern for technical accuracy
+    svg += this.generateTechnicalGrid(width, height);
 
     if (dxfData.entities) {
       dxfData.entities.forEach((entity: DxfEntity) => {
@@ -238,10 +261,48 @@ export class DxfRenderer {
 
   private getColorHex(aciColor: number): string {
     const colors = [
-      '#000000', '#FF0000', '#FFFF00', '#00FF00', '#00FFFF',
-      '#0000FF', '#FF00FF', '#FFFFFF', '#808080', '#C0C0C0'
+      '#FFFFFF', // Changed black to white for dark background visibility
+      '#FF4444', // Enhanced red for better visibility
+      '#FFFF44', // Enhanced yellow
+      '#44FF44', // Enhanced green
+      '#44FFFF', // Enhanced cyan
+      '#4444FF', // Enhanced blue
+      '#FF44FF', // Enhanced magenta
+      '#FFFFFF', // White
+      '#AAAAAA', // Light gray for better contrast
+      '#DDDDDD', // Very light gray
+      '#FF8888', // Light red
+      '#FF8844', // Orange
+      '#88FF88', // Light green
+      '#8888FF', // Light blue
+      '#FF88FF', // Light magenta
+      '#666666'  // Dark gray
     ];
     return colors[aciColor] || '#FFFFFF';
+  }
+
+  private generateTechnicalGrid(width: number, height: number): string {
+    let grid = '';
+    const majorSpacing = 100;
+    const minorSpacing = 20;
+    
+    // Minor grid lines
+    for (let x = 0; x <= width; x += minorSpacing) {
+      grid += `<line x1="${x}" y1="0" x2="${x}" y2="${height}" stroke="#333333" stroke-width="0.5" opacity="0.3"/>`;
+    }
+    for (let y = 0; y <= height; y += minorSpacing) {
+      grid += `<line x1="0" y1="${y}" x2="${width}" y2="${y}" stroke="#333333" stroke-width="0.5" opacity="0.3"/>`;
+    }
+    
+    // Major grid lines
+    for (let x = 0; x <= width; x += majorSpacing) {
+      grid += `<line x1="${x}" y1="0" x2="${x}" y2="${height}" stroke="#555555" stroke-width="1" opacity="0.6"/>`;
+    }
+    for (let y = 0; y <= height; y += majorSpacing) {
+      grid += `<line x1="0" y1="${y}" x2="${width}" y2="${y}" stroke="#555555" stroke-width="1" opacity="0.6"/>`;
+    }
+    
+    return grid;
   }
 
   /**
@@ -256,11 +317,22 @@ export class DxfRenderer {
     dxf.addLayer('Grid', 8, 'CONTINUOUS'); // Gray
     dxf.addLayer('Annotations', 1, 'CONTINUOUS'); // Red
 
-    // Add title block
+    // Enhanced title block with professional formatting
     dxf.currentLayer = 'Annotations';
-    dxf.addText(point3d(10, 780, 0), 20, facilityName);
-    dxf.addText(point3d(10, 750, 0), 12, `Generated: ${new Date().toLocaleDateString()}`);
-    dxf.addText(point3d(10, 730, 0), 12, 'MycoCAD Pro v2.0');
+    dxf.addText(point3d(10, 780, 0), 24, facilityName);
+    dxf.addText(point3d(10, 750, 0), 14, `Generated: ${new Date().toLocaleDateString()}`);
+    dxf.addText(point3d(10, 730, 0), 14, 'MycoCAD Pro v2.1 - Enterprise');
+    dxf.addText(point3d(10, 710, 0), 10, `Scale: 1:100 | Units: Meters`);
+    
+    // Add drawing border
+    const border = [
+      point3d(5, 5, 0),
+      point3d(1195, 5, 0),
+      point3d(1195, 795, 0),
+      point3d(5, 795, 0),
+      point3d(5, 5, 0)
+    ];
+    dxf.addPolyline3D(border);
 
     // Add grid
     dxf.currentLayer = 'Grid';

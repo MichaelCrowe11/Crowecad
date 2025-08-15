@@ -14,8 +14,8 @@ interface CacheEntry {
 
 export class PromptCache {
   private cache: Map<string, CacheEntry> = new Map();
-  private maxCacheSize = 100;
-  private defaultTTL = 3600000; // 1 hour
+  private maxCacheSize = 500; // Increased cache size for better performance
+  private defaultTTL = 7200000; // 2 hours - longer TTL for better efficiency
 
   /**
    * Generate cache key from prompt
@@ -123,30 +123,46 @@ export class PromptCache {
   }
 
   /**
-   * Preload common facility queries
+   * Preload enhanced common facility queries
    */
   preloadCommonQueries(): void {
     const commonQueries = [
       {
         prompt: 'What is a bioreactor?',
-        response: 'A bioreactor is a vessel designed for growing organisms under controlled conditions for biotechnology applications.'
+        response: 'A bioreactor is a controlled vessel for growing microorganisms, cells, or tissues under optimal conditions. Key components include temperature control, pH monitoring, dissolved oxygen control, and sterile design for contamination prevention.'
       },
       {
         prompt: 'Optimal temperature for mushroom cultivation',
-        response: 'Most mushroom species thrive at 20-25°C (68-77°F) during fruiting, with specific requirements varying by species.'
+        response: 'Temperature varies by species: Oyster mushrooms (18-24°C), Shiitake (18-22°C), Button mushrooms (15-18°C). Maintain ±1°C precision with HVAC systems and thermal monitoring.'
       },
       {
         prompt: 'Clean room requirements',
-        response: 'Mycology facilities typically require ISO 7 or ISO 8 clean rooms with HEPA filtration and positive pressure.'
+        response: 'Mycology facilities require ISO 7 (Class 10,000) or ISO 8 (Class 100,000) cleanrooms with HEPA filtration (99.97% at 0.3μm), positive pressure (+5-15 Pa), and air change rates of 15-20 ACH minimum.'
       },
       {
         prompt: 'Equipment capacity calculation',
-        response: 'Calculate based on: production goals, growth cycle duration, and yield per unit volume.'
+        response: 'Capacity = (Daily Production Goal × Growth Cycle Days) / (Yield per Unit Volume × Working Volume Efficiency). Include 20-30% buffer for maintenance and contamination events.'
+      },
+      {
+        prompt: 'Contamination prevention strategies',
+        response: 'Implement: 1) Positive air pressure gradients, 2) HEPA filtration, 3) Personnel hygiene protocols, 4) Equipment sterilization cycles, 5) Environmental monitoring, 6) Cleanroom garments and procedures.'
+      },
+      {
+        prompt: 'Zone separation principles',
+        response: 'Critical zones: Raw materials → Preparation → Inoculation → Incubation → Harvesting → Packaging. Each zone should have increasing cleanliness levels with airlocks and pressure differentials.'
+      },
+      {
+        prompt: 'HVAC system requirements',
+        response: 'Requirements: 100% outside air systems preferred, 15-20 ACH, HEPA terminal filters, humidity control (45-65% RH), temperature control (±1°C), redundant systems for critical areas.'
+      },
+      {
+        prompt: 'Production scaling factors',
+        response: 'Key factors: 1) Square-cube law affects mixing and heat transfer, 2) Contamination risk increases with scale, 3) Labor efficiency may decrease, 4) Utility costs scale non-linearly, 5) Automation requirements increase.'
       }
     ];
 
     commonQueries.forEach(({ prompt, response }) => {
-      this.set(prompt, response, null, this.defaultTTL * 24); // Cache for 24 hours
+      this.set(prompt, response, null, this.defaultTTL * 48); // Cache for 48 hours
     });
   }
 }
@@ -191,32 +207,58 @@ export class CachedAI {
   }
 
   /**
-   * Simulate API call (replace with actual AI service call)
+   * Enhanced API call with actual AI service integration
    */
   private async makeAPICall(prompt: string, context?: any): Promise<string> {
-    // This would normally call the AI service
-    // For now, return a placeholder
-    return `Response to: ${prompt}`;
+    try {
+      // Use sub-agents for cost optimization
+      const { subAgents } = await import('./sub-agents');
+      
+      // Determine complexity based on prompt characteristics
+      let complexity: 'simple' | 'moderate' | 'complex' = 'simple';
+      
+      if (prompt.includes('analyze') || prompt.includes('optimize') || prompt.includes('design')) {
+        complexity = 'complex';
+      } else if (prompt.includes('compare') || prompt.includes('calculate') || prompt.includes('evaluate')) {
+        complexity = 'moderate';
+      }
+      
+      const response = await subAgents.routeTask(prompt, complexity);
+      return response || `Processing: ${prompt.substring(0, 50)}...`;
+    } catch (error) {
+      console.error('API call failed:', error);
+      return `Unable to process query: ${prompt.substring(0, 50)}...`;
+    }
   }
 
   /**
-   * Get cache performance metrics
+   * Get enhanced cache performance metrics
    */
   getMetrics(): {
     apiCalls: number;
     cacheHits: number;
     hitRate: number;
-    savings: number; // Estimated cost savings
+    savings: number;
+    efficiency: number;
+    totalQueries: number;
   } {
     const total = this.apiCallCount + this.cacheHitCount;
     const hitRate = total > 0 ? this.cacheHitCount / total : 0;
-    const savings = this.cacheHitCount * 0.003; // Assuming $0.003 per cached query saved
+    const efficiency = total > 0 ? 1 - (this.apiCallCount / total) : 0;
+    
+    // Enhanced cost savings calculation
+    // Assume: Haiku $0.25/M tokens, Sonnet $3/M tokens, avg 500 tokens per query
+    const avgTokensPerQuery = 500;
+    const avgCostPerQuery = 0.0015; // Mixed model average
+    const savings = (this.cacheHitCount * avgTokensPerQuery / 1000000) * avgCostPerQuery * 1000;
 
     return {
       apiCalls: this.apiCallCount,
       cacheHits: this.cacheHitCount,
       hitRate,
-      savings
+      savings,
+      efficiency,
+      totalQueries: total
     };
   }
 
