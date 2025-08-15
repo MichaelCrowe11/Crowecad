@@ -317,15 +317,12 @@ export default function FacilityDesigner() {
                   // Add detected equipment to facility
                   for (const eq of detectedEquipment) {
                     try {
-                      await apiRequest(`/api/facilities/${currentFacilityId}/equipment`, {
-                        method: 'POST',
-                        body: JSON.stringify({
-                          typeId: eq.type,
-                          position: eq.position,
-                          rotation: eq.rotation || 0,
-                          scale: eq.scale || 1,
-                          properties: eq.properties || {}
-                        })
+                      await apiRequest(`/api/facilities/${currentFacilityId}/equipment`, 'POST', {
+                        typeId: eq.type,
+                        position: eq.position,
+                        rotation: eq.rotation || 0,
+                        scale: eq.scale || 1,
+                        properties: eq.properties || {}
                       });
                     } catch (error) {
                       console.error('Failed to add equipment:', error);
@@ -337,17 +334,14 @@ export default function FacilityDesigner() {
                   // Add detected zones to facility
                   for (const zone of detectedZones) {
                     try {
-                      await apiRequest(`/api/facilities/${currentFacilityId}/zones`, {
-                        method: 'POST',
-                        body: JSON.stringify({
-                          name: zone.name,
-                          type: zone.type,
-                          x: zone.x,
-                          y: zone.y,
-                          width: zone.width,
-                          height: zone.height,
-                          color: zone.color
-                        })
+                      await apiRequest(`/api/facilities/${currentFacilityId}/zones`, 'POST', {
+                        name: zone.name,
+                        type: zone.type,
+                        x: zone.x,
+                        y: zone.y,
+                        width: zone.width,
+                        height: zone.height,
+                        color: zone.color
                       });
                     } catch (error) {
                       console.error('Failed to add zone:', error);
