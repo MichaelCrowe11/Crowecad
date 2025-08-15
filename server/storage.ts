@@ -3,9 +3,10 @@ import {
   facilities, 
   zones, 
   equipmentTypes, 
-  equipmentInstances, 
+  equipmentInstances,
   commands,
-  type Project, 
+  assistantThreads,
+  type Project,
   type InsertProject,
   type Facility,
   type InsertFacility,
@@ -16,7 +17,9 @@ import {
   type EquipmentInstance,
   type InsertEquipmentInstance,
   type Command,
-  type InsertCommand
+  type InsertCommand,
+  type AssistantThread,
+  type InsertAssistantThread
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc } from "drizzle-orm";
@@ -57,6 +60,10 @@ export interface IStorage {
   createCommand(command: InsertCommand): Promise<Command>;
   updateCommand(id: string, updates: Partial<InsertCommand>): Promise<Command>;
   getCommandsByProject(projectId: string): Promise<Command[]>;
+
+  // Assistant Threads
+  saveAssistantThread(sessionId: string, threadId: string): Promise<void>;
+  getAssistantThread(sessionId: string): Promise<string | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -228,6 +235,24 @@ export class DatabaseStorage implements IStorage {
       .from(commands)
       .where(eq(commands.projectId, projectId))
       .orderBy(desc(commands.executedAt));
+  }
+
+  async saveAssistantThread(sessionId: string, threadId: string): Promise<void> {
+    await db
+      .insert(assistantThreads)
+      .values({ sessionId, threadId })
+      .onConflictDoUpdate({
+        target: assistantThreads.sessionId,
+        set: { threadId, createdAt: new Date() },
+      });
+  }
+
+  async getAssistantThread(sessionId: string): Promise<string | undefined> {
+    const [thread] = await db
+      .select()
+      .from(assistantThreads)
+      .where(eq(assistantThreads.sessionId, sessionId));
+    return thread?.threadId;
   }
 }
 

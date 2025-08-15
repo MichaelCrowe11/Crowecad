@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import express, { type Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { seedEquipmentTypes } from "./seed";
@@ -11,6 +11,7 @@ import {
   insertCommandSchema
 } from "@shared/schema";
 import { z } from "zod";
+import rateLimit from "express-rate-limit";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Initialize equipment types on startup
@@ -428,8 +429,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Dynamically import and use OpenAI routes if API key is available
   if (process.env.OPENAI_API_KEY) {
     const openaiRouter = (await import('./routes/openai')).default;
+
+    const crowecadLimiter = rateLimit({
+      windowMs: 60 * 1000,
+      max: 30,
+      standardHeaders: true,
+      legacyHeaders: false,
+    });
+
+    const crowecadRouter = express.Router();
+    crowecadRouter.use(crowecadLimiter);
+    crowecadRouter.use((req, res, next) => {
+      const ct = req.headers['content-type'] || '';
+      if (req.path === '/upload-drawing') {
+        if (!ct.includes('multipart/form-data')) {
+          return res.status(415).json({ error: 'Expected multipart/form-data' });
+        }
+      } else if (req.method !== 'GET') {
+        if (!ct.includes('application/json')) {
+          return res.status(415).json({ error: 'Expected application/json' });
+        }
+        const length = parseInt(req.headers['content-length'] || '0', 10);
+        if (length > 1 * 1024 * 1024) {
+          return res.status(413).json({ error: 'Payload too large' });
+        }
+      }
+      next();
+    });
+    crowecadRouter.use(openaiRouter);
+
     app.use('/api/openai', openaiRouter);
-    app.use('/api/crowecad', openaiRouter); // Also available under /api/crowecad
+    app.use('/api/crowecad', crowecadRouter); // Also available under /api/crowecad
   }
 
   const httpServer = createServer(app);

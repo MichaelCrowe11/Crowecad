@@ -72,6 +72,12 @@ export const commands = pgTable("commands", {
   executedAt: timestamp("executed_at").defaultNow(),
 });
 
+export const assistantThreads = pgTable("assistant_threads", {
+  sessionId: varchar("session_id").primaryKey(),
+  threadId: varchar("thread_id").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Relations
 export const projectsRelations = relations(projects, ({ many }) => ({
   facilities: many(facilities),
@@ -171,3 +177,6 @@ export type InsertEquipmentInstance = z.infer<typeof insertEquipmentInstanceSche
 
 export type Command = typeof commands.$inferSelect;
 export type InsertCommand = z.infer<typeof insertCommandSchema>;
+
+export type AssistantThread = typeof assistantThreads.$inferSelect;
+export type InsertAssistantThread = typeof assistantThreads.$inferInsert;

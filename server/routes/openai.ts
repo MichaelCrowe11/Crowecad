@@ -5,6 +5,7 @@ import { skillMiner } from '../../client/src/lib/skill-miner';
 import multer from 'multer';
 import fs from 'fs/promises';
 import path from 'path';
+import { storage } from '../storage';
 
 // Configure multer for file uploads
 const upload = multer({
@@ -40,11 +41,23 @@ const generateCADSchema = z.object({
 const assistantRequestSchema = z.object({
   message: z.string().min(1),
   threadId: z.string().optional(),
+  sessionId: z.string().optional(),
   category: z.string().optional(),
 });
 
-// Store for assistant threads (in production, use database)
-const assistantThreads = new Map<string, string>();
+async function withRetry<T>(fn: () => Promise<T>, retries = 3, timeoutMs = 5000): Promise<T> {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      return await Promise.race([
+        fn(),
+        new Promise<T>((_, reject) => setTimeout(() => reject(new Error('Timeout')), timeoutMs))
+      ]);
+    } catch (err) {
+      if (attempt === retries) throw err;
+    }
+  }
+  throw new Error('Retry failed');
+}
 
 /**
  * Generate CAD from natural language description
@@ -123,18 +136,19 @@ Generate complete, working code that can be executed.`;
 router.post('/assistant', async (req, res) => {
   try {
     const input = assistantRequestSchema.parse(req.body);
-    
+
     // Get or create thread
     let threadId = input.threadId;
-    if (!threadId) {
-      const thread = await openai.beta.threads.create();
-      threadId = thread.id;
-      
-      // Generate session ID
-      const sessionId = `session_${Date.now()}`;
-      assistantThreads.set(sessionId, threadId);
+    if (!threadId && input.sessionId) {
+      threadId = await storage.getAssistantThread(input.sessionId);
     }
-    
+    if (!threadId) {
+      const thread = await withRetry(() => openai.beta.threads.create());
+      threadId = thread.id;
+      input.sessionId = input.sessionId || `session_${Date.now()}`;
+      await storage.saveAssistantThread(input.sessionId, threadId);
+    }
+
     // Search for relevant skills
     const relevantSkills = skillMiner.searchSkills(input.message, input.category as any);
     
@@ -147,49 +161,48 @@ ${relevantSkills.slice(0, 3).map(s =>
 ).join('\n')}`;
 
     // Add message to thread
-    await openai.beta.threads.messages.create(
-      threadId,
-      {
+    await withRetry(() =>
+      openai.beta.threads.messages.create(threadId, {
         role: 'user',
-        content: enhancedMessage
-      }
+        content: enhancedMessage,
+      })
     );
 
     // Run assistant
-    const run = await openai.beta.threads.runs.create(
-      threadId,
-      {
+    const run = await withRetry(() =>
+      openai.beta.threads.runs.create(threadId, {
         assistant_id: process.env.OPENAI_ASSISTANT_ID || 'asst_crowecad',
-        instructions: buildDynamicInstructions(relevantSkills)
-      }
+        instructions: buildDynamicInstructions(relevantSkills),
+      })
     );
 
     // Wait for completion (with timeout)
-    let runStatus = await openai.beta.threads.runs.retrieve(threadId, run.id);
+    let runStatus = await withRetry(() => openai.beta.threads.runs.retrieve(threadId, run.id));
     const maxAttempts = 30;
     let attempts = 0;
-    
+
     while (runStatus.status === 'in_progress' || runStatus.status === 'queued') {
       if (attempts >= maxAttempts) {
         throw new Error('Assistant timeout');
       }
-      
+
       await new Promise(resolve => setTimeout(resolve, 1000));
-      runStatus = await openai.beta.threads.runs.retrieve(threadId, run.id);
+      runStatus = await withRetry(() => openai.beta.threads.runs.retrieve(threadId, run.id));
       attempts++;
     }
 
     // Get response
-    const messages = await openai.beta.threads.messages.list(threadId);
+    const messages = await withRetry(() => openai.beta.threads.messages.list(threadId));
     const latestMessage = messages.data[0];
 
     res.json({
       success: true,
       data: {
-        response: latestMessage.content[0].type === 'text' 
-          ? latestMessage.content[0].text.value 
+        response: latestMessage.content[0].type === 'text'
+          ? latestMessage.content[0].text.value
           : 'Response contains non-text content',
         threadId,
+        sessionId: input.sessionId,
         relevantSkills: relevantSkills.slice(0, 3).map(s => ({
           name: s.name,
           category: s.category
