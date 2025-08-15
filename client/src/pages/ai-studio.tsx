@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Sparkles, Cpu, Brain, Zap } from "lucide-react";
+import { ArrowLeft, Sparkles, Cpu, Brain, Zap, Code2 } from "lucide-react";
 import { Link } from "wouter";
 import { GPT5CADStudio } from "@/components/gpt5-cad-studio";
+import { GPT5CodeStudio } from "@/components/gpt5-code-studio";
 import { CADScriptEditor } from "@/components/cad-script-editor";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -42,10 +43,14 @@ export function AIStudioPage() {
       {/* Main Content */}
       <div className="container mx-auto px-4 py-6">
         <Tabs defaultValue="gpt5" className="h-[calc(100vh-8rem)]">
-          <TabsList className="grid w-full grid-cols-2 max-w-xl mx-auto">
+          <TabsList className="grid w-full grid-cols-3 max-w-2xl mx-auto">
             <TabsTrigger value="gpt5" className="flex items-center gap-2">
               <Sparkles className="w-4 h-4" />
-              GPT-5 CAD Studio
+              CAD Studio
+            </TabsTrigger>
+            <TabsTrigger value="code" className="flex items-center gap-2">
+              <Code2 className="w-4 h-4" />
+              Code Studio
             </TabsTrigger>
             <TabsTrigger value="cursor" className="flex items-center gap-2">
               <Cpu className="w-4 h-4" />
@@ -55,6 +60,10 @@ export function AIStudioPage() {
 
           <TabsContent value="gpt5" className="mt-6 h-full">
             <GPT5CADStudio />
+          </TabsContent>
+
+          <TabsContent value="code" className="mt-6 h-full">
+            <GPT5CodeStudio />
           </TabsContent>
 
           <TabsContent value="cursor" className="mt-6 h-full">
