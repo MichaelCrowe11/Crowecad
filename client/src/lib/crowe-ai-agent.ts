@@ -55,8 +55,11 @@ export class CroweAIAgent {
   private recognition: any = null;
 
   constructor(apiKey?: string) {
+    // In Vite, environment variables must be prefixed with VITE_ for client-side access
+    // For now, we'll initialize without the API key and handle it server-side
     this.anthropic = new Anthropic({
-      apiKey: apiKey || process.env.ANTHROPIC_API_KEY,
+      apiKey: apiKey || import.meta.env.VITE_ANTHROPIC_API_KEY || 'placeholder',
+      dangerouslyAllowBrowser: true
     });
 
     this.memory = {

@@ -10,6 +10,9 @@ import QuantumConsciousnessStates from "@/components/quantum-consciousness-state
 import BatchReportingPanel from "@/components/batch-reporting-panel";
 import { FacilityCanvas } from "@/components/facility-canvas";
 import { PropertiesPanel } from "@/components/properties-panel";
+import { AppHeader } from "@/components/app-header";
+import { RibbonToolbar } from "@/components/ribbon-toolbar";
+import { StatusBar } from "@/components/status-bar";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -37,6 +40,15 @@ export default function FacilityDesigner() {
   });
   
   const [quantumStates, setQuantumStates] = useState<any[]>([]);
+  
+  // Professional CAD UI State
+  const [isDarkMode, setIsDarkMode] = useState(true);
+  const [activeRibbonTab, setActiveRibbonTab] = useState("home");
+  const [currentTool, setCurrentTool] = useState("select");
+  const [mouseCoords, setMouseCoords] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(100);
+  const [gridEnabled, setGridEnabled] = useState(true);
+  const [snapEnabled, setSnapEnabled] = useState(true);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -216,58 +228,53 @@ export default function FacilityDesigner() {
     );
   }
 
-  return (
-    <div className="bg-gray-900 text-gray-100 min-h-screen flex flex-col cad-grid-bg">
-      {/* Header */}
-      <header className="cad-toolbar border-b border-gray-700 px-6 py-3 flex items-center justify-between sticky top-0 z-50">
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-              <img src="@assets/crowe-avatar.png" alt="Crowe Logic" className="w-8 h-8 rounded-md object-cover" />
-            </div>
-            <div>
-              <h1 className="text-lg font-bold text-white tracking-tight">
-                CROWE CAD - Mycology Designer
-              </h1>
-              <p className="text-xs text-gray-400">
-                Professional Facility Design System
-              </p>
-            </div>
-          </div>
-          <div className="border-l border-gray-600 pl-4">
-            <span className="text-sm font-bold text-blue-400">PRO</span>
-            <div className="text-xs text-gray-400 font-mono">v2.1.0</div>
-          </div>
-        </div>
-        
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-2 px-3 py-1 bg-green-900 rounded border border-green-700">
-            <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-            <span className="text-xs text-green-300 font-medium">Online</span>
-          </div>
-          
-          <Button size="sm" variant="ghost" className="relative text-gray-300 hover:text-white hover:bg-gray-700">
-            <Bell className="w-4 h-4" />
-            <Badge className="absolute -top-1 -right-1 w-4 h-4 bg-blue-500 text-white text-xs rounded-full flex items-center justify-center p-0">
-              3
-            </Badge>
-          </Button>
-          
-          <div className="flex items-center space-x-3 pl-3 border-l border-gray-600">
-            <div className="text-right">
-              <span className="text-sm font-medium text-white">Admin User</span>
-              <div className="text-xs text-gray-400">Licensed Engineer</div>
-            </div>
-            <div className="w-8 h-8 bg-blue-600 rounded overflow-hidden">
-              <img src="@assets/crowe-avatar.png" alt="User" className="w-full h-full object-cover" />
-            </div>
-          </div>
-        </div>
-      </header>
+  // Handle theme toggle
+  const handleThemeToggle = () => {
+    setIsDarkMode(!isDarkMode);
+    // In a real app, you'd toggle the 'dark' class on document.documentElement
+  };
 
-      <div className="flex h-[calc(100vh-73px)]">
+  // Handle tool selection from ribbon
+  const handleToolSelect = (tool: string) => {
+    setCurrentTool(tool);
+    toast({
+      title: "Tool Selected",
+      description: `Active tool: ${tool}`,
+    });
+  };
+
+  // Track mouse coordinates on canvas
+  const handleCanvasMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setMouseCoords({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top
+    });
+  };
+
+  const currentProject = projects?.find(p => p.id === currentProjectId);
+
+  return (
+    <div className="min-h-screen flex flex-col bg-background text-foreground">
+      {/* Professional CAD Header */}
+      <AppHeader
+        projectName={currentProject?.name || "Mycology Facility"}
+        isDarkMode={isDarkMode}
+        onThemeToggle={handleThemeToggle}
+        notifications={3}
+      />
+
+      {/* Ribbon Toolbar */}
+      <RibbonToolbar
+        activeTab={activeRibbonTab}
+        onTabChange={setActiveRibbonTab}
+        onToolSelect={handleToolSelect}
+      />
+
+      {/* Main Content Area */}
+      <div className="flex flex-1 overflow-hidden" onMouseMove={handleCanvasMouseMove}>
         {/* Left Sidebar */}
-        <aside className="w-80 cad-panel border-r border-gray-700 flex flex-col overflow-y-auto">
+        <aside className="w-80 border-r flex flex-col overflow-y-auto bg-card">
           <div className="relative z-10 flex flex-col h-full space-y-2 p-2">
             {/* Crowe AI Voice Control */}
             <CroweVoiceControl
@@ -319,40 +326,21 @@ export default function FacilityDesigner() {
         />
       </div>
 
-      {/* Status Bar */}
-      <footer className="cad-toolbar border-t border-gray-700 px-6 py-2 flex items-center justify-between text-sm">
-        <div className="flex items-center space-x-6">
-          <div className="flex items-center space-x-2 text-gray-300">
-            <span>Equipment:</span>
-            <span className="font-bold text-blue-400" data-testid="text-equipment-count">
-              {facilityStats.equipmentCount}
-            </span>
-          </div>
-          <div className="flex items-center space-x-2 text-gray-300">
-            <span>Capacity:</span>
-            <span className="font-bold text-green-400" data-testid="text-total-capacity">
-              {facilityStats.totalCapacity}
-            </span>
-          </div>
-          <div className="flex items-center space-x-2 text-gray-300">
-            <span>Zones:</span>
-            <span className="font-bold text-yellow-400" data-testid="text-zone-count">
-              {facilityStats.zoneCount}
-            </span>
-          </div>
-        </div>
-        
-        <div className="flex items-center space-x-4 text-gray-400">
-          <div className="flex items-center space-x-2">
-            <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-            <span>System Ready</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <span>Coords:</span>
-            <span className="font-mono text-blue-400">0,0</span>
-          </div>
-        </div>
-      </footer>
+      {/* Professional Status Bar */}
+      <StatusBar
+        coordinates={mouseCoords}
+        zoom={zoom}
+        gridEnabled={gridEnabled}
+        snapEnabled={snapEnabled}
+        orthoEnabled={false}
+        connectionStatus="online"
+        cpuUsage={15}
+        memoryUsage={32}
+        selectedCount={selectedEquipment ? 1 : 0}
+        totalEntities={facilityStats.equipmentCount}
+        currentTool={currentTool}
+        units="m"
+      />
     </div>
   );
 }
