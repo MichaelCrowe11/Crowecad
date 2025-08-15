@@ -24,6 +24,8 @@ import {
   Maximize2,
   Home,
   Package,
+  FileUp,
+  FileDown,
   Beaker,
   Wind,
   Factory,
@@ -107,6 +109,7 @@ export function RibbonToolbar({
           <TabsTrigger value="view">View</TabsTrigger>
           <TabsTrigger value="equipment">Equipment</TabsTrigger>
           <TabsTrigger value="analysis">Analysis</TabsTrigger>
+          <TabsTrigger value="data">Data Exchange</TabsTrigger>
         </TabsList>
 
         <div className="ribbon-content">
@@ -252,6 +255,31 @@ export function RibbonToolbar({
                 <ToolButton icon={Workflow} label="Flow" tool="analyze-flow" />
                 <ToolButton icon={Zap} label="Energy" tool="analyze-energy" />
                 <ToolButton icon={Database} label="Data" tool="analyze-data" />
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="data" className="ribbon-panel">
+            {/* Import/Export Tools */}
+            <div className="ribbon-group">
+              <div className="ribbon-group-label">Import</div>
+              <div className="ribbon-group-tools">
+                <ToolButton icon={FileUp} label="Import DXF" tool="import-dxf" />
+                <ToolButton icon={FileUp} label="Import SVG" tool="import-svg" />
+                <ToolButton icon={FileUp} label="Import DWG" tool="import-dwg" />
+              </div>
+            </div>
+
+            <Separator orientation="vertical" className="h-16 mx-2" />
+
+            {/* Export Tools */}
+            <div className="ribbon-group">
+              <div className="ribbon-group-label">Export</div>
+              <div className="ribbon-group-tools">
+                <ToolButton icon={FileDown} label="Export DXF" tool="export-dxf" />
+                <ToolButton icon={FileDown} label="Export SVG" tool="export-svg" />
+                <ToolButton icon={FileDown} label="Export PDF" tool="export-pdf" />
+                <ToolButton icon={FileDown} label="Export PNG" tool="export-png" />
               </div>
             </div>
           </TabsContent>

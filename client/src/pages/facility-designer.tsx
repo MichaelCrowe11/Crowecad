@@ -13,6 +13,7 @@ import { PropertiesPanel } from "@/components/properties-panel";
 import { AppHeader } from "@/components/app-header";
 import { RibbonToolbar } from "@/components/ribbon-toolbar";
 import { StatusBar } from "@/components/status-bar";
+import { DxfImportExport } from "@/components/dxf-import-export";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -292,6 +293,23 @@ export default function FacilityDesigner() {
               projectId={currentProjectId}
               onCommandExecuted={handleCommandExecuted}
             />
+            
+            {/* DXF Import/Export */}
+            <div className="p-2 border-b">
+              <DxfImportExport
+                facilityId={currentFacilityId}
+                facilityName={currentProject?.name}
+                onImport={(importedEquipment, importedZones) => {
+                  toast({
+                    title: "DXF Import Complete",
+                    description: `Imported ${importedEquipment.length} equipment items and ${importedZones.length} zones`,
+                  });
+                  // Refresh the facility data
+                  queryClient.invalidateQueries({ queryKey: ['/api/facilities', currentFacilityId, 'equipment'] });
+                  queryClient.invalidateQueries({ queryKey: ['/api/facilities', currentFacilityId, 'zones'] });
+                }}
+              />
+            </div>
             
             {/* Batch Reporting Panel */}
             <BatchReportingPanel
