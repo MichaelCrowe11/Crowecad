@@ -1,0 +1,19 @@
+version: '3.9'
+services:
+  crowecad:
+    build: .
+    image: ghcr.io/MichaelCrowe11/crowecad:${IMAGE_TAG:-latest}
+    ports:
+      - "5000:5000"
+    depends_on:
+      - postgres
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: crowecad
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: crowecad
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+volumes:
+  postgres_data:
