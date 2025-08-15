@@ -1,3 +1,4 @@
+import 'dotenv-safe/config';
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
@@ -425,12 +426,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // OpenAI-powered CAD operations
-  // Dynamically import and use OpenAI routes if API key is available
-  if (process.env.OPENAI_API_KEY) {
-    const openaiRouter = (await import('./routes/openai')).default;
-    app.use('/api/openai', openaiRouter);
-    app.use('/api/crowecad', openaiRouter); // Also available under /api/crowecad
-  }
+  const openaiRouter = (await import('./routes/openai')).default;
+  app.use('/api/openai', openaiRouter);
+  app.use('/api/crowecad', openaiRouter); // Also available under /api/crowecad
 
   const httpServer = createServer(app);
   

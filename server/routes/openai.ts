@@ -1,3 +1,4 @@
+import 'dotenv-safe/config';
 import { Router } from 'express';
 import OpenAI from 'openai';
 import { z } from 'zod';
@@ -21,11 +22,19 @@ const upload = multer({
   }
 });
 
+if (!process.env.OPENAI_API_KEY) {
+  throw new Error('OPENAI_API_KEY must be set');
+}
+
+if (!process.env.OPENAI_ASSISTANT_ID) {
+  throw new Error('OPENAI_ASSISTANT_ID must be set');
+}
+
 const router = Router();
 
 // Initialize OpenAI client
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || '',
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 // Schema for CAD generation request
@@ -159,7 +168,7 @@ ${relevantSkills.slice(0, 3).map(s =>
     const run = await openai.beta.threads.runs.create(
       threadId,
       {
-        assistant_id: process.env.OPENAI_ASSISTANT_ID || 'asst_crowecad',
+        assistant_id: process.env.OPENAI_ASSISTANT_ID,
         instructions: buildDynamicInstructions(relevantSkills)
       }
     );

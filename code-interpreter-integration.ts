@@ -39,13 +39,18 @@ interface ExecutionResult {
   error?: string;
 }
 
+import 'dotenv-safe/config';
+
 class CodeInterpreterClient {
   private apiKey: string;
   private baseURL = 'https://api.openai.com/v1';
   private currentContainer: string | null = null;
 
   constructor(apiKey?: string) {
-    this.apiKey = apiKey || import.meta.env.VITE_OPENAI_API_KEY || '';
+    this.apiKey = apiKey || process.env.OPENAI_API_KEY;
+    if (!this.apiKey) {
+      throw new Error('OPENAI_API_KEY must be set');
+    }
   }
 
   /**
