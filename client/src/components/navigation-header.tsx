@@ -26,7 +26,6 @@ export function NavigationHeader() {
 
   const navLinks = [
     { href: '/', label: 'Home', icon: Home },
-    { href: '/workspace', label: 'CAD Workspace', icon: Building },
     { href: '/ai-studio', label: 'AI Studio', icon: Brain },
     { href: '/facility-designer', label: 'Facility Designer', icon: Cpu },
     { href: '/collaborative', label: 'Collaborate', icon: Users }
