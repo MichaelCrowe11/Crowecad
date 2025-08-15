@@ -429,6 +429,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   if (process.env.OPENAI_API_KEY) {
     const openaiRouter = (await import('./routes/openai')).default;
     app.use('/api/openai', openaiRouter);
+    app.use('/api/crowecad', openaiRouter); // Also available under /api/crowecad
   }
 
   const httpServer = createServer(app);

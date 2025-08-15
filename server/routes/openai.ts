@@ -2,6 +2,24 @@ import { Router } from 'express';
 import OpenAI from 'openai';
 import { z } from 'zod';
 import { skillMiner } from '../../client/src/lib/skill-miner';
+import multer from 'multer';
+import fs from 'fs/promises';
+import path from 'path';
+
+// Configure multer for file uploads
+const upload = multer({
+  dest: 'uploads/',
+  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB limit
+  fileFilter: (req, file, cb) => {
+    const allowedExtensions = ['.dxf', '.dwg', '.step', '.iges', '.stl'];
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (allowedExtensions.includes(ext)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Allowed: DXF, DWG, STEP, IGES, STL'));
+    }
+  }
+});
 
 const router = Router();
 
@@ -352,6 +370,254 @@ ${skillSummary}
 Use these patterns to provide accurate, working solutions. Always validate geometric constraints and provide complete, executable code.`;
 }
 
+/**
+ * Process CAD query with full context
+ */
+router.post('/query', async (req, res) => {
+  try {
+    const { query, context } = req.body;
+    
+    if (!query) {
+      return res.status(400).json({ error: 'Query is required' });
+    }
+    
+    // Search for relevant skills
+    const relevantSkills = skillMiner.searchSkills(query);
+    
+    // Build enhanced prompt with context
+    const enhancedPrompt = `${query}
+    
+Context: ${JSON.stringify(context || {})}
+
+Relevant CAD patterns:
+${relevantSkills.slice(0, 5).map(s => 
+  `- ${s.name}: ${s.description}\nImplementation: ${s.implementation.substring(0, 200)}...`
+).join('\n\n')}`;
+
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4o',
+      messages: [
+        {
+          role: 'system',
+          content: `You are CroweCad, an advanced CAD assistant with spatial recognition and geometric intelligence.
+          
+When responding:
+1. Identify geometric primitives and relationships
+2. Provide precise AutoLISP or Python code using learned patterns
+3. Validate spatial constraints and dimensions
+4. Include step-by-step CAD commands
+5. Format code in markdown blocks with language specified`
+        },
+        {
+          role: 'user',
+          content: enhancedPrompt
+        }
+      ],
+      temperature: 0.7,
+      max_tokens: 2500
+    });
+
+    const responseText = response.choices[0].message.content || '';
+    const codeBlocks = extractCodeBlocks(responseText);
+    
+    res.json({
+      status: 'success',
+      response: responseText,
+      code_blocks: codeBlocks,
+      relevant_skills: relevantSkills.slice(0, 3).map(s => ({
+        name: s.name,
+        category: s.category
+      }))
+    });
+  } catch (error) {
+    console.error('Query error:', error);
+    res.status(500).json({ error: 'Failed to process query' });
+  }
+});
+
+/**
+ * Upload and analyze CAD drawing
+ */
+router.post('/upload-drawing', upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+    
+    const filePath = req.file.path;
+    const fileContent = await fs.readFile(filePath, 'utf-8');
+    
+    // Basic DXF parsing (simplified)
+    const analysis = {
+      fileName: req.file.originalname,
+      fileSize: req.file.size,
+      fileType: path.extname(req.file.originalname),
+      entities: [],
+      layers: [],
+      dimensions: {}
+    };
+    
+    // Parse DXF entities (basic example)
+    if (req.file.originalname.toLowerCase().endsWith('.dxf')) {
+      const lines = fileContent.split('\n');
+      let currentSection = '';
+      
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        
+        if (line === 'ENTITIES') {
+          currentSection = 'ENTITIES';
+        } else if (line === 'LAYER') {
+          analysis.layers.push(lines[i + 2]?.trim());
+        } else if (currentSection === 'ENTITIES') {
+          if (line === 'LINE' || line === 'CIRCLE' || line === 'ARC' || line === 'POLYLINE') {
+            analysis.entities.push(line);
+          }
+        }
+      }
+    }
+    
+    // Get AI analysis of the drawing
+    const aiAnalysis = await openai.chat.completions.create({
+      model: 'gpt-4o',
+      messages: [
+        {
+          role: 'system',
+          content: 'Analyze this CAD file data and provide insights about its structure, complexity, and suggested operations.'
+        },
+        {
+          role: 'user',
+          content: `Analyze this CAD file:
+Filename: ${req.file.originalname}
+File type: ${path.extname(req.file.originalname)}
+Entities found: ${analysis.entities.join(', ')}
+Layers: ${analysis.layers.join(', ')}
+
+Provide:
+1. Drawing complexity assessment
+2. Main geometric features
+3. Suggested modifications or improvements
+4. Compatible operations from the skill database`
+        }
+      ],
+      max_tokens: 1000
+    });
+    
+    // Clean up uploaded file
+    await fs.unlink(filePath);
+    
+    // Find relevant operations
+    const suggestedOperations = skillMiner.searchSkills(
+      analysis.entities.join(' ')
+    ).slice(0, 5);
+    
+    res.json({
+      status: 'success',
+      analysis: {
+        ...analysis,
+        aiInsights: aiAnalysis.choices[0].message.content,
+        suggestedOperations: suggestedOperations.map(s => ({
+          name: s.name,
+          category: s.category,
+          description: s.description
+        }))
+      }
+    });
+  } catch (error) {
+    console.error('Drawing analysis error:', error);
+    
+    // Clean up file on error
+    if (req.file) {
+      await fs.unlink(req.file.path).catch(() => {});
+    }
+    
+    res.status(500).json({ error: 'Failed to analyze drawing' });
+  }
+});
+
+/**
+ * Train CroweCad with new patterns
+ */
+router.post('/train', async (req, res) => {
+  try {
+    const { pattern, category, name, description } = req.body;
+    
+    if (!pattern || !category) {
+      return res.status(400).json({ error: 'Pattern and category are required' });
+    }
+    
+    // Extract skills from the pattern
+    const extractedSkills = await skillMiner.extractSkillsFromCode(
+      pattern,
+      category === 'autolisp_patterns' ? 'lisp' : 'javascript'
+    );
+    
+    // If no skills extracted, add manually
+    if (extractedSkills.length === 0) {
+      const newSkill = {
+        id: `user-${Date.now()}`,
+        name: name || 'User Pattern',
+        category: category as any,
+        description: description || 'User-contributed pattern',
+        implementation: pattern,
+        language: category === 'autolisp_patterns' ? 'lisp' : 'javascript',
+        keywords: [],
+        confidence: 0.8,
+        usage_count: 0
+      };
+      
+      skillMiner.addSkill(newSkill);
+      extractedSkills.push(newSkill);
+    } else {
+      // Add all extracted skills
+      extractedSkills.forEach(skill => {
+        skillMiner.addSkill(skill);
+      });
+    }
+    
+    res.json({
+      status: 'success',
+      message: 'Pattern added to knowledge base',
+      added_skills: extractedSkills.map(s => ({
+        id: s.id,
+        name: s.name,
+        category: s.category
+      }))
+    });
+  } catch (error) {
+    console.error('Training error:', error);
+    res.status(500).json({ error: 'Failed to add pattern' });
+  }
+});
+
+/**
+ * Extract code blocks from text
+ */
+function extractCodeBlocks(text: string): Array<{ type: string; code: string }> {
+  const blocks: Array<{ type: string; code: string }> = [];
+  
+  // Regular expressions for different code block types
+  const patterns = [
+    { type: 'autolisp', regex: /```(?:lisp|autolisp)\n([\s\S]*?)```/g },
+    { type: 'python', regex: /```python\n([\s\S]*?)```/g },
+    { type: 'javascript', regex: /```(?:javascript|js)\n([\s\S]*?)```/g },
+    { type: 'typescript', regex: /```(?:typescript|ts)\n([\s\S]*?)```/g },
+    { type: 'generic', regex: /```\n([\s\S]*?)```/g }
+  ];
+  
+  for (const { type, regex } of patterns) {
+    let match;
+    while ((match = regex.exec(text)) !== null) {
+      blocks.push({
+        type,
+        code: match[1].trim()
+      });
+    }
+  }
+  
+  return blocks;
+}
+
 // Health check
 router.get('/health', (req, res) => {
   const hasApiKey = !!process.env.OPENAI_API_KEY;
@@ -361,7 +627,10 @@ router.get('/health', (req, res) => {
       generation: hasApiKey,
       assistant: hasApiKey && !!process.env.OPENAI_ASSISTANT_ID,
       codeInterpreter: hasApiKey,
-      imageAnalysis: hasApiKey
+      imageAnalysis: hasApiKey,
+      query: hasApiKey,
+      drawingAnalysis: hasApiKey,
+      training: true
     }
   });
 });
