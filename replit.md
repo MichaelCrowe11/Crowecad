@@ -6,6 +6,8 @@ This is a comprehensive facility design application for mycology (mushroom culti
 - **Advanced Crowe Logic AI**: Genetic algorithm-based AI agent with voice control, visual analysis, and quantum consciousness states
 - **External Batch Reporting**: Complete integration with ERP, MES, LIMS, SCADA, and other business systems with multi-format report generation and automated distribution
 - **Professional CAD Interface**: AutoCAD-style technical drawing system with dark theme and comprehensive facility design tools
+- **DXF Rendering Capabilities**: Full import/export of AutoCAD DXF files with layer management and professional CAD output
+- **Vision AI Integration**: Computer vision capabilities to analyze facility photos, identify equipment, assess conditions, and convert hand-drawn sketches to digital layouts
 
 # User Preferences
 

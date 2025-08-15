@@ -27,6 +27,8 @@ import {
   FileUp,
   FileDown,
   Beaker,
+  Camera,
+  Sparkles,
   Wind,
   Factory,
   Database,
@@ -280,6 +282,18 @@ export function RibbonToolbar({
                 <ToolButton icon={FileDown} label="Export SVG" tool="export-svg" />
                 <ToolButton icon={FileDown} label="Export PDF" tool="export-pdf" />
                 <ToolButton icon={FileDown} label="Export PNG" tool="export-png" />
+              </div>
+            </div>
+
+            <Separator orientation="vertical" className="h-16 mx-2" />
+
+            {/* Vision Analysis Tools */}
+            <div className="ribbon-group">
+              <div className="ribbon-group-label">Vision AI</div>
+              <div className="ribbon-group-tools">
+                <ToolButton icon={Eye} label="Analyze Image" tool="vision-analyze" />
+                <ToolButton icon={Camera} label="Photo to CAD" tool="vision-photo" />
+                <ToolButton icon={Sparkles} label="Sketch to CAD" tool="vision-sketch" />
               </div>
             </div>
           </TabsContent>

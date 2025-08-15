@@ -14,6 +14,7 @@ import { AppHeader } from "@/components/app-header";
 import { RibbonToolbar } from "@/components/ribbon-toolbar";
 import { StatusBar } from "@/components/status-bar";
 import { DxfImportExport } from "@/components/dxf-import-export";
+import { VisionAnalysis } from "@/components/vision-analysis";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -294,8 +295,8 @@ export default function FacilityDesigner() {
               onCommandExecuted={handleCommandExecuted}
             />
             
-            {/* DXF Import/Export */}
-            <div className="p-2 border-b">
+            {/* DXF Import/Export and Vision Analysis */}
+            <div className="p-2 border-b space-y-2">
               <DxfImportExport
                 facilityId={currentFacilityId}
                 facilityName={currentProject?.name}
@@ -306,6 +307,52 @@ export default function FacilityDesigner() {
                   });
                   // Refresh the facility data
                   queryClient.invalidateQueries({ queryKey: ['/api/facilities', currentFacilityId, 'equipment'] });
+                  queryClient.invalidateQueries({ queryKey: ['/api/facilities', currentFacilityId, 'zones'] });
+                }}
+              />
+              
+              <VisionAnalysis
+                facilityId={currentFacilityId}
+                onEquipmentDetected={async (detectedEquipment) => {
+                  // Add detected equipment to facility
+                  for (const eq of detectedEquipment) {
+                    try {
+                      await apiRequest(`/api/facilities/${currentFacilityId}/equipment`, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                          typeId: eq.type,
+                          position: eq.position,
+                          rotation: eq.rotation || 0,
+                          scale: eq.scale || 1,
+                          properties: eq.properties || {}
+                        })
+                      });
+                    } catch (error) {
+                      console.error('Failed to add equipment:', error);
+                    }
+                  }
+                  queryClient.invalidateQueries({ queryKey: ['/api/facilities', currentFacilityId, 'equipment'] });
+                }}
+                onZonesDetected={async (detectedZones) => {
+                  // Add detected zones to facility
+                  for (const zone of detectedZones) {
+                    try {
+                      await apiRequest(`/api/facilities/${currentFacilityId}/zones`, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                          name: zone.name,
+                          type: zone.type,
+                          x: zone.x,
+                          y: zone.y,
+                          width: zone.width,
+                          height: zone.height,
+                          color: zone.color
+                        })
+                      });
+                    } catch (error) {
+                      console.error('Failed to add zone:', error);
+                    }
+                  }
                   queryClient.invalidateQueries({ queryKey: ['/api/facilities', currentFacilityId, 'zones'] });
                 }}
               />
