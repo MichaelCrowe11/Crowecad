@@ -6,11 +6,13 @@
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import {
   Select,
   SelectContent,
@@ -36,6 +38,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { gpt5CodeGenerator } from '@/lib/gpt5-code-generator';
+import { gpt5AppArchitect } from '@/lib/gpt5-app-architect';
 import { useToast } from '@/hooks/use-toast';
 
 export function GPT5CodeStudio() {
@@ -46,6 +49,21 @@ export function GPT5CodeStudio() {
   const [codeHistory, setCodeHistory] = useState<any[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [currentProgress, setCurrentProgress] = useState(0);
+  const [appRequirements, setAppRequirements] = useState({
+    name: '',
+    description: '',
+    type: 'fullstack' as 'web' | 'mobile' | 'desktop' | 'api' | 'fullstack',
+    features: [] as string[],
+    users: 1000,
+    performance: {
+      responseTime: 200,
+      concurrent: 100,
+      availability: 99.9
+    },
+    security: ['JWT', 'HTTPS', 'Rate Limiting'],
+    integrations: [] as string[]
+  });
+  const [generatedApp, setGeneratedApp] = useState<any>(null);
   const { toast } = useToast();
 
   // Code generation handler
@@ -232,6 +250,41 @@ export function GPT5CodeStudio() {
   };
   
   // Download generated code
+  // Architecture generation handler
+  const handleArchitectGeneration = async () => {
+    if (!appRequirements.name || !appRequirements.description) return;
+    
+    setIsGenerating(true);
+    setCurrentProgress(0);
+    
+    try {
+      const progressInterval = setInterval(() => {
+        setCurrentProgress(prev => Math.min(prev + 3, 97));
+      }, 1000);
+      
+      const result = await gpt5AppArchitect.generateApp(appRequirements);
+      
+      clearInterval(progressInterval);
+      setCurrentProgress(100);
+      setGeneratedApp(result);
+      
+      toast({
+        title: "App Architecture Generated!",
+        description: `Complete architecture for ${appRequirements.name} has been generated with ${result.timeline?.totalWeeks} week timeline.`,
+      });
+    } catch (error) {
+      console.error('Architecture generation error:', error);
+      toast({
+        title: "Generation Failed",
+        description: "Failed to generate app architecture. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGenerating(false);
+      setCurrentProgress(0);
+    }
+  };
+
   const downloadGeneratedCode = () => {
     if (!generatedCode) return;
     
@@ -265,12 +318,328 @@ export function GPT5CodeStudio() {
         </CardHeader>
       </Card>
 
-      <Tabs defaultValue="component" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="component">Component Gen</TabsTrigger>
-          <TabsTrigger value="feature">Feature Builder</TabsTrigger>
-          <TabsTrigger value="refactor">Refactor & Fix</TabsTrigger>
+      <Tabs defaultValue="architect" className="w-full">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="architect">App Architect</TabsTrigger>
+          <TabsTrigger value="component">Components</TabsTrigger>
+          <TabsTrigger value="feature">Features</TabsTrigger>
+          <TabsTrigger value="refactor">Refactor</TabsTrigger>
         </TabsList>
+
+        {/* App Architect Tab - Superior App Development */}
+        <TabsContent value="architect" className="space-y-4">
+          <Card className="border-purple-500/30 bg-gradient-to-br from-purple-900/5 to-blue-900/5">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Zap className="w-5 h-5 text-purple-400" />
+                Superior App Architect
+              </CardTitle>
+              <CardDescription>
+                Generate production-ready full stack applications with advanced architecture patterns
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>App Name</Label>
+                  <Input
+                    placeholder="E.g., TaskMaster Pro"
+                    value={appRequirements.name}
+                    onChange={(e) => setAppRequirements({...appRequirements, name: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <Label>App Type</Label>
+                  <Select 
+                    value={appRequirements.type} 
+                    onValueChange={(v: any) => setAppRequirements({...appRequirements, type: v})}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="fullstack">Full Stack Web App</SelectItem>
+                      <SelectItem value="mobile">Mobile App (React Native)</SelectItem>
+                      <SelectItem value="web">Web App (SPA)</SelectItem>
+                      <SelectItem value="api">API/Backend Only</SelectItem>
+                      <SelectItem value="desktop">Desktop App (Electron)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div>
+                <Label>App Description & Requirements</Label>
+                <Textarea
+                  placeholder="Describe your app in detail. E.g., A project management platform with real-time collaboration, Kanban boards, time tracking, team chat, file sharing, and advanced analytics dashboard. Should support 10,000+ concurrent users with sub-200ms response times."
+                  value={appRequirements.description}
+                  onChange={(e) => setAppRequirements({...appRequirements, description: e.target.value})}
+                  className="h-32 font-mono text-sm"
+                />
+              </div>
+
+              <div>
+                <Label>Core Features (comma separated)</Label>
+                <Textarea
+                  placeholder="E.g., user authentication, real-time collaboration, payment processing, analytics dashboard, file upload, notifications, search, admin panel"
+                  onChange={(e) => setAppRequirements({...appRequirements, features: e.target.value.split(',').map(f => f.trim())})}
+                  className="h-20"
+                />
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <Label>Expected Users</Label>
+                  <Select 
+                    value={appRequirements.users.toString()} 
+                    onValueChange={(v) => setAppRequirements({...appRequirements, users: parseInt(v)})}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="100">Under 100 users</SelectItem>
+                      <SelectItem value="1000">1,000 users</SelectItem>
+                      <SelectItem value="10000">10,000 users</SelectItem>
+                      <SelectItem value="100000">100,000 users</SelectItem>
+                      <SelectItem value="1000000">1M+ users</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Architecture</Label>
+                  <Select defaultValue="auto">
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="auto">Auto-Select (Recommended)</SelectItem>
+                      <SelectItem value="monolithic">Monolithic</SelectItem>
+                      <SelectItem value="microservices">Microservices</SelectItem>
+                      <SelectItem value="serverless">Serverless</SelectItem>
+                      <SelectItem value="jamstack">JAMstack</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Deployment</Label>
+                  <Select defaultValue="auto">
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="auto">Auto-Select</SelectItem>
+                      <SelectItem value="vercel">Vercel</SelectItem>
+                      <SelectItem value="aws">AWS</SelectItem>
+                      <SelectItem value="kubernetes">Kubernetes</SelectItem>
+                      <SelectItem value="docker">Docker</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Quick App Templates</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setAppRequirements({
+                        name: 'E-Commerce Platform',
+                        description: 'Complete e-commerce platform with product catalog, shopping cart, checkout, payment processing, order management, inventory tracking, and admin dashboard',
+                        type: 'fullstack',
+                        features: ['product catalog', 'shopping cart', 'payment processing', 'order management', 'admin dashboard', 'user reviews', 'search', 'recommendations'],
+                        users: 10000,
+                        performance: { responseTime: 200, concurrent: 1000, availability: 99.9 },
+                        security: ['PCI compliance', 'JWT', 'HTTPS', 'Rate limiting'],
+                        integrations: ['Stripe', 'PayPal', 'SendGrid', 'Cloudinary']
+                      });
+                    }}
+                  >
+                    E-Commerce Platform
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setAppRequirements({
+                        name: 'SaaS Dashboard',
+                        description: 'Multi-tenant SaaS application with team management, subscription billing, analytics dashboard, API access, and white-labeling',
+                        type: 'fullstack',
+                        features: ['multi-tenancy', 'subscription billing', 'team management', 'analytics', 'API', 'webhooks', 'white-label'],
+                        users: 100000,
+                        performance: { responseTime: 150, concurrent: 5000, availability: 99.99 },
+                        security: ['SSO', 'RBAC', '2FA', 'API keys'],
+                        integrations: ['Stripe', 'Auth0', 'Segment', 'Intercom']
+                      });
+                    }}
+                  >
+                    SaaS Platform
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setAppRequirements({
+                        name: 'Social Network',
+                        description: 'Social networking app with profiles, posts, real-time chat, notifications, feed algorithm, and content moderation',
+                        type: 'fullstack',
+                        features: ['user profiles', 'posts', 'real-time chat', 'notifications', 'feed', 'groups', 'events', 'stories'],
+                        users: 1000000,
+                        performance: { responseTime: 100, concurrent: 10000, availability: 99.99 },
+                        security: ['OAuth', 'Content moderation', 'Privacy controls'],
+                        integrations: ['WebRTC', 'CloudFlare', 'AWS S3', 'ElasticSearch']
+                      });
+                    }}
+                  >
+                    Social Network
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setAppRequirements({
+                        name: 'Learning Platform',
+                        description: 'Online learning platform with courses, video streaming, quizzes, progress tracking, certificates, and instructor tools',
+                        type: 'fullstack',
+                        features: ['course management', 'video streaming', 'quizzes', 'progress tracking', 'certificates', 'forums', 'live classes'],
+                        users: 50000,
+                        performance: { responseTime: 250, concurrent: 2000, availability: 99.9 },
+                        security: ['DRM', 'Payment security', 'Content protection'],
+                        integrations: ['Vimeo', 'Zoom', 'Stripe', 'Mailchimp']
+                      });
+                    }}
+                  >
+                    Learning Platform
+                  </Button>
+                </div>
+              </div>
+
+              <Button
+                className="w-full"
+                size="lg"
+                onClick={handleArchitectGeneration}
+                disabled={!appRequirements.name || !appRequirements.description || isGenerating}
+              >
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Architecting Superior App...
+                  </>
+                ) : (
+                  <>
+                    <Zap className="mr-2 h-4 w-4" />
+                    Generate Complete App Architecture
+                  </>
+                )}
+              </Button>
+
+              {generatedApp && (
+                <div className="mt-6 space-y-4">
+                  <Alert className="border-green-500/50 bg-green-500/10">
+                    <Check className="h-4 w-4 text-green-500" />
+                    <AlertTitle>App Architecture Generated!</AlertTitle>
+                    <AlertDescription>
+                      Your {appRequirements.name} app has been architected with {generatedApp.structure?.frontend?.files?.length || 0} frontend files, 
+                      {generatedApp.structure?.backend?.files?.length || 0} backend files, and complete deployment configuration.
+                    </AlertDescription>
+                  </Alert>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <Card>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-sm">Architecture</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <Badge>{generatedApp.architecture?.type}</Badge>
+                        <div className="mt-2 text-xs text-muted-foreground">
+                          {generatedApp.architecture?.patterns?.join(', ')}
+                        </div>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-sm">Timeline</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold">{generatedApp.timeline?.totalWeeks} weeks</div>
+                        <div className="text-xs text-muted-foreground">Development time</div>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-sm">Cost Estimate</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-lg font-bold">${generatedApp.estimatedCost?.monthly}/mo</div>
+                        <div className="text-xs text-muted-foreground">Infrastructure cost</div>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-sm">Test Coverage</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold">{generatedApp.testing?.coverage}%</div>
+                        <div className="text-xs text-muted-foreground">Code coverage target</div>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  <Tabs defaultValue="structure" className="w-full">
+                    <TabsList className="grid w-full grid-cols-5">
+                      <TabsTrigger value="structure">Structure</TabsTrigger>
+                      <TabsTrigger value="code">Code</TabsTrigger>
+                      <TabsTrigger value="deployment">Deploy</TabsTrigger>
+                      <TabsTrigger value="testing">Testing</TabsTrigger>
+                      <TabsTrigger value="docs">Docs</TabsTrigger>
+                    </TabsList>
+
+                    <TabsContent value="structure">
+                      <ScrollArea className="h-96 border rounded-lg p-4">
+                        <div className="space-y-4">
+                          {generatedApp.structure?.frontend && (
+                            <div>
+                              <h4 className="font-semibold mb-2">Frontend</h4>
+                              <div className="text-sm text-muted-foreground">
+                                {generatedApp.structure.frontend.technology?.join(', ')}
+                              </div>
+                              <div className="mt-2">
+                                {generatedApp.structure.frontend.bestPractices?.map((practice: string, i: number) => (
+                                  <Badge key={i} variant="outline" className="mr-2 mb-1">{practice}</Badge>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          {generatedApp.structure?.backend && (
+                            <div>
+                              <h4 className="font-semibold mb-2">Backend</h4>
+                              <div className="text-sm text-muted-foreground">
+                                {generatedApp.structure.backend.technology?.join(', ')}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </ScrollArea>
+                    </TabsContent>
+
+                    <TabsContent value="code">
+                      <ScrollArea className="h-96 border rounded-lg bg-slate-950 p-4">
+                        {generatedApp.structure?.frontend?.files?.slice(0, 5).map((file: any, i: number) => (
+                          <div key={i} className="mb-4">
+                            <div className="text-sm font-mono text-green-400">{file.path}</div>
+                            <div className="text-xs text-gray-400">{file.purpose}</div>
+                          </div>
+                        ))}
+                      </ScrollArea>
+                    </TabsContent>
+                  </Tabs>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
 
         {/* Component Generation Tab */}
         <TabsContent value="component" className="space-y-4">
