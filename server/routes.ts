@@ -424,6 +424,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // OpenAI-powered CAD operations
+  // Dynamically import and use OpenAI routes if API key is available
+  if (process.env.OPENAI_API_KEY) {
+    const openaiRouter = (await import('./routes/openai')).default;
+    app.use('/api/openai', openaiRouter);
+  }
+
   const httpServer = createServer(app);
   
   // Initialize collaboration WebSocket server
