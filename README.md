@@ -139,7 +139,7 @@ crowecad design "Create a ring band 2mm thick, size 7, with diamond setting"
 ## Environment Variables
 Create a `.env` file with:
 ```
-ANTHROPIC_API_KEY=your_api_key_here
+OPENAI_API_KEY=your_api_key_here
 DATABASE_URL=your_postgres_url
 ```
 

@@ -1,11 +1,11 @@
-import Anthropic from '@anthropic-ai/sdk';
+import OpenAI from 'openai';
 
 /*
 Extended Thinking Pattern from Anthropic Cookbook
 Allows AI to think deeply about complex facility planning decisions
 */
 
-const DEFAULT_MODEL_STR = "claude-sonnet-4-20250514";
+const DEFAULT_MODEL_STR = "gpt-3.5-turbo";
 
 export interface ThinkingResult {
   decision: string;
@@ -17,11 +17,11 @@ export interface ThinkingResult {
 }
 
 export class ExtendedThinking {
-  private anthropic: Anthropic;
+  private openai: OpenAI;
 
   constructor(apiKey?: string) {
-    this.anthropic = new Anthropic({
-      apiKey: apiKey || import.meta.env.VITE_ANTHROPIC_API_KEY || 'placeholder',
+    this.openai = new OpenAI({
+      apiKey: apiKey || import.meta.env.VITE_OPENAI_API_KEY || 'placeholder',
       dangerouslyAllowBrowser: true
     });
   }
@@ -66,7 +66,7 @@ Take your time to think through all aspects thoroughly.
 `;
 
     try {
-      const response = await this.anthropic.messages.create({
+      const response = await this.openai.chat.completions.create({
         model: DEFAULT_MODEL_STR,
         max_tokens: 4000,
         messages: [{
@@ -75,7 +75,7 @@ Take your time to think through all aspects thoroughly.
         }]
       });
 
-      const content = response.content[0].type === 'text' ? response.content[0].text : '{}';
+      const content = response.choices[0]?.message?.content || '{}';
       return JSON.parse(content);
     } catch (error) {
       console.error('Extended thinking error:', error);
@@ -141,7 +141,7 @@ Provide optimization in JSON format:
 `;
 
     try {
-      const response = await this.anthropic.messages.create({
+      const response = await this.openai.chat.completions.create({
         model: DEFAULT_MODEL_STR,
         max_tokens: 2000,
         messages: [{
@@ -150,7 +150,7 @@ Provide optimization in JSON format:
         }]
       });
 
-      const content = response.content[0].type === 'text' ? response.content[0].text : '{}';
+      const content = response.choices[0]?.message?.content || '{}';
       return JSON.parse(content);
     } catch (error) {
       console.error('Multi-factor optimization error:', error);
@@ -201,7 +201,7 @@ Provide analysis in JSON format:
 `;
 
     try {
-      const response = await this.anthropic.messages.create({
+      const response = await this.openai.chat.completions.create({
         model: DEFAULT_MODEL_STR,
         max_tokens: 2000,
         messages: [{
@@ -210,7 +210,7 @@ Provide analysis in JSON format:
         }]
       });
 
-      const content = response.content[0].type === 'text' ? response.content[0].text : '{}';
+      const content = response.choices[0]?.message?.content || '{}';
       return JSON.parse(content);
     } catch (error) {
       console.error('Compliance check error:', error);
@@ -265,7 +265,7 @@ Provide strategic plan in JSON format with phases, investments, and expected out
 `;
 
     try {
-      const response = await this.anthropic.messages.create({
+      const response = await this.openai.chat.completions.create({
         model: DEFAULT_MODEL_STR,
         max_tokens: 3000,
         messages: [{
@@ -274,7 +274,7 @@ Provide strategic plan in JSON format with phases, investments, and expected out
         }]
       });
 
-      const content = response.content[0].type === 'text' ? response.content[0].text : '{}';
+      const content = response.choices[0]?.message?.content || '{}';
       return JSON.parse(content);
     } catch (error) {
       console.error('Strategic planning error:', error);
