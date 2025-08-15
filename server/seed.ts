@@ -1,5 +1,7 @@
 import { db } from "./db";
 import { equipmentTypes } from "@shared/schema";
+import { eq } from "drizzle-orm";
+import { fileURLToPath } from "url";
 
 const mycologyEquipmentTypes = [
   // Bioreactors
@@ -221,22 +223,32 @@ const mycologyEquipmentTypes = [
 export async function seedEquipmentTypes() {
   try {
     console.log("Seeding equipment types...");
-    
-    // Check if equipment types already exist
-    const existingTypes = await db.select().from(equipmentTypes);
-    if (existingTypes.length > 0) {
-      console.log("Equipment types already exist, skipping seed.");
-      return;
+
+    for (const equipmentType of mycologyEquipmentTypes) {
+      const existing = await db.query.equipmentTypes.findFirst({
+        where: eq(equipmentTypes.name, equipmentType.name),
+      });
+
+      if (!existing) {
+        await db.insert(equipmentTypes).values(equipmentType);
+      }
     }
 
-    // Insert equipment types
-    for (const equipmentType of mycologyEquipmentTypes) {
-      await db.insert(equipmentTypes).values(equipmentType);
-    }
-    
-    console.log(`Successfully seeded ${mycologyEquipmentTypes.length} equipment types.`);
+    console.log("Equipment types seed complete.");
   } catch (error) {
     console.error("Error seeding equipment types:", error);
     throw error;
   }
+}
+
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  seedEquipmentTypes()
+    .then(() => {
+      console.log("Seed run finished");
+      process.exit(0);
+    })
+    .catch((err) => {
+      console.error(err);
+      process.exit(1);
+    });
 }
