@@ -1,0 +1,4 @@
+services:
+  crowecad:
+    environment:
+      NODE_ENV: staging
