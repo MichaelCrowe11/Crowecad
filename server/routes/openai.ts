@@ -5,6 +5,7 @@ import { skillMiner } from '../../client/src/lib/skill-miner';
 import multer from 'multer';
 import fs from 'fs/promises';
 import path from 'path';
+import { OPENAI_API_KEY, OPENAI_ASSISTANT_ID } from '../env';
 
 // Configure multer for file uploads
 const upload = multer({
@@ -25,7 +26,7 @@ const router = Router();
 
 // Initialize OpenAI client
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || '',
+  apiKey: OPENAI_API_KEY,
 });
 
 // Schema for CAD generation request
@@ -159,7 +160,7 @@ ${relevantSkills.slice(0, 3).map(s =>
     const run = await openai.beta.threads.runs.create(
       threadId,
       {
-        assistant_id: process.env.OPENAI_ASSISTANT_ID || 'asst_crowecad',
+        assistant_id: OPENAI_ASSISTANT_ID,
         instructions: buildDynamicInstructions(relevantSkills)
       }
     );
@@ -620,12 +621,12 @@ function extractCodeBlocks(text: string): Array<{ type: string; code: string }> 
 
 // Health check
 router.get('/health', (req, res) => {
-  const hasApiKey = !!process.env.OPENAI_API_KEY;
+  const hasApiKey = !!OPENAI_API_KEY;
   res.json({
     status: hasApiKey ? 'healthy' : 'missing_api_key',
     features: {
       generation: hasApiKey,
-      assistant: hasApiKey && !!process.env.OPENAI_ASSISTANT_ID,
+      assistant: hasApiKey && !!OPENAI_ASSISTANT_ID,
       codeInterpreter: hasApiKey,
       imageAnalysis: hasApiKey,
       query: hasApiKey,

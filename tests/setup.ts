@@ -11,6 +11,11 @@ process.env.DATABASE_URL = 'postgresql://test:test@localhost:5432/crowecad_test'
 process.env.NODE_ENV = 'test';
 process.env.OPENAI_API_KEY = 'test-api-key';
 process.env.ANTHROPIC_API_KEY = 'test-api-key';
+process.env.OPENAI_ASSISTANT_ID = 'asst_test';
+process.env.PGUSER = 'test';
+process.env.PGPASSWORD = 'test';
+process.env.PGDATABASE = 'crowecad_test';
+process.env.GITHUB_TOKEN = 'test-token';
 
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
