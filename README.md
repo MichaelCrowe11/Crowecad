@@ -133,14 +133,34 @@ crowecad design "Create a ring band 2mm thick, size 7, with diamond setting"
 ## Stack
 - **Frontend**: React 18, TypeScript, Three.js, Tailwind CSS
 - **Backend**: Node.js, Express, PostgreSQL
-- **AI**: Anthropic Claude API integration
+- **AI**: OpenAI API integration (Anthropic support planned)
 - **Build**: Vite
 
 ## Environment Variables
 Create a `.env` file with:
 ```
+AI_PROVIDER=openai
 OPENAI_API_KEY=your_api_key_here
+OPENAI_ASSISTANT_ID=optional_assistant_id
 DATABASE_URL=your_postgres_url
+```
+
+## AI Configuration
+
+Set the `AI_PROVIDER` environment variable to choose the AI backend.
+Currently only `openai` is implemented. Anthropic support is planned.
+
+| AI_PROVIDER | Required environment variables |
+|-------------|--------------------------------|
+| `openai`    | `OPENAI_API_KEY`, `OPENAI_ASSISTANT_ID` *(optional)* |
+| `anthropic` | `ANTHROPIC_API_KEY` |
+
+### Example
+
+```bash
+curl -X POST http://localhost:3000/api/openai/generate \
+  -H "Content-Type: application/json" \
+  -d '{"description":"Create a gear","format":"dxf"}'
 ```
 
 ## Development
