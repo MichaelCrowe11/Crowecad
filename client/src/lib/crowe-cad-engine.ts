@@ -71,6 +71,7 @@ export class CroweCADEngine {
   private webWorker?: Worker;
   private wasmModule?: any; // OpenCascade.js or similar
   private gpuCompute?: any; // GPU.js for parallel computing
+  private workerAvailable: boolean = false;
 
   constructor(container: HTMLElement) {
     // Initialize Three.js scene with CAD-optimized settings
@@ -165,9 +166,21 @@ export class CroweCADEngine {
           new URL('./workers/cad-worker.js', import.meta.url),
           { type: 'module' }
         );
+        this.workerAvailable = true;
+        console.log('CAD Web Worker initialized successfully');
+        
+        // Set up worker error handling
+        this.webWorker.onerror = (error) => {
+          console.warn('Web Worker error:', error);
+          this.workerAvailable = false;
+        };
+        
       } catch (error) {
         console.warn('Web Worker initialization failed:', error);
+        this.workerAvailable = false;
       }
+    } else {
+      console.info('Web Workers not supported in this environment');
     }
     
     // Load WebAssembly module for CAD kernel operations
@@ -259,20 +272,28 @@ export class CroweCADEngine {
     const constraintArray = Array.from(this.constraints.values());
     
     // Use Web Worker for constraint solving if available
-    if (this.webWorker) {
-      this.webWorker.postMessage({
-        type: 'solveConstraints',
-        constraints: constraintArray
-      });
-      
-      return new Promise((resolve) => {
-        this.webWorker!.onmessage = (e) => {
-          if (e.data.type === 'constraintsSolved') {
-            this.applyConstraintSolution(e.data.solution);
-            resolve();
-          }
-        };
-      });
+    if (this.webWorker && this.workerAvailable) {
+      try {
+        this.webWorker.postMessage({
+          type: 'solveConstraints',
+          constraints: constraintArray
+        });
+        
+        return new Promise((resolve) => {
+          this.webWorker!.onmessage = (e) => {
+            if (e.data.type === 'constraintsSolved') {
+              this.applyConstraintSolution(e.data.solution);
+              resolve();
+            } else if (e.data.type === 'error') {
+              console.warn('Worker constraint solving error:', e.data.error);
+              resolve(); // Continue without worker
+            }
+          };
+        });
+      } catch (error) {
+        console.warn('Error communicating with worker:', error);
+        this.workerAvailable = false;
+      }
     }
     
     // Fallback to main thread solving
