@@ -15,6 +15,7 @@ import { RibbonToolbar } from "@/components/ribbon-toolbar";
 import { StatusBar } from "@/components/status-bar";
 import { DxfImportExport } from "@/components/dxf-import-export";
 import { VisionAnalysis } from "@/components/vision-analysis";
+import { PDFImport } from "@/components/pdf-import";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -307,6 +308,46 @@ export default function FacilityDesigner() {
                   });
                   // Refresh the facility data
                   queryClient.invalidateQueries({ queryKey: ['/api/facilities', currentFacilityId, 'equipment'] });
+                  queryClient.invalidateQueries({ queryKey: ['/api/facilities', currentFacilityId, 'zones'] });
+                }}
+              />
+              
+              <PDFImport
+                facilityId={currentFacilityId}
+                onEquipmentImported={async (importedEquipment) => {
+                  // Add imported equipment to facility
+                  for (const eq of importedEquipment) {
+                    try {
+                      await apiRequest(`/api/facilities/${currentFacilityId}/equipment`, 'POST', {
+                        typeId: eq.type,
+                        position: eq.position,
+                        rotation: eq.rotation || 0,
+                        scale: eq.scale || 1,
+                        properties: eq.properties || {}
+                      });
+                    } catch (error) {
+                      console.error('Failed to add equipment:', error);
+                    }
+                  }
+                  queryClient.invalidateQueries({ queryKey: ['/api/facilities', currentFacilityId, 'equipment'] });
+                }}
+                onZonesImported={async (importedZones) => {
+                  // Add imported zones to facility
+                  for (const zone of importedZones) {
+                    try {
+                      await apiRequest(`/api/facilities/${currentFacilityId}/zones`, 'POST', {
+                        name: zone.name,
+                        type: zone.type,
+                        x: zone.x,
+                        y: zone.y,
+                        width: zone.width,
+                        height: zone.height,
+                        color: zone.color
+                      });
+                    } catch (error) {
+                      console.error('Failed to add zone:', error);
+                    }
+                  }
                   queryClient.invalidateQueries({ queryKey: ['/api/facilities', currentFacilityId, 'zones'] });
                 }}
               />
