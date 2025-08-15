@@ -19,6 +19,7 @@ import { PDFImport } from "@/components/pdf-import";
 import { AIOptimizationPanel } from "@/components/ai-optimization-panel";
 import { CroweCADInterface } from "@/components/crowe-cad-interface";
 import { InteractiveDemo } from "@/components/interactive-demo";
+import { CroweCadIDE } from "@/components/crowecad-ide";
 import { EnhancedToolsPanel } from "@/components/enhanced-tools-panel";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -58,6 +59,7 @@ export default function FacilityDesigner() {
   const [snapEnabled, setSnapEnabled] = useState(true);
   const [showCroweCAD, setShowCroweCAD] = useState(false);
   const [showDemo, setShowDemo] = useState(false);
+  const [showCroweCadIDE, setShowCroweCadIDE] = useState(false);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -305,11 +307,20 @@ export default function FacilityDesigner() {
             {/* CAD Tools and Import/Export */}
             <div className="p-2 border-b space-y-2">
               <Button 
-                onClick={() => setShowCroweCAD(!showCroweCAD)}
-                className="w-full gap-2 bg-[#00b4d8] hover:bg-[#0090b8] text-white"
+                onClick={() => setShowCroweCadIDE(true)}
+                className="w-full gap-2 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold"
               >
                 <Bot className="w-4 h-4" />
-                {showCroweCAD ? 'Close' : 'Open'} Crowe CAD Engine
+                Launch CroweCad IDE
+              </Button>
+              
+              <Button 
+                onClick={() => setShowCroweCAD(!showCroweCAD)}
+                variant="outline"
+                className="w-full gap-2"
+              >
+                <Settings className="w-4 h-4" />
+                {showCroweCAD ? 'Close' : 'Open'} Classic CAD
               </Button>
               
               <Button 
@@ -498,6 +509,14 @@ export default function FacilityDesigner() {
             />
           </div>
         </div>
+      )}
+
+      {/* CroweCad IDE - Full Screen */}
+      {showCroweCadIDE && (
+        <CroweCadIDE 
+          projectId={currentFacilityId}
+          onClose={() => setShowCroweCadIDE(false)}
+        />
       )}
 
       {/* Interactive Demo Modal */}
