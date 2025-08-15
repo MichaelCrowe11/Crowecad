@@ -3,7 +3,37 @@
  * Handles WebSocket connections, presence, and operational transformation
  */
 
-import { EventEmitter } from 'events';
+// Browser-compatible EventEmitter implementation
+class BrowserEventEmitter {
+  private events: Map<string, Function[]> = new Map();
+
+  on(event: string, listener: Function) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event)!.push(listener);
+    return this;
+  }
+
+  emit(event: string, ...args: any[]) {
+    const listeners = this.events.get(event);
+    if (listeners) {
+      listeners.forEach(listener => listener(...args));
+    }
+    return this;
+  }
+
+  off(event: string, listener: Function) {
+    const listeners = this.events.get(event);
+    if (listeners) {
+      const index = listeners.indexOf(listener);
+      if (index > -1) {
+        listeners.splice(index, 1);
+      }
+    }
+    return this;
+  }
+}
 
 export interface User {
   id: string;
@@ -41,7 +71,7 @@ export interface Comment {
   replies?: Comment[];
 }
 
-export class CollaborationClient extends EventEmitter {
+export class CollaborationClient extends BrowserEventEmitter {
   private ws: WebSocket | null = null;
   private reconnectTimeout: NodeJS.Timeout | null = null;
   private heartbeatInterval: NodeJS.Timeout | null = null;
@@ -72,46 +102,46 @@ export class CollaborationClient extends EventEmitter {
     return new Promise((resolve, reject) => {
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
       const wsUrl = url || `${protocol}//${window.location.host}/ws`;
-      
+
       this.ws = new WebSocket(wsUrl);
-      
+
       this.ws.onopen = () => {
         console.log('Collaboration connected');
         this.isConnected = true;
         this.reconnectAttempts = 0;
-        
+
         // Join document session
         this.send('join', {
           documentId: this.documentId,
           userId: this.userId,
           user: this.getCurrentUser()
         });
-        
+
         // Start heartbeat
         this.startHeartbeat();
-        
+
         // Process queued operations
         this.processOperationQueue();
-        
+
         resolve();
       };
-      
+
       this.ws.onmessage = (event) => {
         this.handleMessage(JSON.parse(event.data));
       };
-      
+
       this.ws.onerror = (error) => {
         console.error('WebSocket error:', error);
         this.emit('error', error);
       };
-      
+
       this.ws.onclose = () => {
         console.log('Collaboration disconnected');
         this.isConnected = false;
         this.stopHeartbeat();
         this.attemptReconnect();
       };
-      
+
       // Timeout connection attempt
       setTimeout(() => {
         if (!this.isConnected) {
@@ -129,12 +159,12 @@ export class CollaborationClient extends EventEmitter {
       clearTimeout(this.reconnectTimeout);
       this.reconnectTimeout = null;
     }
-    
+
     if (this.ws) {
       this.ws.close();
       this.ws = null;
     }
-    
+
     this.stopHeartbeat();
     this.isConnected = false;
   }
@@ -158,44 +188,44 @@ export class CollaborationClient extends EventEmitter {
    */
   private handleMessage(message: any) {
     const { type, data } = message;
-    
+
     switch (type) {
       case 'state':
         this.handleStateUpdate(data);
         break;
-        
+
       case 'user-joined':
         this.handleUserJoined(data);
         break;
-        
+
       case 'user-left':
         this.handleUserLeft(data);
         break;
-        
+
       case 'cursor-update':
         this.handleCursorUpdate(data);
         break;
-        
+
       case 'selection-update':
         this.handleSelectionUpdate(data);
         break;
-        
+
       case 'operation':
         this.handleRemoteOperation(data);
         break;
-        
+
       case 'comment':
         this.handleComment(data);
         break;
-        
+
       case 'presence':
         this.handlePresenceUpdate(data);
         break;
-        
+
       case 'conflict':
         this.handleConflict(data);
         break;
-        
+
       case 'ack':
         this.handleAcknowledgment(data);
         break;
@@ -209,7 +239,7 @@ export class CollaborationClient extends EventEmitter {
     this.state.version = data.version;
     this.state.users = new Map(data.users);
     this.state.operations = data.operations || [];
-    
+
     this.emit('state-update', this.state);
   }
 
@@ -264,11 +294,11 @@ export class CollaborationClient extends EventEmitter {
   private handleRemoteOperation(data: Operation) {
     // Apply operational transformation if needed
     const transformedOp = this.transformOperation(data);
-    
+
     // Update local state
     this.state.operations.push(transformedOp);
     this.state.version = transformedOp.version;
-    
+
     // Emit for local application
     this.emit('remote-operation', transformedOp);
   }
@@ -279,25 +309,25 @@ export class CollaborationClient extends EventEmitter {
   private transformOperation(operation: Operation): Operation {
     // Simple last-write-wins for now
     // In production, implement proper OT or CRDT
-    
+
     const conflictingOps = this.state.operations.filter(
       op => op.target === operation.target && 
             op.version >= operation.version &&
             op.userId !== operation.userId
     );
-    
+
     if (conflictingOps.length > 0) {
       // Transform the operation based on conflicts
       // This is a simplified version - real OT is more complex
       operation.version = this.state.version + 1;
-      
+
       // Emit conflict for UI handling
       this.emit('conflict-detected', {
         operation,
         conflicts: conflictingOps
       });
     }
-    
+
     return operation;
   }
 
@@ -314,14 +344,14 @@ export class CollaborationClient extends EventEmitter {
       timestamp: Date.now(),
       version: this.state.version + 1
     };
-    
+
     // Optimistically apply locally
     this.state.operations.push(operation);
     this.state.version = operation.version;
-    
+
     // Send to server
     this.send('operation', operation);
-    
+
     return operation;
   }
 
@@ -351,7 +381,7 @@ export class CollaborationClient extends EventEmitter {
       timestamp: Date.now(),
       resolved: false
     };
-    
+
     this.send('comment', comment);
     return comment;
   }
@@ -392,10 +422,10 @@ export class CollaborationClient extends EventEmitter {
       this.emit('reconnect-failed');
       return;
     }
-    
+
     this.reconnectAttempts++;
     const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 30000);
-    
+
     this.reconnectTimeout = setTimeout(() => {
       console.log(`Reconnect attempt ${this.reconnectAttempts}`);
       this.connect().catch(() => {
@@ -463,12 +493,12 @@ export class CollaborationClient extends EventEmitter {
       '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', 
       '#FFEAA7', '#DDA0DD', '#98D8C8', '#FFD93D'
     ];
-    
+
     let hash = 0;
     for (let i = 0; i < userId.length; i++) {
       hash = userId.charCodeAt(i) + ((hash << 5) - hash);
     }
-    
+
     return colors[Math.abs(hash) % colors.length];
   }
 

@@ -3,6 +3,38 @@ import * as tf from '@tensorflow/tfjs';
 import nlp from 'compromise';
 import { Matrix } from 'ml-matrix';
 
+// Browser-compatible EventEmitter implementation
+class BrowserEventEmitter {
+  private events: Map<string, Function[]> = new Map();
+
+  on(event: string, listener: Function) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event)!.push(listener);
+    return this;
+  }
+
+  emit(event: string, ...args: any[]) {
+    const listeners = this.events.get(event);
+    if (listeners) {
+      listeners.forEach(listener => listener(...args));
+    }
+    return this;
+  }
+
+  off(event: string, listener: Function) {
+    const listeners = this.events.get(event);
+    if (listeners) {
+      const index = listeners.indexOf(listener);
+      if (index > -1) {
+        listeners.splice(index, 1);
+      }
+    }
+    return this;
+  }
+}
+
 // Using OpenAI's latest GPT-4 model for best performance
 const DEFAULT_MODEL_STR = "gpt-4-turbo-preview";
 
@@ -36,7 +68,7 @@ interface VisualInput {
   metadata?: any;
 }
 
-export class CroweAIAgent {
+export class CroweAIAgent extends BrowserEventEmitter {
   private openai: OpenAI;
   private memory: CroweMemory;
   private genetics: GeneticTraits;
@@ -132,12 +164,12 @@ export class CroweAIAgent {
   private async processVoiceCommand(transcript: string): Promise<VoiceCommand> {
     // Use NLP to parse the voice command
     const doc = nlp(transcript);
-    
+
     // Extract intent and entities
     const verbs = doc.verbs().out('array');
     const nouns = doc.nouns().out('array');
     const numbers = doc.numbers().out('array');
-    
+
     // Determine intent based on genetic traits and context
     let intent = 'unknown';
     if (verbs.includes('add') || verbs.includes('create') || verbs.includes('place')) {
@@ -288,10 +320,10 @@ Be specific with coordinates and properties. Use your genetic traits to influenc
       });
 
       const command = response.choices[0]?.message?.content || '';
-      
+
       // Learn from successful command generation
       this.memory.shortTerm.set(`last_command_${Date.now()}`, command);
-      
+
       return command;
     } catch (error) {
       console.error('CAD command generation error:', error);
@@ -337,24 +369,24 @@ Be specific with coordinates and properties. Use your genetic traits to influenc
     try {
       // Encode input as feature vector
       const features = new Array(10).fill(0);
-      
+
       if (typeof input === 'string') {
         features[0] = input.length / 100; // text length
         features[1] = (input.match(/\d+/g) || []).length / 10; // number count
       }
-      
+
       // Add genetic traits as features
       features[2] = this.genetics.creativity;
       features[3] = this.genetics.precision;
       features[4] = this.genetics.adaptability;
       features[5] = this.genetics.efficiency;
       features[6] = this.genetics.curiosity;
-      
+
       // Add memory context
       features[7] = this.memory.workingMemory.length / 100;
       features[8] = this.memory.episodicMemory.length / 100;
       features[9] = Date.now() % 1000 / 1000; // time factor
-      
+
       return features;
     } catch (error) {
       console.error('Input encoding error:', error);
@@ -366,14 +398,14 @@ Be specific with coordinates and properties. Use your genetic traits to influenc
     try {
       // Encode output as classification vector
       const classes = [0, 0, 0, 0]; // create, move, modify, delete
-      
+
       if (typeof output === 'string') {
         if (output.includes('CREATE')) classes[0] = 1;
         else if (output.includes('MOVE')) classes[1] = 1;
         else if (output.includes('MODIFY')) classes[2] = 1;
         else if (output.includes('DELETE')) classes[3] = 1;
       }
-      
+
       // Weight by success
       if (success) {
         return classes.map(c => c * 1.0);
@@ -418,7 +450,7 @@ Be specific with coordinates and properties. Use your genetic traits to influenc
   public async load(stateJson: string): Promise<void> {
     try {
       const state = JSON.parse(stateJson);
-      
+
       this.genetics = state.genetics;
       this.memory.shortTerm = new Map(state.memory.shortTerm);
       this.memory.longTerm = new Map(state.memory.longTerm);
