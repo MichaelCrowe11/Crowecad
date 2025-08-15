@@ -11,6 +11,7 @@ import {
   insertCommandSchema
 } from "@shared/schema";
 import { z } from "zod";
+import { OPENAI_API_KEY } from './env';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Initialize equipment types on startup
@@ -426,7 +427,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // OpenAI-powered CAD operations
   // Dynamically import and use OpenAI routes if API key is available
-  if (process.env.OPENAI_API_KEY) {
+  if (OPENAI_API_KEY) {
     const openaiRouter = (await import('./routes/openai')).default;
     app.use('/api/openai', openaiRouter);
     app.use('/api/crowecad', openaiRouter); // Also available under /api/crowecad
