@@ -7,7 +7,7 @@ channel = "stable-24_05"
 packages = ["openssh", "graphicsmagick-imagemagick-compat", "mailutils", "gildas"]
 
 [deployment]
-deploymentTarget = "autoscale"
+deploymentTarget = "gce"
 build = ["npm", "run", "build"]
 run = ["npm", "run", "start"]
 
@@ -41,3 +41,6 @@ waitForPort = 5000
 
 [agent]
 integrations = ["javascript_database==1.0.0", "javascript_websocket==1.0.0", "perplexity_v0==1.0.0", "javascript_openai==1.0.0", "javascript_anthropic==1.0.0"]
+
+[objectStorage]
+defaultBucketID = "replit-objstore-3439da7d-1bfd-4e36-925f-49520c848774"
