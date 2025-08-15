@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  crowecad:
+    build: .
+    container_name: crowecad-app
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=${DATABASE_URL}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - OPENAI_ASSISTANT_ID=${OPENAI_ASSISTANT_ID}
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./crowecad_skills.json:/app/crowecad_skills.json
+      - ./crowecad_skills_embeddings.pkl:/app/crowecad_skills_embeddings.pkl
+      - ./uploads:/app/uploads
+      - ./public:/app/public
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - crowecad-network
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: crowecad-db
+    environment:
+      - POSTGRES_USER=${PGUSER:-crowecad}
+      - POSTGRES_PASSWORD=${PGPASSWORD:-crowecad_password}
+      - POSTGRES_DB=${PGDATABASE:-crowecad}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PGUSER:-crowecad}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - crowecad-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: crowecad-cache
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - crowecad-network
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  crowecad-network:
+    driver: bridge

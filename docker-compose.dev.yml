@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  crowecad:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: crowecad-app-dev
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://crowecad:crowecad_password@postgres:5432/crowecad
+      - PGHOST=postgres
+      - REDIS_URL=redis://redis:6379
+    ports:
+      - "5000:5000"
+      - "5173:5173"  # Vite dev server
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - ./uploads:/app/uploads
+    command: npm run dev
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - crowecad-network
+
+  postgres:
+    extends:
+      file: docker-compose.yml
+      service: postgres
+    ports:
+      - "5433:5432"  # Different port to avoid conflicts
+
+  redis:
+    extends:
+      file: docker-compose.yml
+      service: redis
