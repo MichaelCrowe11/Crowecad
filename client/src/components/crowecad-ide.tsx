@@ -74,6 +74,8 @@ import {
 import { croweCadCore, INDUSTRIES, type ChatMessage, type IndustryProfile } from "@/lib/crowecad-core";
 import { CroweCADInterface } from "./crowe-cad-interface";
 import { CollaborationPanel } from "./collaboration-panel";
+import { CommandPalette } from "./command-palette";
+import { ProfessionalToolbar } from "./professional-toolbar";
 import { useToast } from "@/hooks/use-toast";
 
 interface CroweCadIDEProps {
@@ -96,6 +98,8 @@ const INDUSTRY_ICONS: Record<string, any> = {
 };
 
 export function CroweCadIDE({ projectId, onClose }: CroweCadIDEProps) {
+  const userName = "User";
+  const userAvatar = "";
   const [selectedIndustry, setSelectedIndustry] = useState<string>('mechanical');
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
     {
@@ -112,6 +116,8 @@ export function CroweCadIDE({ projectId, onClose }: CroweCadIDEProps) {
   const [showCollaboration, setShowCollaboration] = useState(false);
   const [activeWorkbench, setActiveWorkbench] = useState('design');
   const [isVoiceActive, setIsVoiceActive] = useState(false);
+  const [showCommandPalette, setShowCommandPalette] = useState(false);
+  const [activeTool, setActiveTool] = useState('select');
   const [attachments, setAttachments] = useState<File[]>([]);
   
   const chatEndRef = useRef<HTMLDivElement>(null);
@@ -122,6 +128,57 @@ export function CroweCadIDE({ projectId, onClose }: CroweCadIDEProps) {
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatMessages]);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Command palette
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setShowCommandPalette(true);
+      }
+      // Save
+      if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+        e.preventDefault();
+        handleAction('save');
+      }
+      // Undo
+      if ((e.metaKey || e.ctrlKey) && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        handleAction('undo');
+      }
+      // Redo
+      if ((e.metaKey || e.ctrlKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
+        e.preventDefault();
+        handleAction('redo');
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  // Handle actions from toolbar and command palette
+  const handleAction = (action: string, data?: any) => {
+    console.log('Action:', action, data);
+    // Implement action handlers
+    switch (action) {
+      case 'save':
+        toast({ title: "Saved", description: "Project saved successfully" });
+        break;
+      case 'undo':
+        toast({ title: "Undo", description: "Action undone" });
+        break;
+      case 'redo':
+        toast({ title: "Redo", description: "Action redone" });
+        break;
+      case 'ai-generate':
+        setInputMessage("Generate a ");
+        break;
+      default:
+        console.log('Unhandled action:', action);
+    }
+  };
 
   // Handle industry change
   const handleIndustryChange = (industry: string) => {
@@ -145,7 +202,7 @@ export function CroweCadIDE({ projectId, onClose }: CroweCadIDEProps) {
       type: 'user',
       content: inputMessage,
       attachments: attachments.map(file => ({
-        type: file.type.startsWith('image/') ? 'image' : 'file',
+        type: (file.type.startsWith('image/') ? 'image' : 'file') as 'model' | 'image' | 'sketch' | 'code' | 'file',
         data: file
       })),
       timestamp: new Date()
@@ -230,10 +287,17 @@ export function CroweCadIDE({ projectId, onClose }: CroweCadIDEProps) {
 
   return (
     <div className="fixed inset-0 z-50 bg-background flex flex-col">
+      {/* Command Palette */}
+      <CommandPalette 
+        open={showCommandPalette}
+        onOpenChange={setShowCommandPalette}
+        onCommand={handleAction}
+      />
+
       {/* Header Bar */}
-      <div className="h-14 border-b bg-card flex items-center justify-between px-4">
+      <div className="h-14 border-b bg-gradient-to-r from-slate-900 to-slate-800 flex items-center justify-between px-4">
         <div className="flex items-center gap-4">
-          <h1 className="text-xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">
+          <h1 className="text-xl font-bold text-white">
             CroweCad IDE
           </h1>
           
@@ -291,6 +355,13 @@ export function CroweCadIDE({ projectId, onClose }: CroweCadIDEProps) {
           )}
         </div>
       </div>
+
+      {/* Professional Toolbar */}
+      <ProfessionalToolbar 
+        activeTool={activeTool}
+        onToolChange={setActiveTool}
+        onAction={handleAction}
+      />
 
       {/* Main Content */}
       <ResizablePanelGroup direction="horizontal" className="flex-1">
