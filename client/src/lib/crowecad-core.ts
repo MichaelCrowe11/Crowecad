@@ -63,7 +63,7 @@ export interface ChatMessage {
   type: 'user' | 'assistant' | 'system';
   content: string;
   attachments?: {
-    type: 'model' | 'image' | 'sketch' | 'code';
+    type: 'model' | 'image' | 'sketch' | 'code' | 'file';
     data: any;
   }[];
   timestamp: Date;

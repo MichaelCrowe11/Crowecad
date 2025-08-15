@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { seedEquipmentTypes } from "./seed";
+import collaborationManager from "./collaboration";
 import { 
   insertProjectSchema,
   insertFacilitySchema,
@@ -424,6 +425,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   const httpServer = createServer(app);
+  
+  // Initialize collaboration WebSocket server
+  collaborationManager.initialize(httpServer);
+  
   return httpServer;
 }
 
