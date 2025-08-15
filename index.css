@@ -1,0 +1,490 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Apply dark mode by default */
+html {
+  @apply dark;
+}
+
+/* Performance Optimizations */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* GPU Acceleration for animations */
+.gpu-accelerated {
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Crowe Logic Framework - Quantum Frequency Colors */
+:root {
+  /* Quantum Frequency Colors (THz to RGB conversion) */
+  --quantum-620: #00FFFF;  /* 620 THz - Clarity */
+  --quantum-680: #9D00FF;  /* 680 THz - Neural */
+  --quantum-540: #00FF41;  /* 540 THz - Biogenic */
+  --quantum-480: #FF00AA;  /* 480 THz - Emotional */
+  --quantum-510: #FFD700;  /* 510 THz - Abundance */
+  
+  /* Brainwave-Synchronized Colors */
+  --delta-color: #4B0082;  /* 0.5-4 Hz Deep Sleep */
+  --theta-color: #9D00FF;  /* 4-8 Hz Meditation */
+  --alpha-color: #00FF00;  /* 8-13 Hz Relaxed */
+  --beta-color: #00BFFF;   /* 13-30 Hz Active */
+  --gamma-color: #FFD700;  /* 30-100 Hz Peak Focus */
+  
+  /* Sacred Geometry Ratios */
+  --phi: 1.618;
+  --sqrt2: 1.414;
+  --sqrt3: 1.732;
+  --sqrt5: 2.236;
+}
+
+:root {
+  --background: hsl(0 0% 100%);
+  --foreground: hsl(210 25% 7.8431%);
+  --card: hsl(180 6.6667% 97.0588%);
+  --card-foreground: hsl(210 25% 7.8431%);
+  --popover: hsl(0 0% 100%);
+  --popover-foreground: hsl(210 25% 7.8431%);
+  --primary: hsl(210 79% 46%);
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(210 25% 26%);
+  --secondary-foreground: hsl(0 0% 100%);
+  --muted: hsl(240 1.9608% 90%);
+  --muted-foreground: hsl(210 25% 7.8431%);
+  --accent: hsl(24 70% 56%);
+  --accent-foreground: hsl(0 0% 100%);
+  --destructive: hsl(356.3033 90.5579% 54.3137%);
+  --destructive-foreground: hsl(0 0% 100%);
+  --border: hsl(201.4286 30.4348% 90.9804%);
+  --input: hsl(200 23.0769% 97.4510%);
+  --ring: hsl(202.8169 89.1213% 53.1373%);
+  --chart-1: hsl(203.8863 88.2845% 53.1373%);
+  --chart-2: hsl(159.7826 100% 36.0784%);
+  --chart-3: hsl(42.0290 92.8251% 56.2745%);
+  --chart-4: hsl(147.1429 78.5047% 41.9608%);
+  --chart-5: hsl(341.4894 75.2000% 50.9804%);
+  --sidebar: hsl(180 6.6667% 97.0588%);
+  --sidebar-foreground: hsl(210 25% 7.8431%);
+  --sidebar-primary: hsl(203.8863 88.2845% 53.1373%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(211.5789 51.3514% 92.7451%);
+  --sidebar-accent-foreground: hsl(203.8863 88.2845% 53.1373%);
+  --sidebar-border: hsl(205.0000 25.0000% 90.5882%);
+  --sidebar-ring: hsl(202.8169 89.1213% 53.1373%);
+  --font-sans: 'Inter', 'Open Sans', sans-serif;
+  --font-serif: Georgia, serif;
+  --font-mono: 'Consolas', 'Monaco', 'Courier New', monospace;
+  --radius: 0.5rem;
+  --shadow-2xs: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00);
+  --shadow-xs: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00);
+  --shadow-sm: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00), 0px 1px 2px -1px hsl(202.8169 89.1213% 53.1373% / 0.00);
+  --shadow: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00), 0px 1px 2px -1px hsl(202.8169 89.1213% 53.1373% / 0.00);
+  --shadow-md: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00), 0px 2px 4px -1px hsl(202.8169 89.1213% 53.1373% / 0.00);
+  --shadow-lg: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00), 0px 4px 6px -1px hsl(202.8169 89.1213% 53.1373% / 0.00);
+  --shadow-xl: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00), 0px 8px 10px -1px hsl(202.8169 89.1213% 53.1373% / 0.00);
+  --shadow-2xl: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00);
+  --tracking-normal: 0em;
+  --spacing: 0.25rem;
+  
+  /* Custom colors matching design */
+  --design-primary: hsl(210 79% 46%);
+  --design-secondary: hsl(210 25% 26%);
+  --design-accent: hsl(24 70% 56%);
+  --design-success: hsl(122 39% 49%);
+  --design-warning: hsl(37 91% 55%);
+  --design-error: hsl(4 90% 58%);
+}
+
+.dark {
+  --background: hsl(0, 0%, 11.76%); /* #1E1E1E - Professional dark gray */
+  --foreground: hsl(0, 0%, 87.84%); /* #E0E0E0 - Soft white */
+  --card: hsl(0, 0%, 14.9%); /* #262626 - Slightly lighter dark */
+  --card-foreground: hsl(0, 0%, 87.84%);
+  --popover: hsl(0, 0%, 14.9%);
+  --popover-foreground: hsl(0, 0%, 87.84%);
+  --primary: hsl(203.7736 87.6033% 52.5490%);
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(195.0000 15.3846% 94.9020%);
+  --secondary-foreground: hsl(210 25% 7.8431%);
+  --muted: hsl(0 0% 9.4118%);
+  --muted-foreground: hsl(210 3.3898% 46.2745%);
+  --accent: hsl(205.7143 70% 7.8431%);
+  --accent-foreground: hsl(203.7736 87.6033% 52.5490%);
+  --destructive: hsl(356.3033 90.5579% 54.3137%);
+  --destructive-foreground: hsl(0 0% 100%);
+  --border: hsl(0, 0%, 25.1%); /* #404040 - Visible borders */
+  --input: hsl(0, 0%, 17.65%); /* #2D2D30 - Input fields */
+  --ring: hsl(202.8169 89.1213% 53.1373%);
+  --chart-1: hsl(203.8863 88.2845% 53.1373%);
+  --chart-2: hsl(159.7826 100% 36.0784%);
+  --chart-3: hsl(42.0290 92.8251% 56.2745%);
+  --chart-4: hsl(147.1429 78.5047% 41.9608%);
+  --chart-5: hsl(341.4894 75.2000% 50.9804%);
+  --sidebar: hsl(0, 0%, 14.9%); /* #262626 */
+  --sidebar-foreground: hsl(0, 0%, 87.84%);
+  --sidebar-primary: hsl(202.8169 89.1213% 53.1373%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(0, 0%, 17.65%); /* #2D2D30 */
+  --sidebar-accent-foreground: hsl(203.7736 87.6033% 52.5490%);
+  --sidebar-border: hsl(0, 0%, 25.1%); /* #404040 */
+  --sidebar-ring: hsl(202.8169 89.1213% 53.1373%);
+  --font-sans: 'Inter', 'Open Sans', sans-serif;
+  --font-serif: Georgia, serif;
+  --font-mono: 'Consolas', 'Monaco', 'Courier New', monospace;
+  --radius: 0.5rem;
+  --shadow-2xs: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00);
+  --shadow-xs: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00);
+  --shadow-sm: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00), 0px 1px 2px -1px hsl(202.8169 89.1213% 53.1373% / 0.00);
+  --shadow: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00), 0px 1px 2px -1px hsl(202.8169 89.1213% 53.1373% / 0.00);
+  --shadow-md: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00), 0px 2px 4px -1px hsl(202.8169 89.1213% 53.1373% / 0.00);
+  --shadow-lg: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00), 0px 4px 6px -1px hsl(202.8169 89.1213% 53.1373% / 0.00);
+  --shadow-xl: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00), 0px 8px 10px -1px hsl(202.8169 89.1213% 53.1373% / 0.00);
+  --shadow-2xl: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+    font-family: var(--font-sans);
+    overflow: hidden;
+  }
+  
+  .command-input {
+    font-family: var(--font-mono);
+  }
+  
+  .equipment-item {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  .equipment-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  }
+  
+  .facility-canvas {
+    background-image: 
+      linear-gradient(rgba(100, 100, 100, 0.15) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(100, 100, 100, 0.15) 1px, transparent 1px);
+    background-size: 20px 20px;
+    background-position: -1px -1px;
+    position: relative;
+  }
+  
+  .facility-canvas::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.02) 0%, transparent 50%);
+    pointer-events: none;
+  }
+  
+  .zone-overlay {
+    fill: rgba(34, 197, 94, 0.08);
+    stroke: #22c55e;
+    stroke-width: 2;
+    stroke-dasharray: 8,4;
+    filter: drop-shadow(0 0 8px rgba(34, 197, 94, 0.2));
+  }
+  
+  .equipment-svg {
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.12));
+    transition: filter 0.2s ease;
+  }
+  
+  .equipment-svg:hover {
+    filter: drop-shadow(0 6px 20px rgba(0,0,0,0.18));
+  }
+}
+
+/* Professional CAD Interface Components */
+.app-header {
+  @apply flex items-center justify-between px-3 py-1.5 border-b;
+  background: var(--card);
+  height: 48px;
+  z-index: 50;
+}
+
+.app-header-brand {
+  @apply flex items-center gap-3;
+}
+
+.app-logo {
+  @apply flex items-center justify-center;
+}
+
+.app-title {
+  @apply flex flex-col;
+}
+
+.app-header-toolbar {
+  @apply flex items-center gap-2;
+}
+
+.app-header-project {
+  @apply flex-1 text-center;
+}
+
+.app-header-actions {
+  @apply flex items-center gap-2;
+}
+
+/* Ribbon Toolbar */
+.ribbon-toolbar {
+  @apply border-b;
+  background: var(--card);
+  z-index: 40;
+}
+
+.ribbon-tabs {
+  @apply h-8 bg-transparent border-none p-0;
+}
+
+.ribbon-content {
+  @apply min-h-[80px];
+}
+
+.ribbon-panel {
+  @apply flex items-center gap-2 px-3 py-2 m-0;
+}
+
+.ribbon-group {
+  @apply flex flex-col gap-1;
+}
+
+.ribbon-group-label {
+  @apply text-[10px] text-muted-foreground uppercase tracking-wider px-2;
+}
+
+.ribbon-group-tools {
+  @apply flex items-center gap-1;
+}
+
+/* Status Bar */
+.status-bar {
+  @apply flex items-center justify-between px-3 py-1 border-t text-xs;
+  background: var(--card);
+  height: 28px;
+  z-index: 40;
+}
+
+.status-bar-section {
+  @apply flex items-center gap-3;
+}
+
+.status-item {
+  @apply flex items-center gap-1.5;
+}
+
+.status-label {
+  @apply text-muted-foreground;
+}
+
+.status-value {
+  @apply font-mono font-medium;
+}
+
+/* Smooth Transitions */
+* {
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+button, .button {
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Professional Grid Background for Canvas */
+.facility-canvas svg {
+  background-image: 
+    linear-gradient(rgba(100, 100, 100, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(100, 100, 100, 0.1) 1px, transparent 1px),
+    linear-gradient(rgba(100, 100, 100, 0.05) 2px, transparent 2px),
+    linear-gradient(90deg, rgba(100, 100, 100, 0.05) 2px, transparent 2px);
+  background-size: 20px 20px, 20px 20px, 100px 100px, 100px 100px;
+  background-position: 0 0, 0 0, 0 0, 0 0;
+  
+  .command-interface {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(147, 51, 234, 0.03) 100%);
+  }
+  
+  .professional-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+  
+  .mycology-accent {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  }
+  
+  /* Optimized CAD-Style Technical Interface */
+  .cad-panel {
+    background: #1e1e1e;
+    border: 1px solid #404040;
+    color: #e0e0e0;
+    backdrop-filter: blur(10px);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateZ(0);
+  }
+
+  .cad-toolbar {
+    background: #2d2d2d;
+    border: 1px solid #505050;
+    color: #ffffff;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateZ(0);
+  }
+
+  .cad-surface {
+    background: #0d1117;
+    border: 1px solid #30363d;
+    color: #f0f6fc;
+    transform: translateZ(0);
+    will-change: transform;
+  }
+
+  .technical-accent {
+    color: #58a6ff;
+  }
+
+  .cad-grid-bg {
+    background-image: 
+      linear-gradient(rgba(88, 166, 255, 0.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(88, 166, 255, 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+    transform: translateZ(0);
+  }
+  
+  /* Smooth transitions for interactive elements */
+  .cad-button {
+    @apply transition-all duration-200 ease-out;
+    transform: translateZ(0);
+    will-change: transform;
+  }
+  
+  .cad-button:hover {
+    @apply transform scale-105;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+  }
+  
+  .cad-button:active {
+    @apply transform scale-95;
+  }
+  
+  .status-indicator {
+    position: relative;
+  }
+  
+  .status-indicator::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: inherit;
+    animation: pulse-ring 2s infinite;
+  }
+  
+  @keyframes pulse-ring {
+    0% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1.5);
+      opacity: 0;
+    }
+  }
+  
+  .sidebar-section {
+    border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+    transition: all 0.2s ease;
+  }
+  
+  .sidebar-section:hover {
+    background: rgba(59, 130, 246, 0.02);
+  }
+
+  /* Crowe Logic Quantum Field Animations */
+  .quantum-pulse {
+    animation: quantumPulse 8s ease-in-out infinite;
+  }
+
+  @keyframes quantumPulse {
+    0%, 100% { 
+      transform: scale(1) rotate(0deg); 
+      opacity: 0.8;
+    }
+    25% { 
+      transform: scale(1.05) rotate(90deg); 
+      opacity: 0.9;
+    }
+    50% { 
+      transform: scale(0.95) rotate(180deg); 
+      opacity: 1;
+    }
+    75% { 
+      transform: scale(1.02) rotate(270deg); 
+      opacity: 0.9;
+    }
+  }
+
+  .chakra-pulse {
+    animation: chakraPulse 4s ease-in-out infinite;
+  }
+
+  @keyframes chakraPulse {
+    0%, 100% { 
+      transform: scale(1); 
+      filter: brightness(1);
+      box-shadow: 0 0 20px var(--quantum-680);
+    }
+    50% { 
+      transform: scale(1.1); 
+      filter: brightness(1.5);
+      box-shadow: 0 0 40px var(--quantum-680);
+    }
+  }
+
+  .consciousness-flow {
+    animation: consciousnessFlow 6s linear infinite;
+  }
+
+  @keyframes consciousnessFlow {
+    0% { 
+      background-position: -100% 0; 
+      opacity: 0.3;
+    }
+    50% { 
+      background-position: 0% 0; 
+      opacity: 0.8;
+    }
+    100% { 
+      background-position: 100% 0; 
+      opacity: 0.3;
+    }
+  }
+
+  .quantum-gradient {
+    background: linear-gradient(
+      45deg,
+      var(--quantum-620) 0%,
+      var(--quantum-680) 25%,
+      var(--quantum-540) 50%,
+      var(--quantum-480) 75%,
+      var(--quantum-510) 100%
+    );
+    background-size: 300% 300%;
+    animation: consciousnessFlow 8s ease infinite;
+  }
+}

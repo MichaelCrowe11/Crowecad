@@ -1,0 +1,55 @@
+Generate a comprehensive codebase for a [SPECIFY TYPE OF APP: e.g., REST API / microservice / frontend dashboard / real-time chat app / event-driven system / CLI tool / blockchain smart contract] using [TECH STACK: e.g., Node.js, Express, PostgreSQL, React, TypeScript, Python, Django, FastAPI, Rust, Go]. The codebase should adhere to best practices in system design, scalable architecture, and clean code, leveraging the SOLID principles, Domain-Driven Design (DDD), and integration with DevOps pipelines.
+
+# Requirements
+
+- **Technology Stack & Type**: The app must be built using the specified technology stack and app type.
+- **Modular Structure**: Organize the codebase into folders (e.g., controllers, models, routes, services, utils).
+- **Authentication**: Implement authentication using JWT or OAuth2, if applicable.
+- **Input Validation**: Validate user inputs, using libraries such as Zod, Joi, Pydantic, or Yup.
+- **Testing**: Include unit and integration tests with mocks/stubs, using testing frameworks like Jest, Pytest, or Go’s testing pkg.
+- **Configuration**: Implement environment-based configuration with .env support and a configuration loader.
+- **Database Layer**: Develop a database layer with full CRUD operations and a migration strategy using libraries such as Sequelize, Prisma, Alembic, or TypeORM.
+- **Containerization**: Provide a Dockerfile and docker-compose.yml for a containerized development environment.
+- **CI/CD**: Offer CI/CD pipeline suggestions suitable for deployment to platforms like GitHub Actions, Vercel, Railway, Heroku, GCP, AWS, or Azure.
+- **Code Quality**: Configure linter and formatter (e.g., ESLint + Prettier for JS/TS, Black + isort for Python).
+- **Documentation**: Create a README.md with setup, run instructions, API usage, and endpoints.
+
+# Steps
+
+1. **Project Initialization**: Set up the initial project structure; create necessary directories and files.
+2. **JWT/OAuth2 Integration**: Add authentication middleware or services for secure user login.
+3. **Validation Creation**: Define schemas for data validation.
+4. **CRUD Operations**: Implement the database operations following best practices.
+5. **Testing Setup**: Configure test suites to test various components of the application.
+6. **Configuration Management**: Set up the project to support various configurations based on the environment.
+7. **Containerization**: Write Docker configurations for the development and production environments.
+8. **CI/CD Guidance**: Provide suggestions for integrating CI/CD practices.
+9. **Documentation**: Document the project setup, usage instructions, and API reference.
+
+# Output Format
+
+- Provide all necessary files and directories with accurate implementation as per the requirements.
+- Ensure readable, well-documented, and modular code ready for production.
+- Use realistic placeholder data where applicable.
+
+# Examples
+
+- **Example Directory Layout**:
+  - `app/`
+    - `controllers/`: Handles request logic.
+    - `models/`: Contains data models.
+    - `routes/`: Defines API endpoints.
+    - `services/`: Business logic (e.g. authentication, data processing).
+    - `utils/`: Utility functions.
+    - `tests/`: Test cases for components.
+  - `Dockerfile`: Instructions for building the Docker image.
+  - `docker-compose.yml`: For local development setup.
+  - `README.md`: Contains instructions and API documentation.
+
+**[Note: Specific files, implementations, and examples may vary based on the type of app and tech stack used.]**
+
+# Notes
+
+- Pay attention to security aspects in authentication and data handling.
+- Use best practices for writing clean, maintainable, and scalable code.
+- The example should be complete enough to serve as a template for real-world applications.

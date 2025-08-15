@@ -1,0 +1,215 @@
+# crowecad_skill_scraper.py
+import os
+import json
+import time
+from github import Github
+import base64
+import re
+from typing import Dict, List, Any
+import openai
+from pathlib import Path
+
+class CrowecadSkillMiner:
+    def __init__(self, github_token: str, openai_api_key: str):
+        self.github = Github(github_token)
+        self.openai_client = openai.OpenAI(api_key=openai_api_key)
+        self.skills_db = {
+            "geometric_algorithms": [],
+            "autolisp_patterns": [],
+            "spatial_operations": [],
+            "cad_commands": [],
+            "parametric_templates": []
+        }
+    
+    def search_cad_repositories(self) -> List[Dict]:
+        """Find high-quality CAD repositories"""
+        queries = [
+            "autocad autolisp stars:>10",
+            "language:python cad geometry",
+            "dxf dwg parser stars:>50",
+            "computational geometry algorithms",
+            "parametric design cad",
+            "spatial recognition opencv cad",
+            "constraint solver geometry",
+            "nurbs bezier curve implementation"
+        ]
+        
+        repos = []
+        for query in queries:
+            try:
+                results = self.github.search_repositories(query=query)
+                for repo in results[:5]:  # Top 5 per query
+                    repos.append({
+                        "name": repo.full_name,
+                        "stars": repo.stargazers_count,
+                        "language": repo.language,
+                        "topics": repo.get_topics()
+                    })
+                time.sleep(2)  # Rate limiting
+            except Exception as e:
+                print(f"Error searching {query}: {e}")
+        
+        return repos
+    
+    def extract_autolisp_patterns(self, repo_name: str) -> List[Dict]:
+        """Extract AutoLISP functions and patterns"""
+        patterns = []
+        try:
+            repo = self.github.get_repo(repo_name)
+            contents = repo.get_contents("")
+            
+            lisp_files = [c for c in contents if c.path.endswith(('.lsp', '.vlx', '.fas'))]
+            
+            for file in lisp_files[:10]:  # Limit to prevent rate limiting
+                content = base64.b64decode(file.content).decode('utf-8')
+                
+                # Extract function definitions
+                functions = re.findall(r'\(defun\s+([^\s]+)\s*\((.*?)\)', content)
+                
+                for func_name, params in functions:
+                    # Extract function body for context
+                    func_pattern = {
+                        "function": func_name,
+                        "parameters": params,
+                        "repository": repo_name,
+                        "file": file.path,
+                        "category": self.categorize_function(func_name),
+                        "code_snippet": self.extract_function_body(content, func_name)[:500]
+                    }
+                    patterns.append(func_pattern)
+                    
+        except Exception as e:
+            print(f"Error extracting from {repo_name}: {e}")
+        
+        return patterns
+    
+    def extract_geometric_algorithms(self, repo_name: str) -> List[Dict]:
+        """Extract geometric algorithm implementations"""
+        algorithms = []
+        keywords = [
+            "intersection", "tangent", "perpendicular", "parallel",
+            "circle", "arc", "ellipse", "bezier", "spline",
+            "rotate", "transform", "project", "offset"
+        ]
+        
+        try:
+            repo = self.github.get_repo(repo_name)
+            
+            # Search for Python/C++ geometry files
+            code_files = repo.get_contents("")
+            
+            for file in code_files:
+                if file.type == "file" and any(file.path.endswith(ext) 
+                    for ext in ['.py', '.cpp', '.js', '.cs']):
+                    
+                    content = base64.b64decode(file.content).decode('utf-8', errors='ignore')
+                    
+                    for keyword in keywords:
+                        if keyword in content.lower():
+                            # Extract relevant functions
+                            functions = self.extract_functions_with_keyword(content, keyword)
+                            for func in functions:
+                                algorithms.append({
+                                    "algorithm": func['name'],
+                                    "keyword": keyword,
+                                    "language": file.path.split('.')[-1],
+                                    "repository": repo_name,
+                                    "implementation": func['body'][:1000]
+                                })
+                            
+        except Exception as e:
+            print(f"Error processing {repo_name}: {e}")
+        
+        return algorithms
+    
+    def categorize_function(self, func_name: str) -> str:
+        """Categorize function based on name"""
+        categories = {
+            "drawing": ["draw", "line", "circle", "arc", "poly"],
+            "calculation": ["calc", "angle", "dist", "area", "length"],
+            "transformation": ["move", "rotate", "scale", "mirror", "offset"],
+            "selection": ["select", "pick", "get", "find"],
+            "modification": ["trim", "extend", "fillet", "chamfer"]
+        }
+        
+        func_lower = func_name.lower()
+        for category, keywords in categories.items():
+            if any(kw in func_lower for kw in keywords):
+                return category
+        return "utility"
+    
+    def create_skill_embeddings(self, skills: List[Dict]) -> List[Dict]:
+        """Create embeddings for skills for semantic search"""
+        for skill in skills:
+            # Create a description for embedding
+            description = f"{skill.get('function', skill.get('algorithm', ''))} - {skill.get('category', '')} - {skill.get('code_snippet', skill.get('implementation', ''))[:200]}"
+            
+            response = self.openai_client.embeddings.create(
+                model="text-embedding-3-small",
+                input=description
+            )
+            
+            skill['embedding'] = response.data[0].embedding
+            
+        return skills
+    
+    def save_skills_database(self, output_path: str = "crowecad_skills.json"):
+        """Save extracted skills to JSON database"""
+        with open(output_path, 'w') as f:
+            # Remove embeddings for JSON serialization
+            serializable_db = {}
+            for category, skills in self.skills_db.items():
+                serializable_db[category] = [
+                    {k: v for k, v in skill.items() if k != 'embedding'}
+                    for skill in skills
+                ]
+            json.dump(serializable_db, f, indent=2)
+        
+        # Save embeddings separately
+        import pickle
+        with open(output_path.replace('.json', '_embeddings.pkl'), 'wb') as f:
+            pickle.dump(self.skills_db, f)
+
+# Main extraction script
+def build_crowecad_knowledge():
+    # Initialize miner
+    miner = CrowecadSkillMiner(
+        github_token=os.getenv("GITHUB_TOKEN"),
+        openai_api_key=os.getenv("OPENAI_API_KEY")
+    )
+    
+    # Define target repositories
+    priority_repos = [
+        "FreeCAD/FreeCAD",
+        "LibreCAD/LibreCAD",
+        "ezdxf/ezdxf",
+        "CadQuery/cadquery",
+        "opensCAD/openscad",
+        "CGAL/cgal"
+    ]
+    
+    # Extract skills
+    for repo in priority_repos:
+        print(f"Processing {repo}...")
+        
+        # Extract AutoLISP patterns
+        if "CAD" in repo:
+            patterns = miner.extract_autolisp_patterns(repo)
+            miner.skills_db["autolisp_patterns"].extend(patterns)
+        
+        # Extract geometric algorithms
+        algorithms = miner.extract_geometric_algorithms(repo)
+        miner.skills_db["geometric_algorithms"].extend(algorithms)
+        
+        time.sleep(5)  # Rate limiting
+    
+    # Create embeddings
+    for category in miner.skills_db:
+        miner.skills_db[category] = miner.create_skill_embeddings(
+            miner.skills_db[category]
+        )
+    
+    # Save database
+    miner.save_skills_database()
+    
+    return miner.skills_db

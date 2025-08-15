@@ -1,0 +1,101 @@
+# app_integration.py
+from flask import Flask, request, jsonify
+import asyncio
+from crowecad_assistant import CrowecadAssistant
+
+app = Flask(__name__)
+
+# Initialize Crowecad
+crowecad = None
+
+@app.before_first_request
+def initialize_crowecad():
+    global crowecad
+    
+    # First run: Build knowledge base
+    if not Path("crowecad_skills.json").exists():
+        print("Building Crowecad knowledge base...")
+        from crowecad_skill_scraper import build_crowecad_knowledge
+        build_crowecad_knowledge()
+    
+    # Initialize assistant
+    crowecad = CrowecadAssistant(
+        api_key=os.getenv("OPENAI_API_KEY"),
+        skills_db_path="crowecad_skills.json"
+    )
+    crowecad.create_assistant()
+    
+    print("Crowecad initialized!")
+
+@app.route('/api/crowecad/query', methods=['POST'])
+def query_crowecad():
+    """Endpoint for CAD queries"""
+    data = request.json
+    user_input = data.get('query')
+    context = data.get('context', {})
+    
+    # Process through Crowecad
+    response = crowecad.process_cad_request(user_input)
+    
+    return jsonify({
+        'status': 'success',
+        'response': response,
+        'code_blocks': extract_code_blocks(response)
+    })
+
+@app.route('/api/crowecad/upload_drawing', methods=['POST'])
+def upload_drawing():
+    """Handle DXF/DWG file uploads for analysis"""
+    file = request.files['file']
+    
+    # Process file through Crowecad's spatial recognition
+    analysis = crowecad.analyze_drawing(file)
+    
+    return jsonify({
+        'status': 'success',
+        'analysis': analysis
+    })
+
+@app.route('/api/crowecad/train', methods=['POST'])
+def train_crowecad():
+    """Add new patterns to Crowecad's knowledge base"""
+    data = request.json
+    pattern = data.get('pattern')
+    category = data.get('category')
+    
+    # Add to knowledge base
+    crowecad.add_skill_pattern(pattern, category)
+    
+    return jsonify({
+        'status': 'success',
+        'message': 'Pattern added to knowledge base'
+    })
+
+def extract_code_blocks(response: str) -> List[Dict]:
+    """Extract code blocks from response"""
+    import re
+    
+    blocks = []
+    
+    # Find AutoLISP blocks
+    lisp_pattern = r'```lisp(.*?)```'
+    lisp_blocks = re.findall(lisp_pattern, response, re.DOTALL)
+    for block in lisp_blocks:
+        blocks.append({
+            'type': 'autolisp',
+            'code': block.strip()
+        })
+    
+    # Find Python blocks
+    python_pattern = r'```python(.*?)```'
+    python_blocks = re.findall(python_pattern, response, re.DOTALL)
+    for block in python_blocks:
+        blocks.append({
+            'type': 'python',
+            'code': block.strip()
+        })
+    
+    return blocks
+
+if __name__ == '__main__':
+    app.run(debug=True)

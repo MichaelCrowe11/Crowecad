@@ -1,0 +1,244 @@
+# crowecad_assistant.py
+import openai
+import json
+from typing import Dict, List, Any
+import numpy as np
+from pathlib import Path
+
+class CrowecadAssistant:
+    def __init__(self, api_key: str, skills_db_path: str):
+        self.client = openai.OpenAI(api_key=api_key)
+        self.skills_db = self.load_skills_database(skills_db_path)
+        self.assistant = None
+        self.thread = None
+        
+    def load_skills_database(self, path: str) -> Dict:
+        """Load the skills database with embeddings"""
+        import pickle
+        with open(path.replace('.json', '_embeddings.pkl'), 'rb') as f:
+            return pickle.load(f)
+    
+    def create_assistant(self):
+        """Create Crowecad OpenAI Assistant with custom instructions"""
+        
+        # Build comprehensive instructions from scraped skills
+        instructions = self.build_dynamic_instructions()
+        
+        self.assistant = self.client.beta.assistants.create(
+            name="Crowecad",
+            instructions=instructions,
+            tools=[
+                {"type": "code_interpreter"},
+                {"type": "retrieval"},
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "generate_autolisp_code",
+                        "description": "Generate AutoLISP code for CAD operations",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "operation": {
+                                    "type": "string",
+                                    "description": "The CAD operation to perform"
+                                },
+                                "parameters": {
+                                    "type": "object",
+                                    "description": "Parameters for the operation"
+                                }
+                            },
+                            "required": ["operation"]
+                        }
+                    }
+                },
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "calculate_geometry",
+                        "description": "Perform geometric calculations",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "calculation_type": {
+                                    "type": "string",
+                                    "enum": ["intersection", "tangent", "angle", "distance", "area"]
+                                },
+                                "entities": {
+                                    "type": "array",
+                                    "description": "Geometric entities involved"
+                                }
+                            },
+                            "required": ["calculation_type", "entities"]
+                        }
+                    }
+                },
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "search_cad_knowledge",
+                        "description": "Search the CAD knowledge base for relevant patterns",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "query": {
+                                    "type": "string",
+                                    "description": "Search query"
+                                },
+                                "category": {
+                                    "type": "string",
+                                    "enum": ["geometric_algorithms", "autolisp_patterns", "spatial_operations"]
+                                }
+                            },
+                            "required": ["query"]
+                        }
+                    }
+                }
+            ],
+            model="gpt-4-turbo-preview",
+            file_ids=[]  # Add any reference files
+        )
+        
+        return self.assistant
+    
+    def build_dynamic_instructions(self) -> str:
+        """Build instructions from scraped skills"""
+        
+        # Count available skills
+        skill_counts = {cat: len(skills) for cat, skills in self.skills_db.items()}
+        
+        instructions = f"""You are Crowecad, an advanced AutoCAD assistant with spatial recognition and geometric intelligence.
+
+## Core Capabilities (Enhanced from {sum(skill_counts.values())} scraped patterns):
+
+### Available AutoLISP Functions ({skill_counts.get('autolisp_patterns', 0)} patterns):
+{self.summarize_category('autolisp_patterns')}
+
+### Geometric Algorithms ({skill_counts.get('geometric_algorithms', 0)} implementations):
+{self.summarize_category('geometric_algorithms')}
+
+### Spatial Operations ({skill_counts.get('spatial_operations', 0)} methods):
+{self.summarize_category('spatial_operations')}
+
+## Behavioral Guidelines:
+1. When given a drawing request, first identify the geometric primitives and relationships
+2. Search the knowledge base for similar patterns
+3. Generate precise AutoLISP or Python code using learned patterns
+4. Always validate spatial constraints and dimensions
+5. Provide multiple solution approaches when available
+
+## Output Formats:
+- AutoLISP code blocks with comments
+- Step-by-step CAD commands
+- Python scripts using ezdxf or pyautocad
+- Visual ASCII representations for validation
+
+## Spatial Recognition Protocol:
+- Parse natural language for dimensions, angles, and relationships
+- Identify implicit constraints (tangency, perpendicularity, etc.)
+- Calculate missing dimensions from context
+- Optimize drawing sequence for efficiency
+"""
+        return instructions
+    
+    def summarize_category(self, category: str) -> str:
+        """Summarize available skills in a category"""
+        if category not in self.skills_db:
+            return "No patterns available"
+        
+        skills = self.skills_db[category][:10]  # Top 10
+        summaries = []
+        for skill in skills:
+            if 'function' in skill:
+                summaries.append(f"- {skill['function']}: {skill.get('category', 'general')}")
+            elif 'algorithm' in skill:
+                summaries.append(f"- {skill['algorithm']}: {skill.get('keyword', 'general')}")
+        
+        return "\n".join(summaries)
+    
+    def semantic_search(self, query: str, category: str = None, top_k: int = 5):
+        """Search for relevant skills using embeddings"""
+        # Get query embedding
+        response = self.client.embeddings.create(
+            model="text-embedding-3-small",
+            input=query
+        )
+        query_embedding = np.array(response.data[0].embedding)
+        
+        results = []
+        categories = [category] if category else self.skills_db.keys()
+        
+        for cat in categories:
+            for skill in self.skills_db.get(cat, []):
+                if 'embedding' in skill:
+                    similarity = np.dot(query_embedding, skill['embedding'])
+                    results.append({
+                        'skill': skill,
+                        'similarity': similarity,
+                        'category': cat
+                    })
+        
+        # Sort by similarity
+        results.sort(key=lambda x: x['similarity'], reverse=True)
+        return results[:top_k]
+    
+    def process_cad_request(self, user_input: str) -> str:
+        """Process a CAD request using the assistant"""
+        
+        # Create thread if not exists
+        if not self.thread:
+            self.thread = self.client.beta.threads.create()
+        
+        # Search for relevant patterns
+        relevant_skills = self.semantic_search(user_input)
+        
+        # Enhance the message with relevant context
+        enhanced_message = f"""{user_input}
+
+Relevant patterns from knowledge base:
+{json.dumps([s['skill'].get('code_snippet', s['skill'].get('implementation', ''))[:200] 
+            for s in relevant_skills], indent=2)}"""
+        
+        # Add message to thread
+        message = self.client.beta.threads.messages.create(
+            thread_id=self.thread.id,
+            role="user",
+            content=enhanced_message
+        )
+        
+        # Run the assistant
+        run = self.client.beta.threads.runs.create(
+            thread_id=self.thread.id,
+            assistant_id=self.assistant.id
+        )
+        
+        # Wait for completion
+        while run.status in ['queued', 'in_progress']:
+            run = self.client.beta.threads.runs.retrieve(
+                thread_id=self.thread.id,
+                run_id=run.id
+            )
+            time.sleep(1)
+        
+        # Get response
+        messages = self.client.beta.threads.messages.list(
+            thread_id=self.thread.id
+        )
+        
+        return messages.data[0].content[0].text.value
+
+# Function handlers for the assistant
+def handle_generate_autolisp_code(operation: str, parameters: Dict) -> str:
+    """Generate AutoLISP code based on operation"""
+    # Implementation would search the skills database
+    # and generate appropriate code
+    pass
+
+def handle_calculate_geometry(calculation_type: str, entities: List) -> Dict:
+    """Perform geometric calculations"""
+    # Implementation would use extracted algorithms
+    pass
+
+def handle_search_cad_knowledge(query: str, category: str = None) -> List[Dict]:
+    """Search the CAD knowledge base"""
+    # Implementation would search the skills database
+    pass
