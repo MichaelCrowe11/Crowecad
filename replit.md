@@ -8,6 +8,12 @@ This is a comprehensive facility design application for mycology (mushroom culti
 - **Professional CAD Interface**: AutoCAD-style technical drawing system with dark theme and comprehensive facility design tools
 - **DXF Rendering Capabilities**: Full import/export of AutoCAD DXF files with layer management and professional CAD output
 - **Vision AI Integration**: Computer vision capabilities to analyze facility photos, identify equipment, assess conditions, and convert hand-drawn sketches to digital layouts
+- **PDF Blueprint Import**: Extract equipment and zone data from PDF documents, specifications, and technical drawings
+- **Extended Thinking Pattern**: Deep AI analysis for complex facility planning decisions and multi-factor optimization
+- **Sub-Agents System**: Cost-optimized AI usage with intelligent routing to different Claude models based on task complexity
+- **Automated Evaluations**: Automatic scoring and certification of facility designs against industry standards
+- **Prompt Caching**: Intelligent caching system for common queries to reduce costs and improve response times
+- **AI Optimization Center**: Comprehensive panel for facility evaluation, deep analysis, multi-factor optimization, and AI performance metrics
 
 # User Preferences
 
@@ -50,6 +56,12 @@ The application uses a hierarchical data model:
 - **Crowe AI Agent**: Genetic algorithm-based AI with voice control and visual analysis
 - **Quantum Consciousness States**: AI trait visualization system that evolves based on usage
 - **Batch Reporting System**: Complete external system integration with multi-format reports, ERP/MES/LIMS connectivity, and automated distribution
+- **AI Optimization Center**: Automated facility evaluation, deep analysis, and multi-factor optimization
+- **Vision Analysis**: Image processing for facility photos, equipment identification, and sketch conversion
+- **PDF Processor**: Extract facility data from blueprints and technical documentation
+- **Extended Thinking**: Deep reasoning for complex planning decisions
+- **Sub-Agents Manager**: Intelligent AI model routing for cost optimization
+- **Prompt Cache**: Performance optimization through intelligent response caching
 
 ## Key Design Patterns
 - **Repository Pattern**: Storage abstraction layer for database operations

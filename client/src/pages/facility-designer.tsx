@@ -16,6 +16,7 @@ import { StatusBar } from "@/components/status-bar";
 import { DxfImportExport } from "@/components/dxf-import-export";
 import { VisionAnalysis } from "@/components/vision-analysis";
 import { PDFImport } from "@/components/pdf-import";
+import { AIOptimizationPanel } from "@/components/ai-optimization-panel";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -392,6 +393,16 @@ export default function FacilityDesigner() {
                 }}
               />
             </div>
+            
+            {/* AI Optimization Panel */}
+            <AIOptimizationPanel
+              facilityId={currentFacilityId}
+              facilityData={{
+                equipment: [],
+                zones: [],
+                area: 5000
+              }}
+            />
             
             {/* Batch Reporting Panel */}
             <BatchReportingPanel
