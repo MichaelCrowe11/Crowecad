@@ -73,8 +73,8 @@ export interface Comment {
 
 export class CollaborationClient extends BrowserEventEmitter {
   private ws: WebSocket | null = null;
-  private reconnectTimeout: NodeJS.Timeout | null = null;
-  private heartbeatInterval: NodeJS.Timeout | null = null;
+  private reconnectTimeout: number | null = null;
+  private heartbeatInterval: number | null = null;
   private state: CollaborationState;
   private userId: string;
   private documentId: string;
@@ -156,7 +156,7 @@ export class CollaborationClient extends BrowserEventEmitter {
    */
   disconnect() {
     if (this.reconnectTimeout) {
-      clearTimeout(this.reconnectTimeout);
+      window.clearTimeout(this.reconnectTimeout);
       this.reconnectTimeout = null;
     }
 
@@ -426,7 +426,7 @@ export class CollaborationClient extends BrowserEventEmitter {
     this.reconnectAttempts++;
     const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 30000);
 
-    this.reconnectTimeout = setTimeout(() => {
+    this.reconnectTimeout = window.setTimeout(() => {
       console.log(`Reconnect attempt ${this.reconnectAttempts}`);
       this.connect().catch(() => {
         // Reconnect will be attempted again
@@ -450,7 +450,7 @@ export class CollaborationClient extends BrowserEventEmitter {
    * Start heartbeat
    */
   private startHeartbeat() {
-    this.heartbeatInterval = setInterval(() => {
+    this.heartbeatInterval = window.setInterval(() => {
       if (this.ws && this.ws.readyState === WebSocket.OPEN) {
         this.send('ping', { timestamp: Date.now() });
       }
@@ -462,7 +462,7 @@ export class CollaborationClient extends BrowserEventEmitter {
    */
   private stopHeartbeat() {
     if (this.heartbeatInterval) {
-      clearInterval(this.heartbeatInterval);
+      window.clearInterval(this.heartbeatInterval);
       this.heartbeatInterval = null;
     }
   }

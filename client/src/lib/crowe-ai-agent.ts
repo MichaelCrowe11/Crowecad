@@ -78,6 +78,8 @@ export class CroweAIAgent extends BrowserEventEmitter {
   private recognition: any = null;
 
   constructor(apiKey?: string) {
+    super();
+    
     // In Vite, environment variables must be prefixed with VITE_ for client-side access
     this.openai = new OpenAI({
       apiKey: apiKey || import.meta.env.VITE_OPENAI_API_KEY || 'placeholder',
