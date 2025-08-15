@@ -1,371 +1,159 @@
-/**
- * React Hook for CroweCad Real-time Collaboration
- * Handles WebSocket connection, presence, and operational transformation
- */
-
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { useToast } from '@/hooks/use-toast';
-
-export interface CollaboratorInfo {
-  id: string;
-  name: string;
-  avatar?: string;
-  color: string;
-  cursor?: { x: number; y: number };
-  selection?: any;
-  viewport?: { x: number; y: number; zoom: number };
-  isActive: boolean;
-  isFollowing?: boolean;
-}
-
-export interface CollaborationState {
-  isConnected: boolean;
-  sessionId: string | null;
-  collaborators: Map<string, CollaboratorInfo>;
-  localUserId: string | null;
-  messages: ChatMessage[];
-  operations: Operation[];
-}
-
-export interface ChatMessage {
-  id: string;
-  userId: string;
-  userName: string;
-  userColor: string;
-  message: string;
-  timestamp: Date;
-}
-
-export interface Operation {
-  id: string;
-  type: string;
-  userId: string;
-  data: any;
-  timestamp: Date;
-}
+import { useState, useEffect, useCallback } from 'react';
+import { 
+  CollaborationClient, 
+  User, 
+  Operation, 
+  Comment,
+  getCollaborationClient 
+} from '@/lib/collaboration-client';
 
 interface UseCollaborationOptions {
-  projectId: string;
-  userName?: string;
-  userAvatar?: string;
-  onOperationReceived?: (operation: Operation) => void;
-  onCollaboratorJoined?: (collaborator: CollaboratorInfo) => void;
-  onCollaboratorLeft?: (collaboratorId: string) => void;
+  documentId: string;
+  userId: string;
+  autoConnect?: boolean;
 }
 
-export function useCollaboration(options: UseCollaborationOptions) {
-  const { projectId, userName = 'Anonymous', userAvatar, onOperationReceived, onCollaboratorJoined, onCollaboratorLeft } = options;
-  
-  const [state, setState] = useState<CollaborationState>({
-    isConnected: false,
-    sessionId: null,
-    collaborators: new Map(),
-    localUserId: null,
-    messages: [],
-    operations: []
-  });
-  
-  const wsRef = useRef<WebSocket | null>(null);
-  const reconnectTimeoutRef = useRef<NodeJS.Timeout>();
-  const { toast } = useToast();
+interface UseCollaborationReturn {
+  client: CollaborationClient | null;
+  isConnected: boolean;
+  activeUsers: User[];
+  operations: Operation[];
+  comments: Comment[];
+  connect: () => Promise<void>;
+  disconnect: () => void;
+  sendOperation: (type: Operation['type'], target: string, data: any) => Operation | null;
+  sendComment: (text: string, position: { x: number; y: number }) => Comment | null;
+  updateCursor: (x: number, y: number) => void;
+  updateSelection: (selection: string[]) => void;
+}
 
-  // Connect to collaboration server
-  const connect = useCallback(() => {
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//${window.location.host}/collab`;
-    
-    try {
-      const ws = new WebSocket(wsUrl);
-      wsRef.current = ws;
-      
-      ws.onopen = () => {
-        console.log('Collaboration connected');
-        setState(prev => ({ ...prev, isConnected: true }));
-        
-        // Join session
-        ws.send(JSON.stringify({
-          type: 'join',
-          sessionId: projectId,
-          data: {
-            projectId,
-            name: userName,
-            avatar: userAvatar
-          },
-          timestamp: new Date()
-        }));
-      };
-      
-      ws.onmessage = (event) => {
-        try {
-          const message = JSON.parse(event.data);
-          handleMessage(message);
-        } catch (error) {
-          console.error('Failed to parse collaboration message:', error);
-        }
-      };
-      
-      ws.onerror = (error) => {
-        console.error('Collaboration WebSocket error:', error);
-        toast({
-          title: "Connection Error",
-          description: "Failed to connect to collaboration server",
-          variant: "destructive"
-        });
-      };
-      
-      ws.onclose = () => {
-        console.log('Collaboration disconnected');
-        setState(prev => ({ ...prev, isConnected: false }));
-        
-        // Attempt to reconnect after 3 seconds
-        reconnectTimeoutRef.current = setTimeout(() => {
-          connect();
-        }, 3000);
-      };
-    } catch (error) {
-      console.error('Failed to create WebSocket:', error);
-    }
-  }, [projectId, userName, userAvatar, toast]);
+export function useCollaboration({
+  documentId,
+  userId,
+  autoConnect = true
+}: UseCollaborationOptions): UseCollaborationReturn {
+  const [client, setClient] = useState<CollaborationClient | null>(null);
+  const [isConnected, setIsConnected] = useState(false);
+  const [activeUsers, setActiveUsers] = useState<User[]>([]);
+  const [operations, setOperations] = useState<Operation[]>([]);
+  const [comments, setComments] = useState<Comment[]>([]);
 
-  // Handle incoming messages
-  const handleMessage = useCallback((message: any) => {
-    switch (message.type) {
-      case 'connected':
-        setState(prev => ({ ...prev, localUserId: message.userId }));
-        break;
-        
-      case 'session-joined':
-        setState(prev => ({
-          ...prev,
-          sessionId: message.sessionId,
-          localUserId: message.userId,
-          collaborators: new Map(message.users.filter((u: any) => u.id !== message.userId).map((u: any) => [u.id, u]))
-        }));
-        toast({
-          title: "Joined Collaboration",
-          description: `${message.users.length} user(s) in session`
-        });
-        break;
-        
-      case 'user-joined':
-        setState(prev => {
-          const newCollaborators = new Map(prev.collaborators);
-          newCollaborators.set(message.user.id, message.user);
-          return { ...prev, collaborators: newCollaborators };
-        });
-        onCollaboratorJoined?.(message.user);
-        toast({
-          title: "User Joined",
-          description: `${message.user.name} joined the session`
-        });
-        break;
-        
-      case 'user-left':
-      case 'user-disconnected':
-        setState(prev => {
-          const newCollaborators = new Map(prev.collaborators);
-          newCollaborators.delete(message.userId);
-          return { ...prev, collaborators: newCollaborators };
-        });
-        onCollaboratorLeft?.(message.userId);
-        if (message.user) {
-          toast({
-            title: "User Left",
-            description: `${message.user.name} left the session`
-          });
-        }
-        break;
-        
-      case 'cursor-update':
-        setState(prev => {
-          const newCollaborators = new Map(prev.collaborators);
-          const collaborator = newCollaborators.get(message.userId);
-          if (collaborator) {
-            collaborator.cursor = message.cursor;
-            newCollaborators.set(message.userId, { ...collaborator });
-          }
-          return { ...prev, collaborators: newCollaborators };
-        });
-        break;
-        
-      case 'selection-update':
-        setState(prev => {
-          const newCollaborators = new Map(prev.collaborators);
-          const collaborator = newCollaborators.get(message.userId);
-          if (collaborator) {
-            collaborator.selection = message.selection;
-            newCollaborators.set(message.userId, { ...collaborator });
-          }
-          return { ...prev, collaborators: newCollaborators };
-        });
-        break;
-        
-      case 'operation':
-        setState(prev => ({
-          ...prev,
-          operations: [...prev.operations, message.operation].slice(-100)
-        }));
-        onOperationReceived?.(message.operation);
-        break;
-        
-      case 'chat':
-        setState(prev => ({
-          ...prev,
-          messages: [...prev.messages, {
-            id: Date.now().toString(),
-            userId: message.userId,
-            userName: message.user.name,
-            userColor: message.user.color,
-            message: message.message,
-            timestamp: new Date(message.timestamp)
-          }].slice(-50)
-        }));
-        break;
-        
-      case 'viewport-update':
-        setState(prev => {
-          const newCollaborators = new Map(prev.collaborators);
-          const collaborator = newCollaborators.get(message.userId);
-          if (collaborator) {
-            collaborator.viewport = message.viewport;
-            newCollaborators.set(message.userId, { ...collaborator });
-          }
-          return { ...prev, collaborators: newCollaborators };
-        });
-        break;
-        
-      case 'presence-update':
-        setState(prev => {
-          const newCollaborators = new Map(prev.collaborators);
-          const collaborator = newCollaborators.get(message.userId);
-          if (collaborator) {
-            collaborator.isActive = message.isActive;
-            newCollaborators.set(message.userId, { ...collaborator });
-          }
-          return { ...prev, collaborators: newCollaborators };
-        });
-        break;
-    }
-  }, [onOperationReceived, onCollaboratorJoined, onCollaboratorLeft, toast]);
-
-  // Send cursor position
-  const sendCursor = useCallback((x: number, y: number) => {
-    if (wsRef.current?.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify({
-        type: 'cursor',
-        sessionId: state.sessionId,
-        data: { cursor: { x, y } },
-        timestamp: new Date()
-      }));
-    }
-  }, [state.sessionId]);
-
-  // Send selection
-  const sendSelection = useCallback((selection: any) => {
-    if (wsRef.current?.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify({
-        type: 'selection',
-        sessionId: state.sessionId,
-        data: { selection },
-        timestamp: new Date()
-      }));
-    }
-  }, [state.sessionId]);
-
-  // Send operation
-  const sendOperation = useCallback((type: string, data: any) => {
-    if (wsRef.current?.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify({
-        type: 'operation',
-        sessionId: state.sessionId,
-        data: { type, data },
-        timestamp: new Date()
-      }));
-    }
-  }, [state.sessionId]);
-
-  // Send chat message
-  const sendMessage = useCallback((message: string) => {
-    if (wsRef.current?.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify({
-        type: 'chat',
-        sessionId: state.sessionId,
-        data: { message },
-        timestamp: new Date()
-      }));
-    }
-  }, [state.sessionId]);
-
-  // Send viewport update
-  const sendViewport = useCallback((viewport: { x: number; y: number; zoom: number }) => {
-    if (wsRef.current?.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify({
-        type: 'viewport',
-        sessionId: state.sessionId,
-        data: { viewport },
-        timestamp: new Date()
-      }));
-    }
-  }, [state.sessionId]);
-
-  // Send presence update
-  const sendPresence = useCallback((isActive: boolean) => {
-    if (wsRef.current?.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify({
-        type: 'presence',
-        sessionId: state.sessionId,
-        data: { isActive },
-        timestamp: new Date()
-      }));
-    }
-  }, [state.sessionId]);
-
-  // Follow collaborator
-  const followCollaborator = useCallback((collaboratorId: string | null) => {
-    setState(prev => {
-      const newCollaborators = new Map(prev.collaborators);
-      newCollaborators.forEach((collab, id) => {
-        collab.isFollowing = id === collaboratorId;
-      });
-      return { ...prev, collaborators: newCollaborators };
-    });
-  }, []);
-
-  // Initialize connection
   useEffect(() => {
-    connect();
-    
-    return () => {
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current);
-      }
-      if (wsRef.current) {
-        wsRef.current.close();
-      }
-    };
-  }, [connect]);
+    const collaborationClient = getCollaborationClient(documentId, userId);
+    setClient(collaborationClient);
 
-  // Handle visibility change
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      sendPresence(!document.hidden);
+    // Set up event listeners
+    const handleStateUpdate = (state: any) => {
+      setActiveUsers(Array.from(state.users.values()));
+      setOperations(state.operations);
+      setIsConnected(true);
     };
-    
-    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    const handleUserJoined = (user: User) => {
+      setActiveUsers(prev => [...prev.filter(u => u.id !== user.id), user]);
+    };
+
+    const handleUserLeft = (user: User) => {
+      setActiveUsers(prev => prev.filter(u => u.id !== user.id));
+    };
+
+    const handleRemoteOperation = (operation: Operation) => {
+      setOperations(prev => [...prev, operation]);
+    };
+
+    const handleComment = (comment: Comment) => {
+      setComments(prev => [...prev, comment]);
+    };
+
+    const handleError = (error: any) => {
+      console.error('Collaboration error:', error);
+      setIsConnected(false);
+    };
+
+    const handleReconnectFailed = () => {
+      console.error('Failed to reconnect to collaboration server');
+      setIsConnected(false);
+    };
+
+    collaborationClient.on('state-update', handleStateUpdate);
+    collaborationClient.on('user-joined', handleUserJoined);
+    collaborationClient.on('user-left', handleUserLeft);
+    collaborationClient.on('remote-operation', handleRemoteOperation);
+    collaborationClient.on('comment', handleComment);
+    collaborationClient.on('error', handleError);
+    collaborationClient.on('reconnect-failed', handleReconnectFailed);
+
+    // Auto-connect if enabled
+    if (autoConnect) {
+      collaborationClient.connect().catch(console.error);
+    }
+
     return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      collaborationClient.off('state-update', handleStateUpdate);
+      collaborationClient.off('user-joined', handleUserJoined);
+      collaborationClient.off('user-left', handleUserLeft);
+      collaborationClient.off('remote-operation', handleRemoteOperation);
+      collaborationClient.off('comment', handleComment);
+      collaborationClient.off('error', handleError);
+      collaborationClient.off('reconnect-failed', handleReconnectFailed);
+      
+      collaborationClient.disconnect();
     };
-  }, [sendPresence]);
+  }, [documentId, userId, autoConnect]);
+
+  const connect = useCallback(async () => {
+    if (client && !isConnected) {
+      await client.connect();
+    }
+  }, [client, isConnected]);
+
+  const disconnect = useCallback(() => {
+    if (client) {
+      client.disconnect();
+      setIsConnected(false);
+    }
+  }, [client]);
+
+  const sendOperation = useCallback((
+    type: Operation['type'], 
+    target: string, 
+    data: any
+  ): Operation | null => {
+    if (!client || !isConnected) return null;
+    return client.sendOperation(type, target, data);
+  }, [client, isConnected]);
+
+  const sendComment = useCallback((
+    text: string, 
+    position: { x: number; y: number }
+  ): Comment | null => {
+    if (!client || !isConnected) return null;
+    return client.sendComment(text, position);
+  }, [client, isConnected]);
+
+  const updateCursor = useCallback((x: number, y: number) => {
+    if (client && isConnected) {
+      client.updateCursor(x, y);
+    }
+  }, [client, isConnected]);
+
+  const updateSelection = useCallback((selection: string[]) => {
+    if (client && isConnected) {
+      client.updateSelection(selection);
+    }
+  }, [client, isConnected]);
 
   return {
-    ...state,
-    sendCursor,
-    sendSelection,
+    client,
+    isConnected,
+    activeUsers,
+    operations,
+    comments,
+    connect,
+    disconnect,
     sendOperation,
-    sendMessage,
-    sendViewport,
-    sendPresence,
-    followCollaborator,
-    isFollowing: Array.from(state.collaborators.values()).some(c => c.isFollowing)
+    sendComment,
+    updateCursor,
+    updateSelection
   };
 }
