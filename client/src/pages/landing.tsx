@@ -182,7 +182,7 @@ export function LandingPage() {
           >
             <Badge className="mb-4 bg-blue-500/10 text-blue-400 border-blue-500/20">
               <Sparkles className="w-3 h-3 mr-1" />
-              AI-Powered CAD Revolution
+              GPT-5 Powered CAD Platform
             </Badge>
             
             <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
@@ -191,35 +191,35 @@ export function LandingPage() {
             </h1>
             
             <p className="text-xl text-gray-400 mb-8 leading-relaxed">
-              The most advanced CAD platform ever created. Just describe what you want to build,
-              and CroweCad brings it to life. From aerospace to jewelry, one platform rules them all.
+              From spacecraft to bracelets, CroweCad turns natural language into real, ready-to-build designs — instantly.
+              One platform, every industry, zero limits.
+            </p>
+            
+            <p className="text-base text-gray-500 mb-8">
+              CroweCad is the first AI-powered CAD platform that creates precise, build-ready models from plain English.
+              Whether you're an engineer, maker, or dreamer — if you can describe it, CroweCad can design it.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
               <Button 
                 size="lg"
                 onClick={() => setShowIDE(true)}
-                className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-lg px-8"
+                className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-lg px-10 py-6 font-semibold shadow-xl hover:shadow-2xl transition-all"
               >
-                <Play className="w-5 h-5 mr-2" />
-                Try CroweCad IDE
+                Start Designing Free
+                <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
-              <Link href="/ai-studio">
-                <Button 
-                  size="lg"
-                  className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-lg px-8"
-                >
-                  <Sparkles className="w-5 h-5 mr-2" />
-                  AI Studio (GPT-5)
-                </Button>
-              </Link>
               <Button 
                 size="lg"
                 variant="outline"
-                className="border-white/20 text-white hover:bg-white/10 text-lg px-8"
+                className="border-white/20 text-white hover:bg-white/10 text-lg px-10 py-6"
+                onClick={() => {
+                  const demoSection = document.getElementById('demo-video');
+                  demoSection?.scrollIntoView({ behavior: 'smooth' });
+                }}
               >
-                <Terminal className="w-5 h-5 mr-2" />
-                Install CLI
+                <Play className="w-5 h-5 mr-2" />
+                See It in Action
               </Button>
             </div>
 
@@ -242,7 +242,7 @@ export function LandingPage() {
                 <span className="text-green-400">$</span>
                 <span className="text-blue-400"> crowecad</span>
                 <span className="text-yellow-400"> design</span>
-                <span className="text-white"> "Create a gear with 20 teeth, 50mm diameter"</span>
+                <span className="text-white"> "Create a titanium gear with 20 teeth, 50mm diameter"</span>
                 <span className="animate-pulse">|</span>
               </div>
             </motion.div>
@@ -250,9 +250,30 @@ export function LandingPage() {
         </div>
       </section>
 
+      {/* Demo Video Section - New */}
+      <section id="demo-video" className="border-y border-white/10 bg-slate-900/50 backdrop-blur">
+        <div className="container mx-auto px-4 py-16">
+          <div className="max-w-4xl mx-auto">
+            <h3 className="text-2xl font-bold text-white text-center mb-8">
+              From Idea to Model in Seconds
+            </h3>
+            <div className="aspect-video bg-slate-800 rounded-xl overflow-hidden border border-white/10">
+              {/* Placeholder for demo video/GIF */}
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center">
+                  <Play className="w-16 h-16 text-white/50 mx-auto mb-4" />
+                  <p className="text-white/50">Demo video coming soon</p>
+                  <p className="text-sm text-white/30 mt-2">Watch natural language turn into 3D models instantly</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Stats Section */}
-      <section className="border-y border-white/10 bg-slate-900/50 backdrop-blur">
-        <div className="container mx-auto px-4 py-12">
+      <section className="py-12">
+        <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {STATS.map((stat, i) => (
               <motion.div
@@ -361,18 +382,18 @@ export function LandingPage() {
             className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-12 text-center"
           >
             <h2 className="text-4xl font-bold text-white mb-4">
-              Ready to Revolutionize Your Design Workflow?
+              Stop Fighting CAD. Start Creating.
             </h2>
             <p className="text-xl text-white/90 mb-8">
-              Join thousands of engineers and designers already using CroweCad
+              Join thousands who've ditched the old way. Design with words, not menus.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
                 size="lg"
                 onClick={() => setShowIDE(true)}
-                className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-8"
+                className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-10 py-6 font-semibold shadow-xl hover:shadow-2xl transition-all"
               >
-                Start Designing Now
+                Start Designing Free
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
               <Button 
