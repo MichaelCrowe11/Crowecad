@@ -74,7 +74,7 @@ db-migrate: ## Run database migrations
 
 .PHONY: db-seed
 db-seed: ## Seed database
-	docker exec -i crowecad-db psql -U crowecad -d crowecad < init.sql
+	npm run db:seed
 
 .PHONY: db-reset
 db-reset: docker-down ## Reset database
