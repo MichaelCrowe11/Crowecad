@@ -16,7 +16,7 @@
 
 ```bash
 # Install CroweCad CLI globally
-npm install -g crowecad-cli
+npm install -g crowecad
 
 # Create a new project
 crowecad init my-project
@@ -66,13 +66,13 @@ crowecad design "Create a gear with 20 teeth, 50mm diameter"
 
 ### Method 1: NPM (Recommended)
 ```bash
-npm install -g crowecad-cli
+npm install -g crowecad
 crowecad --version
 ```
 
 ### Method 2: Direct Download
 ```bash
-curl -L https://github.com/MichaelCrowe11/Crowecad/releases/latest/download/crowecad-cli.js -o crowecad
+curl -L https://github.com/MichaelCrowe11/Crowecad/releases/latest/download/crowecad.js -o crowecad
 chmod +x crowecad
 ./crowecad --version
 ```
