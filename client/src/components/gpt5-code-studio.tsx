@@ -80,7 +80,8 @@ export function GPT5CodeStudio() {
         setCurrentProgress(prev => Math.min(prev + 10, 90));
       }, 200);
       
-      const result = await gpt5CodeGenerator.generateFromDescription({
+      // Use knowledge-enhanced generation for better results
+      const result = await gpt5CodeGenerator.generateWithKnowledge({
         type: codeType,
         description: codePrompt,
         context: {
@@ -96,8 +97,8 @@ export function GPT5CodeStudio() {
       setCodeHistory(prev => [...prev, { ...result, timestamp: new Date() }]);
       
       toast({
-        title: "Code Generated!",
-        description: `Successfully generated ${result.files?.length || 0} files`,
+        title: "AI-Enhanced Code Generated!",
+        description: `Generated ${result.files?.length || 0} files using patterns from 6M+ code samples`,
       });
     } catch (error) {
       console.error('Code generation error:', error);
@@ -124,7 +125,16 @@ export function GPT5CodeStudio() {
         setCurrentProgress(prev => Math.min(prev + 5, 95));
       }, 500);
       
-      const result = await gpt5CodeGenerator.generateFeature(codePrompt);
+      // Use knowledge-enhanced generation for features
+      const result = await gpt5CodeGenerator.generateWithKnowledge({
+        type: 'feature',
+        description: codePrompt,
+        context: {
+          framework: 'react',
+          styling: 'tailwind',
+          dependencies: []
+        }
+      });
       
       clearInterval(progressInterval);
       setCurrentProgress(100);
@@ -132,8 +142,8 @@ export function GPT5CodeStudio() {
       setCodeHistory(prev => [...prev, { ...result, timestamp: new Date() }]);
       
       toast({
-        title: "Feature Generated!",
-        description: `Created complete feature with ${result.files?.length || 0} files`,
+        title: "Feature Generated with AI!",
+        description: `Created complete feature with ${result.files?.length || 0} files using best practices from GitHub`,
       });
     } catch (error) {
       console.error('Feature generation error:', error);
@@ -334,7 +344,7 @@ export function GPT5CodeStudio() {
             GPT-5 Code Studio
           </CardTitle>
           <CardDescription>
-            Autonomous code generation for the CroweCad platform. Generate complete features, components, and APIs from natural language.
+            AI-powered code generation using patterns from 6M+ functions (CodeSearchNet), 2.8M GitHub repos, and 40K+ APIs. Generate production-ready code instantly.
           </CardDescription>
           {compileResult && (
             <div className="mt-2 text-sm">

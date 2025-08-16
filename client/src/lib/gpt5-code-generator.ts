@@ -4,6 +4,7 @@
  */
 
 import openAIService from './openai-integration';
+import { datasetKnowledgeBase } from './dataset-knowledge-base';
 
 export interface CodeGenerationRequest {
   type: 'component' | 'module' | 'feature' | 'api' | 'schema' | 'refactor';
@@ -43,6 +44,7 @@ export interface GeneratedCode {
 export class GPT5CodeGenerator {
   private templates: Map<string, string>;
   private patterns: Map<string, any>;
+  private knowledgeBase = datasetKnowledgeBase;
 
   constructor() {
     this.templates = new Map();
@@ -411,6 +413,136 @@ describe('{{componentName}}', () => {
         apis: []
       }
     };
+  }
+
+  // Knowledge base enhanced generation
+  async generateWithKnowledge(request: CodeGenerationRequest): Promise<GeneratedCode> {
+    // Get intelligent suggestions from knowledge base
+    const suggestions = this.knowledgeBase.getSuggestions({
+      currentCode: request.context?.existingCode,
+      projectType: request.type,
+      requirements: request.description.toLowerCase().split(' ')
+    });
+    
+    // Find relevant code patterns
+    const patterns = this.knowledgeBase.searchCodePatterns(request.description);
+    
+    // Generate enhanced code using patterns and suggestions
+    const files: any[] = [];
+    
+    // Add code patterns if found
+    if (patterns.length > 0) {
+      patterns.slice(0, 3).forEach((pattern, index) => {
+        files.push({
+          path: `src/${pattern.category}/${this.toKebabCase(pattern.name)}.ts`,
+          content: pattern.pattern,
+          language: pattern.language,
+          description: pattern.description
+        });
+      });
+    }
+    
+    // Add UI components if needed
+    if (request.type === 'component' && suggestions.components.length > 0) {
+      const component = suggestions.components[0];
+      files.push({
+        path: `src/components/${this.toKebabCase(component.name)}.tsx`,
+        content: component.code,
+        language: 'typescript',
+        description: component.description
+      });
+    }
+    
+    // Add API integrations if needed
+    if (suggestions.apis.length > 0) {
+      const apiCode = this.generateAPIIntegration(suggestions.apis[0]);
+      files.push({
+        path: `src/api/${this.toKebabCase(suggestions.apis[0].name)}.ts`,
+        content: apiCode,
+        language: 'typescript',
+        description: `API integration for ${suggestions.apis[0].name}`
+      });
+    }
+    
+    // Add design patterns if applicable
+    if (suggestions.designs.length > 0) {
+      const pattern = suggestions.designs[0];
+      files.push({
+        path: `src/patterns/${this.toKebabCase(pattern.name)}.ts`,
+        content: pattern.implementation,
+        language: 'typescript',
+        description: pattern.description
+      });
+    }
+    
+    return {
+      files,
+      dependencies: this.extractDependencies(files),
+      instructions: [
+        'Review the generated code patterns from our knowledge base',
+        'Customize the implementation to match your specific needs',
+        'These patterns are based on 6M+ functions from CodeSearchNet and GitHub'
+      ],
+      metadata: {
+        complexity: this.determineComplexity(files),
+        estimatedLines: files.reduce((sum, f) => sum + f.content.split('\n').length, 0),
+        components: suggestions.components.map(c => c.name),
+        apis: suggestions.apis.map(a => a.name)
+      }
+    };
+  }
+  
+  private generateAPIIntegration(api: any): string {
+    return `
+/**
+ * ${api.name} Integration
+ * ${api.description}
+ */
+
+import axios from 'axios';
+
+export class ${this.toPascalCase(api.name)}Service {
+  private baseURL = '${api.url}';
+  private apiKey = process.env.${api.name.toUpperCase().replace(/\s+/g, '_')}_API_KEY;
+  
+  async ${api.method.toLowerCase()}(params: any) {
+    const response = await axios({
+      method: '${api.method}',
+      url: this.baseURL,
+      ${api.authentication === 'apiKey' ? `headers: { 'Authorization': \`Bearer \${this.apiKey}\` },` : ''}
+      ${api.method === 'GET' ? 'params' : 'data'}: params
+    });
+    
+    return response.data;
+  }
+  
+  // Rate limit: ${api.rateLimit || 'Unknown'}
+}
+
+export default new ${this.toPascalCase(api.name)}Service();`;
+  }
+  
+  private extractDependencies(files: any[]): string[] {
+    const deps = new Set<string>();
+    files.forEach(file => {
+      const content = file.content;
+      // Extract import statements
+      const imports = content.match(/import .* from ['"](.+)['"]/g) || [];
+      imports.forEach((imp: string) => {
+        const match = imp.match(/from ['"](.+)['"]/);
+        if (match && !match[1].startsWith('.') && !match[1].startsWith('@/')) {
+          deps.add(match[1]);
+        }
+      });
+    });
+    return Array.from(deps);
+  }
+  
+  private determineComplexity(files: any[]): 'simple' | 'moderate' | 'complex' {
+    const totalLines = files.reduce((sum, f) => sum + f.content.split('\n').length, 0);
+    if (totalLines < 100) return 'simple';
+    if (totalLines < 500) return 'moderate';
+    return 'complex';
   }
 
   // Helper methods

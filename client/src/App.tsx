@@ -13,6 +13,7 @@ import { AIStudioPage } from "@/pages/ai-studio";
 import { CroweHubPage } from "@/pages/hub";
 import DatasetsPage from "@/pages/datasets";
 import DevResourcesPage from "@/pages/dev-resources";
+import APIHubPage from "@/pages/api-hub";
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
               <Route path="/hub" component={CroweHubPage} />
               <Route path="/datasets" component={DatasetsPage} />
               <Route path="/dev-resources" component={DevResourcesPage} />
+              <Route path="/api-hub" component={APIHubPage} />
               <Route component={NotFound} />
             </Switch>
           </main>

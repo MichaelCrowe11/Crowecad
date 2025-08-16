@@ -19,7 +19,8 @@ import {
   ArrowRight,
   Sparkles,
   Database,
-  Code
+  Code,
+  Globe
 } from 'lucide-react';
 
 export function NavigationHeader() {
@@ -32,6 +33,7 @@ export function NavigationHeader() {
     { href: '/facility-designer', label: 'Facility Designer', icon: Cpu },
     { href: '/datasets', label: 'CAD Models', icon: Database },
     { href: '/dev-resources', label: 'Dev Resources', icon: Code },
+    { href: '/api-hub', label: 'API Hub', icon: Globe },
     { href: '/collaborative', label: 'Collaborate', icon: Users },
     { href: '/hub', label: 'Crowe Hub', icon: Building }
   ];

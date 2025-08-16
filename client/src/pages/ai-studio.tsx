@@ -8,6 +8,7 @@ import { GPT5CodeStudio } from "@/components/gpt5-code-studio";
 import { AppWireframeStudio } from "@/components/app-wireframe-studio";
 import { CADScriptEditor } from "@/components/cad-script-editor";
 import { AgentConsole } from '@/components/agent-console';
+import { AICodeAssistant } from '@/components/ai-code-assistant';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export function AIStudioPage() {
@@ -33,7 +34,7 @@ export function AIStudioPage() {
         <div id="agents" />
         <div id="pipeline" />
         <Tabs defaultValue="wireframe" className="h-[calc(100vh-8rem)]">
-          <TabsList className="grid w-full grid-cols-4 max-w-3xl mx-auto">
+          <TabsList className="grid w-full grid-cols-5 max-w-4xl mx-auto">
             <TabsTrigger value="wireframe" className="flex items-center gap-2">
               <MousePointer className="w-4 h-4" />
               Wireframe
@@ -49,6 +50,10 @@ export function AIStudioPage() {
             <TabsTrigger value="cursor" className="flex items-center gap-2">
               <Cpu className="w-4 h-4" />
               Scripts
+            </TabsTrigger>
+            <TabsTrigger value="assistant" className="flex items-center gap-2">
+              <Brain className="w-4 h-4" />
+              Assistant
             </TabsTrigger>
           </TabsList>
 
@@ -66,6 +71,10 @@ export function AIStudioPage() {
 
           <TabsContent value="cursor" className="mt-6 h-full">
             <CADScriptEditor />
+          </TabsContent>
+
+          <TabsContent value="assistant" className="mt-6 h-full">
+            <AICodeAssistant />
           </TabsContent>
         </Tabs>
       </div>
