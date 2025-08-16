@@ -160,20 +160,12 @@ export type Insert{{TableName}} = z.infer<typeof insert{{TableName}}Schema>;
    */
   async generateFromDescription(request: CodeGenerationRequest): Promise<GeneratedCode> {
     try {
-      // Use OpenAI to generate code
-      const prompt = this.buildPrompt(request);
-      // Use the code interpreter to generate code
-      const response = await openAIService.runCodeInterpreter(
-        `Generate ${request.type} code:\n${prompt}`,
-        { type: request.type }
-      );
-      
-      // Parse and structure the response
-      return this.parseCodeResponse(response, request);
+      // Use template-based generation
+      return this.generateFromTemplate(request);
     } catch (error) {
       console.error('Code generation error:', error);
-      // Fallback to template-based generation
-      return this.generateFromTemplate(request);
+      // Create basic fallback
+      return this.createBasicFallback(request);
     }
   }
 
@@ -559,6 +551,63 @@ Requirements:
 - Make it production-ready`;
   }
 
+  private createBasicFallback(request: CodeGenerationRequest): GeneratedCode {
+    const name = request.description.replace(/\s+/g, '');
+    const files: GeneratedCode['files'] = [];
+    
+    if (request.type === 'component') {
+      files.push({
+        path: `components/${name}.tsx`,
+        content: `import React from 'react';
+
+export function ${name}() {
+  return (
+    <div className="p-4">
+      <h2>${request.description}</h2>
+      {/* Implementation here */}
+    </div>
+  );
+}`,
+        language: 'typescript',
+        description: `Component for ${request.description}`
+      });
+    } else if (request.type === 'api') {
+      files.push({
+        path: `api/${name}.ts`,
+        content: `import { Request, Response } from 'express';
+
+export async function ${name}Handler(req: Request, res: Response) {
+  try {
+    // ${request.description}
+    const result = await processRequest(req.body);
+    res.json({ success: true, data: result });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+async function processRequest(data: any) {
+  // Implementation here
+  return data;
+}`,
+        language: 'typescript',
+        description: `API handler for ${request.description}`
+      });
+    }
+    
+    return {
+      files,
+      metadata: {
+        complexity: 'simple',
+        estimatedLines: 20,
+        components: request.type === 'component' ? [name] : [],
+        apis: request.type === 'api' ? [name] : []
+      },
+      dependencies: [],
+      instructions: ['Basic template generated successfully', 'Add your implementation logic']
+    };
+  }
+  
   private parseCodeResponse(response: any, request: CodeGenerationRequest): GeneratedCode {
     // Parse AI response into structured format
     return {
