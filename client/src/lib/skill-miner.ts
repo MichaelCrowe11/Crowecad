@@ -227,6 +227,40 @@ function generateGear(teeth, module, pressureAngle = 20) {
 
   /**
    * Add a geometric algorithm to the knowledge base
+
+    // Basic drawing and calculation skills to support recommendations
+    this.addSkill({
+      id: 'draw-rectangle-js',
+      name: 'drawRectangle',
+      category: 'drawing',
+      description: 'Draw a rectangle with given position and size',
+      language: 'javascript',
+      keywords: ['draw', 'rectangle', 'shape'],
+      confidence: 0.9,
+      usage_count: 0,
+      implementation: `
+function drawRectangle(x, y, width, height, ctx) {
+  ctx.beginPath();
+  ctx.rect(x, y, width, height);
+  ctx.stroke();
+}`
+    });
+
+    this.addSkill({
+      id: 'calculate-area-js',
+      name: 'calculateArea',
+      category: 'calculation',
+      description: 'Calculate rectangular area',
+      language: 'javascript',
+      keywords: ['calculate', 'area', 'measure'],
+      confidence: 0.9,
+      usage_count: 0,
+      implementation: `
+function calculateArea(width, height) {
+  return width * height;
+}`
+    });
+
    */
   addGeometricAlgorithm(algorithm: GeometricAlgorithm) {
     this.algorithms.set(algorithm.name, algorithm);
@@ -263,8 +297,7 @@ function generateGear(teeth, module, pressureAngle = 20) {
       javascript: {
         function: /function\s+(\w+)\s*\((.*?)\)\s*{/g,
         class: /class\s+(\w+)\s*{/g,
-        method: /(\w+)\s*\((.*?)\)\s*{/g
-      },
+        
       python: {
         function: /def\s+(\w+)\s*\((.*?)\):/g,
         class: /class\s+(\w+).*?:/g,
@@ -409,7 +442,7 @@ function generateGear(teeth, module, pressureAngle = 20) {
     if (skill.description.toLowerCase().includes(query)) score += 0.3;
     
     // Boost by usage
-    score += Math.min(0.2, skill.usage_count * 0.01);
+    
     
     return Math.min(1.0, score);
   }

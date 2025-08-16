@@ -33,6 +33,8 @@ interface ImageAnalysisResponse {
   }>;
 }
 
+import { SYSTEM_CAD_ASSISTANT, SYSTEM_SOFTWARE_ENGINEER } from '@/lib/agents/prompt-presets';
+
 export class CroweCadAssistant {
   private threadId: string | null = null;
   private apiEndpoint = '/api/openai';
@@ -106,7 +108,7 @@ export class CroweCadAssistant {
         },
         body: JSON.stringify({
           description,
-          ...options
+          ...options, system: SYSTEM_CAD_ASSISTANT
         })
       });
 

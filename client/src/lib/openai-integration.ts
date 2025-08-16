@@ -4,6 +4,7 @@
  */
 
 import OpenAI from 'openai';
+import { SYSTEM_SOFTWARE_ENGINEER, SYSTEM_CAD_ASSISTANT } from '@/lib/agents/prompt-presets';
 
 // Note: The newest OpenAI model is "gpt-4o" which was released May 13, 2024
 // Do not change this to "gpt-4" unless explicitly requested by the user
@@ -61,7 +62,7 @@ export async function generateCADFromText(description: string): Promise<{
     messages: [
       {
         role: 'system',
-        content: 'You are a CAD expert. Generate precise technical specifications for 3D models.'
+        content: SYSTEM_CAD_ASSISTANT
       },
       {
         role: 'user',
@@ -105,7 +106,7 @@ export async function analyzeDesign(modelData: any): Promise<{
     messages: [
       {
         role: 'system',
-        content: 'You are a CAD optimization expert. Analyze designs for efficiency, manufacturability, and cost.'
+        content: SYSTEM_CAD_ASSISTANT
       },
       {
         role: 'user',
@@ -135,7 +136,7 @@ export async function convertCADFormat(
     messages: [
       {
         role: 'system',
-        content: `You are a CAD format conversion expert. Convert between different CAD file formats accurately.`
+        content: SYSTEM_CAD_ASSISTANT
       },
       {
         role: 'user',
@@ -169,7 +170,7 @@ export async function generateManufacturingInstructions(
     messages: [
       {
         role: 'system',
-        content: 'You are a manufacturing expert. Generate detailed manufacturing instructions from CAD models.'
+        content: SYSTEM_CAD_ASSISTANT
       },
       {
         role: 'user',
@@ -207,7 +208,7 @@ export async function validateDesign(
     messages: [
       {
         role: 'system',
-        content: `You are a ${industry} industry CAD validation expert. Check designs against industry standards and best practices.`
+        content: SYSTEM_CAD_ASSISTANT
       },
       {
         role: 'user',
@@ -239,7 +240,7 @@ export async function generateVariations(
     messages: [
       {
         role: 'system',
-        content: 'You are a parametric CAD expert. Generate design variations based on specified parameters.'
+        content: SYSTEM_CAD_ASSISTANT
       },
       {
         role: 'user',
@@ -279,7 +280,7 @@ export async function simulateFEA(
     messages: [
       {
         role: 'system',
-        content: 'You are a FEA simulation expert. Analyze structural integrity and provide detailed results.'
+        content: SYSTEM_CAD_ASSISTANT
       },
       {
         role: 'user',
@@ -318,7 +319,7 @@ export async function generateAssemblyInstructions(
     messages: [
       {
         role: 'system',
-        content: 'You are an assembly expert. Generate clear, step-by-step assembly instructions.'
+        content: SYSTEM_CAD_ASSISTANT
       },
       {
         role: 'user',
@@ -353,7 +354,7 @@ export async function runCodeInterpreter(
     messages: [
       {
         role: 'system',
-        content: 'You are a Python expert. Execute the provided code and return results.'
+        content: SYSTEM_SOFTWARE_ENGINEER
       },
       {
         role: 'user',

@@ -7,6 +7,7 @@ import { GPT5CADStudio } from "@/components/gpt5-cad-studio";
 import { GPT5CodeStudio } from "@/components/gpt5-code-studio";
 import { AppWireframeStudio } from "@/components/app-wireframe-studio";
 import { CADScriptEditor } from "@/components/cad-script-editor";
+import { AgentConsole } from '@/components/agent-console';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export function AIStudioPage() {
@@ -29,6 +30,8 @@ export function AIStudioPage() {
             AI Systems Active
           </Badge>
         </div>
+        <div id="agents" />
+        <div id="pipeline" />
         <Tabs defaultValue="wireframe" className="h-[calc(100vh-8rem)]">
           <TabsList className="grid w-full grid-cols-4 max-w-3xl mx-auto">
             <TabsTrigger value="wireframe" className="flex items-center gap-2">
@@ -65,6 +68,10 @@ export function AIStudioPage() {
             <CADScriptEditor />
           </TabsContent>
         </Tabs>
+      </div>
+
+      <div className="container mx-auto px-4">
+        <AgentConsole />
       </div>
 
       {/* Ecosystem Flow */}

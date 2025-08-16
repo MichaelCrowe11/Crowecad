@@ -28,7 +28,8 @@ export function NavigationHeader() {
     { href: '/', label: 'Home', icon: Home },
     { href: '/ai-studio', label: 'AI Studio', icon: Brain },
     { href: '/facility-designer', label: 'Facility Designer', icon: Cpu },
-    { href: '/collaborative', label: 'Collaborate', icon: Users }
+    { href: '/collaborative', label: 'Collaborate', icon: Users },
+    { href: '/hub', label: 'Crowe Hub', icon: Building }
   ];
 
   return (

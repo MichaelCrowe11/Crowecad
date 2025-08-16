@@ -77,7 +77,7 @@ Generate complete, working code that can be executed.`;
       messages: [
         {
           role: 'system',
-          content: 'You are CroweCad, an expert CAD system. Generate precise CAD code based on descriptions.'
+          content: (req.body?.system as string) || 'You are CroweCad, an expert CAD system. Generate precise CAD code based on descriptions.'
         },
         {
           role: 'user',
@@ -207,14 +207,14 @@ ${relevantSkills.slice(0, 3).map(s =>
  */
 router.post('/code-interpreter', async (req, res) => {
   try {
-    const { code, description } = req.body;
+    const { code, description, system } = req.body;
     
     const response = await openai.chat.completions.create({
       model: 'gpt-4o',
       messages: [
         {
           role: 'system',
-          content: 'Execute the following Python code for CAD calculations and return the results.'
+          content: system || 'Execute the following Python code for CAD calculations and return the results.'
         },
         {
           role: 'user',
@@ -247,11 +247,12 @@ router.post('/code-interpreter', async (req, res) => {
  */
 router.post('/analyze-image', async (req, res) => {
   try {
-    const { imageBase64, prompt } = req.body;
+    const { imageBase64, prompt, system } = req.body;
     
     const response = await openai.chat.completions.create({
       model: 'gpt-4o',
       messages: [
+        { role: 'system', content: system || 'You are a CAD vision assistant.' },
         {
           role: 'user',
           content: [
@@ -375,7 +376,7 @@ Use these patterns to provide accurate, working solutions. Always validate geome
  */
 router.post('/query', async (req, res) => {
   try {
-    const { query, context } = req.body;
+    const { query, context, system } = req.body;
     
     if (!query) {
       return res.status(400).json({ error: 'Query is required' });
@@ -399,7 +400,7 @@ ${relevantSkills.slice(0, 5).map(s =>
       messages: [
         {
           role: 'system',
-          content: `You are CroweCad, an advanced CAD assistant with spatial recognition and geometric intelligence.
+          content: system || `You are CroweCad, an advanced CAD assistant with spatial recognition and geometric intelligence.
           
 When responding:
 1. Identify geometric primitives and relationships

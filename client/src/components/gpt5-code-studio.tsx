@@ -65,6 +65,7 @@ export function GPT5CodeStudio() {
   });
   const [generatedApp, setGeneratedApp] = useState<any>(null);
   const { toast } = useToast();
+  const [compileResult, setCompileResult] = useState<null | { ok: boolean; warnings: number; error?: string }>(null);
 
   // Code generation handler
   const handleCodeGeneration = async () => {
@@ -304,6 +305,26 @@ export function GPT5CodeStudio() {
     });
   };
 
+  const CompileButton = () => (
+    <Button variant="outline" size="sm" onClick={compileFirstFile} disabled={!generatedCode}>
+      <Cpu className="w-4 h-4 mr-2" /> Compile
+    </Button>
+  );
+
+  const compileFirstFile = async () => {
+    try {
+      const file = generatedCode?.files?.find((f:any)=> f.language?.includes('type') || f.path?.endsWith('.ts') || f.path?.endsWith('.tsx')) || generatedCode?.files?.[0];
+      if (!file) return;
+      const res = await fetch('/api/code/compile', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ code: file.content, language: file.path?.endsWith('.tsx') ? 'tsx' : 'ts' }) });
+      const data = await res.json();
+      setCompileResult({ ok: !!data.ok, warnings: data.warnings || 0, error: data.error });
+      toast({ title: data.ok ? 'Compile OK' : 'Compile Issues', description: data.ok ? 'No errors detected' : data.error || 'Warnings: ' + data.warnings });
+    } catch (e:any) {
+      setCompileResult({ ok: false, warnings: 0, error: e.message });
+      toast({ title: 'Compile Failed', description: e.message, variant: 'destructive' });
+    }
+  };
+
   return (
     <div className="space-y-6">
       <Card className="bg-gradient-to-br from-purple-900/10 to-blue-900/10 border-purple-500/20">
@@ -315,6 +336,13 @@ export function GPT5CodeStudio() {
           <CardDescription>
             Autonomous code generation for the CroweCad platform. Generate complete features, components, and APIs from natural language.
           </CardDescription>
+          {compileResult && (
+            <div className="mt-2 text-sm">
+              <span className={compileResult.ok ? 'text-green-400' : 'text-yellow-400'}>
+                {compileResult.ok ? 'Last compile: OK' : `Last compile: ${compileResult.error || 'warnings ' + compileResult.warnings}`}
+              </span>
+            </div>
+          )}
         </CardHeader>
       </Card>
 

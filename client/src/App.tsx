@@ -24,6 +24,7 @@ function App() {
               <Route path="/facility-designer" component={FacilityDesigner} />
               <Route path="/collaborative" component={CollaborativeWorkspace} />
               <Route path="/ai-studio" component={AIStudioPage} />
+              <Route path="/hub" component={require("@/pages/hub").CroweHubPage} />
               <Route component={NotFound} />
             </Switch>
           </main>

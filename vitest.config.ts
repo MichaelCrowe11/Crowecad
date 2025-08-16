@@ -30,10 +30,11 @@ export default defineConfig({
     hookTimeout: 10000
   },
   resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './client/src'),
-      '@shared': path.resolve(__dirname, './shared'),
-      '@assets': path.resolve(__dirname, './attached_assets')
-    }
+    alias: [
+      { find: /^@\/server/, replacement: path.resolve(__dirname, './server') },
+      { find: '@', replacement: path.resolve(__dirname, './client/src') },
+      { find: '@shared', replacement: path.resolve(__dirname, './shared') },
+      { find: '@assets', replacement: path.resolve(__dirname, './attached_assets') }
+    ]
   }
 });

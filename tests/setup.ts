@@ -9,8 +9,12 @@ import '@testing-library/jest-dom';
 // Mock environment variables
 process.env.DATABASE_URL = 'postgresql://test:test@localhost:5432/crowecad_test';
 process.env.NODE_ENV = 'test';
-process.env.OPENAI_API_KEY = 'test-api-key';
+// process.env.OPENAI_API_KEY disabled for tests to avoid loading OpenAI routes
+process.env.OPENAI_API_KEY = '';
 process.env.ANTHROPIC_API_KEY = 'test-api-key';
+
+process.env.STORAGE_TYPE = 'memory';
+process.env.NEON_CONFIG_FORCE_DISABLE_WS = 'true';
 
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
