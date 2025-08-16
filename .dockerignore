@@ -23,7 +23,8 @@ coverage/
 .env.test.local
 .env.production.local
 
-# IDE and editor files
+# Development IDE configuration files (not the CroweCad IDE itself)
+# Note: The CroweCad IDE component in client/src/components is included
 .vscode/
 .idea/
 *.swp
