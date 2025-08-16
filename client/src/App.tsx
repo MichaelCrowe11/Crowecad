@@ -10,6 +10,7 @@ import { CadWorkspace as CADWorkspace } from "@/pages/cad-workspace";
 import FacilityDesigner from "@/pages/facility-designer";
 import CollaborativeWorkspace from "@/pages/CollaborativeWorkspace";
 import { AIStudioPage } from "@/pages/ai-studio";
+import { CroweHubPage } from "@/pages/hub";
 
 function App() {
   return (
@@ -24,7 +25,7 @@ function App() {
               <Route path="/facility-designer" component={FacilityDesigner} />
               <Route path="/collaborative" component={CollaborativeWorkspace} />
               <Route path="/ai-studio" component={AIStudioPage} />
-              <Route path="/hub" component={require("@/pages/hub").CroweHubPage} />
+              <Route path="/hub" component={CroweHubPage} />
               <Route component={NotFound} />
             </Switch>
           </main>

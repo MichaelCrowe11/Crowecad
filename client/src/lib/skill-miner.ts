@@ -297,7 +297,8 @@ function calculateArea(width, height) {
       javascript: {
         function: /function\s+(\w+)\s*\((.*?)\)\s*{/g,
         class: /class\s+(\w+)\s*{/g,
-        
+        method: /(\w+)\s*\((.*?)\)\s*{/g
+      },
       python: {
         function: /def\s+(\w+)\s*\((.*?)\):/g,
         class: /class\s+(\w+).*?:/g,
@@ -409,7 +410,7 @@ function calculateArea(width, height) {
     const results: CADSkill[] = [];
     const queryLower = query.toLowerCase();
     
-    for (const skill of this.skills.values()) {
+    for (const skill of Array.from(this.skills.values())) {
       if (category && skill.category !== category) continue;
       
       const matchScore = this.calculateMatchScore(skill, queryLower);
@@ -468,7 +469,7 @@ function calculateArea(width, height) {
     }
     
     // Get top skills from relevant categories
-    for (const category of relevantCategories) {
+    for (const category of Array.from(relevantCategories)) {
       const categorySkills = Array.from(this.skills.values())
         .filter(s => s.category === category)
         .sort((a, b) => b.confidence - a.confidence)
