@@ -17,7 +17,9 @@ import {
   Building,
   Github,
   ArrowRight,
-  Sparkles
+  Sparkles,
+  Database,
+  Code
 } from 'lucide-react';
 
 export function NavigationHeader() {
@@ -28,6 +30,8 @@ export function NavigationHeader() {
     { href: '/', label: 'Home', icon: Home },
     { href: '/ai-studio', label: 'AI Studio', icon: Brain },
     { href: '/facility-designer', label: 'Facility Designer', icon: Cpu },
+    { href: '/datasets', label: 'CAD Models', icon: Database },
+    { href: '/dev-resources', label: 'Dev Resources', icon: Code },
     { href: '/collaborative', label: 'Collaborate', icon: Users },
     { href: '/hub', label: 'Crowe Hub', icon: Building }
   ];

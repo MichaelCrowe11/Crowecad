@@ -130,6 +130,207 @@ const datasets = [
       categories: 40,
       princeton: true
     }
+  },
+  
+  // Software Development Datasets
+  {
+    name: "CodeSearchNet",
+    source: "codesearchnet",
+    description: "6 million functions from open source code with 2 million documented pairs for semantic code search",
+    url: "https://github.com/github/CodeSearchNet",
+    modelCount: 6000000,
+    license: "Various OSS Licenses",
+    formats: ["Python", "JavaScript", "Ruby", "Go", "Java", "PHP"],
+    industries: ["software", "development", "ai"],
+    metadata: {
+      github: "https://github.com/github/CodeSearchNet",
+      huggingface: "code-search-net/code_search_net",
+      features: ["semantic search", "code documentation", "function analysis"]
+    }
+  },
+  {
+    name: "GitHub Public Dataset (BigQuery)",
+    source: "github-bigquery",
+    description: "2.8+ million open source repositories with complete version history and metadata",
+    url: "https://cloud.google.com/bigquery/public-data/github",
+    modelCount: 2800000,
+    license: "Various OSS Licenses",
+    formats: ["All Languages", "SQL Queryable"],
+    industries: ["software", "development", "analytics"],
+    metadata: {
+      platform: "Google BigQuery",
+      updateFrequency: "Weekly",
+      features: ["commit history", "file contents", "language statistics"]
+    }
+  },
+  {
+    name: "Awesome Public Datasets",
+    source: "awesome-datasets",
+    description: "Topic-centric collection of 59,000+ high-quality open datasets for development",
+    url: "https://github.com/awesomedata/awesome-public-datasets",
+    modelCount: 59000,
+    license: "Various",
+    formats: ["CSV", "JSON", "API", "SQL"],
+    industries: ["software", "data-science", "ai"],
+    metadata: {
+      github: "https://github.com/awesomedata/awesome-public-datasets",
+      stars: 59000,
+      categories: ["finance", "healthcare", "government", "social"]
+    }
+  },
+  {
+    name: "Hugging Face Datasets",
+    source: "huggingface",
+    description: "17,000+ ready-to-use datasets for machine learning and AI development",
+    url: "https://huggingface.co/datasets",
+    modelCount: 17000,
+    license: "Various",
+    formats: ["Python", "JSON", "Parquet", "Arrow"],
+    industries: ["ai", "software", "research"],
+    metadata: {
+      platform: "Hugging Face Hub",
+      features: ["streaming", "versioning", "data cards"],
+      integration: ["PyTorch", "TensorFlow", "JAX"]
+    }
+  },
+  {
+    name: "500+ AI/ML Projects Collection",
+    source: "ml-projects",
+    description: "500 AI/ML/Computer Vision/NLP projects with complete source code",
+    url: "https://github.com/ashishpatel26/500-AI-Machine-learning-Deep-learning-Computer-vision-NLP-Projects-with-code",
+    modelCount: 500,
+    license: "MIT",
+    formats: ["Python", "Jupyter", "TensorFlow", "PyTorch"],
+    industries: ["ai", "software", "education"],
+    metadata: {
+      github: "https://github.com/ashishpatel26/500-AI-Machine-learning-Deep-learning-Computer-vision-NLP-Projects-with-code",
+      projectTypes: ["classification", "regression", "nlp", "computer-vision"]
+    }
+  },
+  
+  // UI/UX Component Libraries
+  {
+    name: "Shadcn UI Components",
+    source: "shadcn",
+    description: "Copy-paste React components built on Radix UI and Tailwind CSS",
+    url: "https://ui.shadcn.com",
+    modelCount: 50,
+    license: "MIT",
+    formats: ["React", "TypeScript", "Tailwind"],
+    industries: ["frontend", "design", "software"],
+    metadata: {
+      type: "component-library",
+      features: ["accessible", "customizable", "copy-paste"],
+      dependencies: ["radix-ui", "tailwindcss"]
+    }
+  },
+  {
+    name: "Material UI (MUI)",
+    source: "mui",
+    description: "93k+ stars React components implementing Google's Material Design",
+    url: "https://mui.com",
+    modelCount: 100,
+    license: "MIT",
+    formats: ["React", "TypeScript", "JavaScript"],
+    industries: ["frontend", "design", "enterprise"],
+    metadata: {
+      github: "https://github.com/mui/material-ui",
+      stars: 93000,
+      weeklyDownloads: "4M+"
+    }
+  },
+  {
+    name: "Ant Design",
+    source: "antd",
+    description: "Enterprise-grade React UI components with 92k+ GitHub stars",
+    url: "https://ant.design",
+    modelCount: 90,
+    license: "MIT",
+    formats: ["React", "TypeScript", "Less"],
+    industries: ["frontend", "enterprise", "design"],
+    metadata: {
+      github: "https://github.com/ant-design/ant-design",
+      stars: 92000,
+      language: ["English", "Chinese"]
+    }
+  },
+  {
+    name: "UIverse Components",
+    source: "uiverse",
+    description: "Open-source UI elements library with CSS/Tailwind animations",
+    url: "https://uiverse.io",
+    modelCount: 5000,
+    license: "MIT",
+    formats: ["HTML", "CSS", "Tailwind"],
+    industries: ["frontend", "design", "software"],
+    metadata: {
+      type: "community-driven",
+      features: ["animations", "hover-effects", "copy-paste"]
+    }
+  },
+  
+  // Design Systems
+  {
+    name: "IBM Carbon Design System",
+    source: "carbon",
+    description: "Open-source design system with working code and design tools",
+    url: "https://carbondesignsystem.com",
+    modelCount: 200,
+    license: "Apache 2.0",
+    formats: ["React", "Vue", "Angular", "Web Components"],
+    industries: ["enterprise", "design", "software"],
+    metadata: {
+      github: "https://github.com/carbon-design-system/carbon",
+      company: "IBM",
+      accessibility: "WCAG 2.1 AA"
+    }
+  },
+  {
+    name: "Shopify Polaris",
+    source: "polaris",
+    description: "E-commerce focused design system and React components",
+    url: "https://polaris.shopify.com",
+    modelCount: 70,
+    license: "MIT",
+    formats: ["React", "Figma", "Sketch"],
+    industries: ["ecommerce", "design", "frontend"],
+    metadata: {
+      github: "https://github.com/Shopify/polaris",
+      company: "Shopify",
+      focus: "merchant-experience"
+    }
+  },
+  
+  // API Collections
+  {
+    name: "Public APIs Collection",
+    source: "public-apis",
+    description: "Collective list of 1400+ free APIs for development",
+    url: "https://github.com/public-apis/public-apis",
+    modelCount: 1400,
+    license: "MIT",
+    formats: ["REST", "GraphQL", "WebSocket"],
+    industries: ["software", "api", "development"],
+    metadata: {
+      github: "https://github.com/public-apis/public-apis",
+      categories: ["weather", "finance", "social", "data"],
+      authentication: ["apiKey", "OAuth", "none"]
+    }
+  },
+  {
+    name: "RapidAPI Hub",
+    source: "rapidapi",
+    description: "World's largest API marketplace with 40,000+ APIs",
+    url: "https://rapidapi.com/hub",
+    modelCount: 40000,
+    license: "Various",
+    formats: ["REST", "GraphQL", "SOAP"],
+    industries: ["software", "api", "enterprise"],
+    metadata: {
+      platform: "RapidAPI",
+      features: ["unified-billing", "monitoring", "testing"],
+      categories: ["ai", "data", "finance", "social-media"]
+    }
   }
 ];
 
@@ -183,6 +384,40 @@ const categories = [
   { name: "Toys", industry: "consumer", icon: "🎮", sortOrder: 62 },
   { name: "Sports Equipment", industry: "consumer", icon: "⚽", sortOrder: 63 },
   { name: "Kitchen Appliances", industry: "consumer", icon: "🍳", sortOrder: 64 },
+  
+  // Software Development Categories
+  { name: "Code Repositories", industry: "software", icon: "📚", sortOrder: 70 },
+  { name: "Functions & Methods", industry: "software", icon: "⚡", sortOrder: 71 },
+  { name: "API Endpoints", industry: "api", icon: "🔌", sortOrder: 72 },
+  { name: "Data Models", industry: "software", icon: "📊", sortOrder: 73 },
+  { name: "Algorithms", industry: "software", icon: "🧮", sortOrder: 74 },
+  { name: "Machine Learning Models", industry: "ai", icon: "🤖", sortOrder: 75 },
+  { name: "Neural Networks", industry: "ai", icon: "🧠", sortOrder: 76 },
+  { name: "Computer Vision", industry: "ai", icon: "👁️", sortOrder: 77 },
+  { name: "NLP Models", industry: "ai", icon: "💬", sortOrder: 78 },
+  
+  // Frontend/UI Categories
+  { name: "React Components", industry: "frontend", icon: "⚛️", sortOrder: 80 },
+  { name: "Vue Components", industry: "frontend", icon: "💚", sortOrder: 81 },
+  { name: "UI Elements", industry: "frontend", icon: "🎨", sortOrder: 82 },
+  { name: "Form Components", industry: "frontend", icon: "📝", sortOrder: 83 },
+  { name: "Navigation", industry: "frontend", icon: "🧭", sortOrder: 84 },
+  { name: "Data Visualization", industry: "frontend", icon: "📈", sortOrder: 85 },
+  { name: "Animations", industry: "frontend", icon: "✨", sortOrder: 86 },
+  
+  // Design System Categories
+  { name: "Design Tokens", industry: "design", icon: "🎨", sortOrder: 90 },
+  { name: "Typography", industry: "design", icon: "📝", sortOrder: 91 },
+  { name: "Color Systems", industry: "design", icon: "🌈", sortOrder: 92 },
+  { name: "Icons", industry: "design", icon: "🎯", sortOrder: 93 },
+  { name: "Layouts", industry: "design", icon: "📐", sortOrder: 94 },
+  { name: "Patterns", industry: "design", icon: "🔷", sortOrder: 95 },
+  
+  // E-commerce Categories
+  { name: "Product Cards", industry: "ecommerce", icon: "🛍️", sortOrder: 100 },
+  { name: "Shopping Carts", industry: "ecommerce", icon: "🛒", sortOrder: 101 },
+  { name: "Payment Forms", industry: "ecommerce", icon: "💳", sortOrder: 102 },
+  { name: "Checkout Flows", industry: "ecommerce", icon: "✅", sortOrder: 103 },
 ];
 
 const samplePrompts = [
@@ -270,6 +505,88 @@ const samplePrompts = [
     complexity: "advanced",
     parameters: { size: 200, cellSizeMin: 5, cellSizeMax: 15, thickness: 2 },
     tags: ["honeycomb", "parametric", "structure", "lightweight"]
+  },
+  
+  // Software Development Prompts
+  {
+    prompt: "Create a REST API endpoint for user authentication",
+    category: "API Endpoints",
+    industry: "software",
+    complexity: "beginner",
+    parameters: { method: "POST", path: "/auth/login", auth: "JWT" },
+    tags: ["api", "authentication", "rest"]
+  },
+  {
+    prompt: "Generate a React component for a responsive navigation bar",
+    category: "React Components",
+    industry: "frontend",
+    complexity: "beginner",
+    parameters: { framework: "React", responsive: true, menuItems: 5 },
+    tags: ["react", "navigation", "responsive"]
+  },
+  {
+    prompt: "Build a Python function to sort an array using quicksort",
+    category: "Algorithms",
+    industry: "software",
+    complexity: "intermediate",
+    parameters: { language: "Python", algorithm: "quicksort", timeComplexity: "O(n log n)" },
+    tags: ["algorithm", "sorting", "python"]
+  },
+  {
+    prompt: "Create a machine learning model for image classification",
+    category: "Computer Vision",
+    industry: "ai",
+    complexity: "advanced",
+    parameters: { framework: "TensorFlow", architecture: "CNN", classes: 10 },
+    tags: ["ml", "computer-vision", "classification"]
+  },
+  {
+    prompt: "Design a card component with hover animations using Tailwind",
+    category: "UI Elements",
+    industry: "frontend",
+    complexity: "intermediate",
+    parameters: { framework: "Tailwind", animation: "hover", shadow: true },
+    tags: ["ui", "tailwind", "animation"]
+  },
+  {
+    prompt: "Implement a GraphQL resolver for fetching user data",
+    category: "API Endpoints",
+    industry: "api",
+    complexity: "intermediate",
+    parameters: { type: "GraphQL", operation: "query", schema: "User" },
+    tags: ["graphql", "api", "resolver"]
+  },
+  {
+    prompt: "Create a shopping cart component with state management",
+    category: "Shopping Carts",
+    industry: "ecommerce",
+    complexity: "intermediate",
+    parameters: { framework: "React", stateManager: "Redux", features: ["add", "remove", "quantity"] },
+    tags: ["ecommerce", "cart", "state-management"]
+  },
+  {
+    prompt: "Build a neural network for text sentiment analysis",
+    category: "NLP Models",
+    industry: "ai",
+    complexity: "advanced",
+    parameters: { type: "LSTM", framework: "PyTorch", vocabulary: 10000 },
+    tags: ["nlp", "sentiment", "deep-learning"]
+  },
+  {
+    prompt: "Generate a TypeScript interface for a user profile",
+    category: "Data Models",
+    industry: "software",
+    complexity: "beginner",
+    parameters: { language: "TypeScript", fields: ["id", "name", "email", "avatar"] },
+    tags: ["typescript", "interface", "data-model"]
+  },
+  {
+    prompt: "Create a CI/CD pipeline configuration for GitHub Actions",
+    category: "Code Repositories",
+    industry: "software",
+    complexity: "intermediate",
+    parameters: { platform: "GitHub Actions", stages: ["test", "build", "deploy"] },
+    tags: ["cicd", "github", "automation"]
   }
 ];
 
