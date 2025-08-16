@@ -1,8 +1,12 @@
 # Dependency directories
 node_modules/
+client/node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+package-lock.json
+yarn.lock
+.pnpm-store/
 
 # Cache directories
 .cache/
@@ -10,12 +14,23 @@ yarn-error.log*
 .yarn/
 .pnp/
 .pnp.js
+.turbo/
+.next/
+.nuxt/
+.vite/
+.parcel-cache/
+tsconfig.tsbuildinfo
 
 # Build artifacts
 dist/
 build/
 coverage/
 .nyc_output/
+storybook-static/
+out/
+.output/
+*.tgz
+*.tar.gz
 
 # Development files
 .env.local
@@ -57,8 +72,11 @@ tests/
 **/*.spec.ts
 
 # Large development assets that aren't needed in production
-attached_assets/
+attached_assets/*.txt
+attached_assets/*.json
+attached_assets/Pasted-*
 *.log
+*.log.*
 
 # Temporary files
 tmp/
@@ -89,3 +107,8 @@ Makefile
 *.cjs
 Crowe.py
 crowecad-cli*
+scripts/
+build-optimize.sh
+*.tmp
+*.temp
+package.json.tmp
