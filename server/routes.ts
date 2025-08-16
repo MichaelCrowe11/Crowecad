@@ -516,6 +516,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     app.use('/api', pipelines);
   } catch { /* optional */ }
 
+  // CAD Datasets API
+  try {
+    const datasetsRouter = (await import('./routes/datasets')).default;
+    app.use('/api/cad', datasetsRouter);
+  } catch (error) {
+    console.warn('CAD datasets routes not loaded:', error);
+  }
+
   // OpenAI-powered CAD operations
   // Dynamically import and use OpenAI routes if API key is available
   if (process.env.OPENAI_API_KEY) {

@@ -11,6 +11,7 @@ import FacilityDesigner from "@/pages/facility-designer";
 import CollaborativeWorkspace from "@/pages/CollaborativeWorkspace";
 import { AIStudioPage } from "@/pages/ai-studio";
 import { CroweHubPage } from "@/pages/hub";
+import DatasetsPage from "@/pages/datasets";
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
               <Route path="/collaborative" component={CollaborativeWorkspace} />
               <Route path="/ai-studio" component={AIStudioPage} />
               <Route path="/hub" component={CroweHubPage} />
+              <Route path="/datasets" component={DatasetsPage} />
               <Route component={NotFound} />
             </Switch>
           </main>

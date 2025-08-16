@@ -171,3 +171,163 @@ export type InsertEquipmentInstance = z.infer<typeof insertEquipmentInstanceSche
 
 export type Command = typeof commands.$inferSelect;
 export type InsertCommand = z.infer<typeof insertCommandSchema>;
+
+// CAD Dataset Tables
+export const cadDatasets = pgTable("cad_datasets", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  source: text("source").notNull(), // 'abc', 'mcb', 'freecad', 'openscad', 'grabcad', 'thingiverse', 'kaggle', 'nist'
+  description: text("description"),
+  url: text("url"),
+  modelCount: integer("model_count"),
+  license: text("license"),
+  formats: jsonb("formats").default('[]'), // ['STEP', 'STL', 'OBJ', 'IGES']
+  industries: jsonb("industries").default('[]'), // ['mechanical', 'architecture', 'electronics', etc.]
+  metadata: jsonb("metadata").default('{}'),
+  isActive: boolean("is_active").default(true),
+  lastSynced: timestamp("last_synced"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const cadModels = pgTable("cad_models", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  datasetId: uuid("dataset_id").references(() => cadDatasets.id, { onDelete: 'cascade' }).notNull(),
+  name: text("name").notNull(),
+  description: text("description"),
+  category: text("category"), // 'gear', 'bearing', 'bracket', 'enclosure', etc.
+  industry: text("industry"), // 'mechanical', 'architecture', 'electronics', etc.
+  fileUrl: text("file_url"),
+  thumbnailUrl: text("thumbnail_url"),
+  format: text("format").notNull(), // 'STEP', 'STL', 'OBJ', etc.
+  fileSize: integer("file_size"),
+  parameters: jsonb("parameters").default('{}'), // For parametric models
+  tags: jsonb("tags").default('[]'),
+  metadata: jsonb("metadata").default('{}'), // Dimensions, features, etc.
+  downloadCount: integer("download_count").default(0),
+  rating: decimal("rating", { precision: 3, scale: 2 }),
+  isParametric: boolean("is_parametric").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const cadCategories = pgTable("cad_categories", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  parentId: uuid("parent_id"),
+  description: text("description"),
+  icon: text("icon"),
+  industry: text("industry"),
+  sortOrder: integer("sort_order").default(0),
+  modelCount: integer("model_count").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const cadPrompts = pgTable("cad_prompts", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  prompt: text("prompt").notNull(),
+  category: text("category"),
+  industry: text("industry"),
+  complexity: text("complexity"), // 'beginner', 'intermediate', 'advanced'
+  resultModelId: uuid("result_model_id").references(() => cadModels.id, { onDelete: 'set null' }),
+  parameters: jsonb("parameters").default('{}'),
+  tags: jsonb("tags").default('[]'),
+  usageCount: integer("usage_count").default(0),
+  successRate: decimal("success_rate", { precision: 5, scale: 2 }),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const userModelLibrary = pgTable("user_model_library", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: text("user_id").notNull(), // Will be used when auth is implemented
+  modelId: uuid("model_id").references(() => cadModels.id, { onDelete: 'cascade' }).notNull(),
+  projectId: uuid("project_id").references(() => projects.id, { onDelete: 'cascade' }),
+  customName: text("custom_name"),
+  customTags: jsonb("custom_tags").default('[]'),
+  lastUsed: timestamp("last_used"),
+  useCount: integer("use_count").default(0),
+  isFavorite: boolean("is_favorite").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Relations for CAD datasets
+export const cadDatasetsRelations = relations(cadDatasets, ({ many }) => ({
+  models: many(cadModels),
+}));
+
+export const cadModelsRelations = relations(cadModels, ({ one, many }) => ({
+  dataset: one(cadDatasets, {
+    fields: [cadModels.datasetId],
+    references: [cadDatasets.id],
+  }),
+  prompts: many(cadPrompts),
+  userLibraries: many(userModelLibrary),
+}));
+
+export const cadCategoriesRelations = relations(cadCategories, ({ one, many }) => ({
+  parent: one(cadCategories, {
+    fields: [cadCategories.parentId],
+    references: [cadCategories.id],
+  }),
+  children: many(cadCategories),
+}));
+
+export const cadPromptsRelations = relations(cadPrompts, ({ one }) => ({
+  resultModel: one(cadModels, {
+    fields: [cadPrompts.resultModelId],
+    references: [cadModels.id],
+  }),
+}));
+
+export const userModelLibraryRelations = relations(userModelLibrary, ({ one }) => ({
+  model: one(cadModels, {
+    fields: [userModelLibrary.modelId],
+    references: [cadModels.id],
+  }),
+  project: one(projects, {
+    fields: [userModelLibrary.projectId],
+    references: [projects.id],
+  }),
+}));
+
+// Insert schemas for CAD datasets
+export const insertCadDatasetSchema = createInsertSchema(cadDatasets).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertCadModelSchema = createInsertSchema(cadModels).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertCadCategorySchema = createInsertSchema(cadCategories).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertCadPromptSchema = createInsertSchema(cadPrompts).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertUserModelLibrarySchema = createInsertSchema(userModelLibrary).omit({
+  id: true,
+  createdAt: true,
+});
+
+// Types for CAD datasets
+export type CadDataset = typeof cadDatasets.$inferSelect;
+export type InsertCadDataset = z.infer<typeof insertCadDatasetSchema>;
+
+export type CadModel = typeof cadModels.$inferSelect;
+export type InsertCadModel = z.infer<typeof insertCadModelSchema>;
+
+export type CadCategory = typeof cadCategories.$inferSelect;
+export type InsertCadCategory = z.infer<typeof insertCadCategorySchema>;
+
+export type CadPrompt = typeof cadPrompts.$inferSelect;
+export type InsertCadPrompt = z.infer<typeof insertCadPromptSchema>;
+
+export type UserModelLibrary = typeof userModelLibrary.$inferSelect;
+export type InsertUserModelLibrary = z.infer<typeof insertUserModelLibrarySchema>;
