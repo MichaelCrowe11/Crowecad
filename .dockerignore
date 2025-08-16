@@ -1,0 +1,90 @@
+# Dependency directories
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Cache directories
+.cache/
+.npm/
+.yarn/
+.pnp/
+.pnp.js
+
+# Build artifacts
+dist/
+build/
+coverage/
+.nyc_output/
+
+# Development files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Documentation and non-essential files
+*.md
+docs/
+COMPREHENSIVE_CODE_REVIEW_REPORT.md
+
+# Test files
+tests/
+**/*.test.js
+**/*.test.ts
+**/*.spec.js
+**/*.spec.ts
+
+# Large development assets that aren't needed in production
+attached_assets/
+*.log
+
+# Temporary files
+tmp/
+temp/
+
+# Python cache (if any)
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Development configuration
+.eslintrc*
+.prettierrc*
+jest.config*
+vitest.config*
+playwright.config*
+
+# Docker files
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Makefile and scripts
+Makefile
+*.sh
+
+# CLI tools and development scripts
+*.cjs
+Crowe.py
+crowecad-cli*

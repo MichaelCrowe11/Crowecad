@@ -5,16 +5,18 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files
+# Copy package files first for better layer caching
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci
+# Install dependencies with optimizations for smaller image
+RUN npm ci --no-optional --no-fund --no-audit
 
 # Copy source code
 COPY . .
 
-# Build the application
+# Build the application with production optimizations
+ENV NODE_ENV=production
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 RUN npm run build
 
 # Stage 2: Production runtime
@@ -34,9 +36,11 @@ COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
 COPY --from=builder --chown=nodejs:nodejs /app/package*.json ./
 COPY --from=builder --chown=nodejs:nodejs /app/public ./public
 
-# Install production dependencies only
-RUN npm ci --production && \
-    npm cache clean --force
+# Install production dependencies only with optimizations
+ENV NPM_CONFIG_CACHE=/tmp/.npm
+RUN npm ci --only=production --no-optional --no-fund --no-audit && \
+    npm cache clean --force && \
+    rm -rf /tmp/.npm
 
 # Switch to non-root user
 USER nodejs

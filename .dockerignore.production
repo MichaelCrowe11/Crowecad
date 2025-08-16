@@ -1,0 +1,80 @@
+# Production-specific Docker ignore file
+# Use with: docker build -f Dockerfile --ignore-file=.dockerignore.production .
+
+# All development dependencies and cache
+node_modules/
+.cache/
+.npm/
+.yarn/
+.pnp/
+
+# Source files not needed in production (only dist/ is needed)
+client/src/
+server/
+shared/
+!dist/
+
+# All documentation and README files
+*.md
+docs/
+COMPREHENSIVE_CODE_REVIEW_REPORT.md
+
+# Development configuration files
+*.config.js
+*.config.ts
+!vite.config.ts
+.eslintrc*
+.prettierrc*
+jest.config*
+vitest.config*
+playwright.config*
+tsconfig.json
+drizzle.config.ts
+
+# All attached assets and uploads (use volumes for these)
+attached_assets/
+uploads/
+
+# All test files
+tests/
+**/*.test.*
+**/*.spec.*
+
+# Development scripts and tools
+*.cjs
+Crowe.py
+crowecad-cli*
+Makefile
+
+# Build artifacts that shouldn't be in build context
+coverage/
+.nyc_output/
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git and version control
+.git/
+.gitignore
+
+# Environment files
+.env*
+!.env.production
+
+# Log files
+*.log
+logs/
+
+# Docker files themselves
+Dockerfile*
+docker-compose*
+.dockerignore*
+
+# Temporary directories
+tmp/
+temp/

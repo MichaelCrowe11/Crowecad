@@ -11,6 +11,11 @@ services:
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - GITHUB_TOKEN=${GITHUB_TOKEN}
       - OPENAI_ASSISTANT_ID=${OPENAI_ASSISTANT_ID}
+      # Disable package caching for smaller image
+      - NPM_CONFIG_CACHE=false
+      - NPM_CONFIG_PREFER_OFFLINE=false
+      - NPM_CONFIG_AUDIT=false
+      - NPM_CONFIG_FUND=false
     ports:
       - "5000:5000"
     volumes:
