@@ -35,7 +35,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(project);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        res.status(400).json({ message: "Invalid project data", errors: error.errors });
+        res.status(400).json({ message: "Invalid project data", errors: error.issues });
       } else {
         res.status(500).json({ message: "Failed to create project" });
       }
@@ -61,7 +61,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(project);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        res.status(400).json({ message: "Invalid project data", errors: error.errors });
+        res.status(400).json({ message: "Invalid project data", errors: error.issues });
       } else {
         res.status(500).json({ message: "Failed to update project" });
       }
@@ -85,7 +85,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(facility);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        res.status(400).json({ message: "Invalid facility data", errors: error.errors });
+        res.status(400).json({ message: "Invalid facility data", errors: error.issues });
       } else {
         res.status(500).json({ message: "Failed to create facility" });
       }
@@ -121,7 +121,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(zone);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        res.status(400).json({ message: "Invalid zone data", errors: error.errors });
+        res.status(400).json({ message: "Invalid zone data", errors: error.issues });
       } else {
         res.status(500).json({ message: "Failed to create zone" });
       }
@@ -135,7 +135,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(zone);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        res.status(400).json({ message: "Invalid zone data", errors: error.errors });
+        res.status(400).json({ message: "Invalid zone data", errors: error.issues });
       } else {
         res.status(500).json({ message: "Failed to update zone" });
       }
@@ -188,7 +188,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(equipment);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        res.status(400).json({ message: "Invalid equipment data", errors: error.errors });
+        res.status(400).json({ message: "Invalid equipment data", errors: error.issues });
       } else {
         res.status(500).json({ message: "Failed to create equipment" });
       }
@@ -202,7 +202,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(equipment);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        res.status(400).json({ message: "Invalid equipment data", errors: error.errors });
+        res.status(400).json({ message: "Invalid equipment data", errors: error.issues });
       } else {
         res.status(500).json({ message: "Failed to update equipment" });
       }
@@ -271,7 +271,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(processedCommand);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        res.status(400).json({ message: "Invalid command data", errors: error.errors });
+        res.status(400).json({ message: "Invalid command data", errors: error.issues });
       } else {
         res.status(500).json({ message: "Failed to process command" });
       }
@@ -526,11 +526,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // OpenAI-powered CAD operations
   // Dynamically import and use OpenAI routes if API key is available
-  if (process.env.OPENAI_API_KEY) {
-    const openaiRouter = (await import('./routes/openai')).default;
-    app.use('/api/openai', openaiRouter);
-    app.use('/api/crowecad', openaiRouter); // Also available under /api/crowecad
-  }
+  // Temporarily disabled due to package conflicts - will be enabled when OpenAI is installed
+  // if (process.env.OPENAI_API_KEY) {
+  //   const openaiRouter = (await import('./routes/openai')).default;
+  //   app.use('/api/openai', openaiRouter);
+  //   app.use('/api/crowecad', openaiRouter); // Also available under /api/crowecad
+  // }
 
   // Health endpoint
   app.get('/api/health', (req, res) => { res.json({ status: 'healthy', time: new Date().toISOString() }) })
