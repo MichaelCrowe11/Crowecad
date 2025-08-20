@@ -14,6 +14,7 @@ import { CroweHubPage } from "@/pages/hub";
 import DatasetsPage from "@/pages/datasets";
 import DevResourcesPage from "@/pages/dev-resources";
 import APIHubPage from "@/pages/api-hub";
+import CodeStudioPage from "@/pages/code-studio";
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
               <Route path="/datasets" component={DatasetsPage} />
               <Route path="/dev-resources" component={DevResourcesPage} />
               <Route path="/api-hub" component={APIHubPage} />
+              <Route path="/code-studio" component={CodeStudioPage} />
               <Route component={NotFound} />
             </Switch>
           </main>
