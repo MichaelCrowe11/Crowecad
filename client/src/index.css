@@ -35,6 +35,52 @@ body {
   perspective: 1000px;
 }
 
+/* Code Editor Styling */
+.code-editor-wrapper {
+  @apply bg-slate-950 border-slate-800;
+}
+
+/* Enhanced textarea styling for code editor */
+textarea.code-editor,
+textarea[class*="bg-slate-950"] {
+  font-variant-ligatures: contextual;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbar for code editor */
+textarea.code-editor::-webkit-scrollbar,
+textarea[class*="bg-slate-950"]::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+textarea.code-editor::-webkit-scrollbar-track,
+textarea[class*="bg-slate-950"]::-webkit-scrollbar-track {
+  background: hsl(0, 0%, 11.76%);
+  border-radius: 5px;
+}
+
+textarea.code-editor::-webkit-scrollbar-thumb,
+textarea[class*="bg-slate-950"]::-webkit-scrollbar-thumb {
+  background: hsl(0, 0%, 25.1%);
+  border-radius: 5px;
+}
+
+textarea.code-editor::-webkit-scrollbar-thumb:hover,
+textarea[class*="bg-slate-950"]::-webkit-scrollbar-thumb:hover {
+  background: hsl(0, 0%, 35%);
+}
+
+/* Code syntax highlighting colors (visual hints) */
+.code-keyword { color: #c586c0; }
+.code-string { color: #ce9178; }
+.code-comment { color: #6a9955; }
+.code-function { color: #dcdcaa; }
+.code-number { color: #b5cea8; }
+.code-operator { color: #d4d4d4; }
+
 /* Crowe Logic Framework - Quantum Frequency Colors */
 :root {
   /* Quantum Frequency Colors (THz to RGB conversion) */

@@ -47,8 +47,10 @@ export function CADScriptEditor() {
   const [showAutocomplete, setShowAutocomplete] = useState(false);
   const [cursorPosition, setCursorPosition] = useState({ line: 1, column: 0 });
   const [performance, setPerformance] = useState<any>(null);
+  const [lineNumbers, setLineNumbers] = useState<number[]>([1]);
   
   const editorRef = useRef<HTMLTextAreaElement>(null);
+  const lineNumbersRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
   // Supported CAD languages
@@ -59,6 +61,12 @@ export function CADScriptEditor() {
     { value: 'jscad', label: 'JavaScript CAD', icon: '📦' },
     { value: 'gcode', label: 'G-Code', icon: '⚙️' }
   ];
+
+  // Update line numbers when code changes
+  useEffect(() => {
+    const lines = code.split('\n').length;
+    setLineNumbers(Array.from({ length: Math.max(lines, 15) }, (_, i) => i + 1));
+  }, [code]);
 
   // Get autocomplete suggestions as user types
   useEffect(() => {
@@ -236,13 +244,13 @@ export function CADScriptEditor() {
   return (
     <div className="flex flex-col gap-4 h-full">
       {/* Header Controls */}
-      <Card className="border-0 shadow-none bg-background/50">
+      <Card className="border-slate-800 bg-slate-900/50 backdrop-blur-sm">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <Code2 className="w-5 h-5" />
+            <CardTitle className="flex items-center gap-2 text-slate-100">
+              <Code2 className="w-5 h-5 text-blue-400" />
               CAD Script Assistant
-              <Badge variant="outline" className="ml-2">
+              <Badge variant="outline" className="ml-2 bg-blue-500/10 border-blue-500/30 text-blue-400">
                 Powered by Cursor AI
               </Badge>
             </CardTitle>
@@ -290,16 +298,16 @@ export function CADScriptEditor() {
       {/* Main Content */}
       <div className="flex-1 grid grid-cols-2 gap-4">
         {/* Code Editor */}
-        <Card className="relative">
-          <CardHeader className="pb-3">
+        <Card className="relative overflow-hidden">
+          <CardHeader className="pb-3 bg-slate-900/50 border-b border-slate-800">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-medium">Script Editor</h3>
+              <h3 className="text-sm font-medium text-slate-100">Script Editor</h3>
               {errors.length > 0 && (
                 <Button
                   onClick={autoFixErrors}
                   size="sm"
                   variant="ghost"
-                  className="text-xs"
+                  className="text-xs hover:bg-slate-800"
                 >
                   <Sparkles className="w-3 h-3 mr-1" />
                   Auto-fix
@@ -307,46 +315,71 @@ export function CADScriptEditor() {
               )}
             </div>
           </CardHeader>
-          <CardContent className="relative">
-            <div className="relative">
-              <textarea
-                ref={editorRef}
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                onKeyUp={handleCursorChange}
-                onClick={handleCursorChange}
-                className="w-full h-[400px] p-3 font-mono text-sm bg-background border rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-primary"
-                placeholder={`// Enter your ${language} code here...\n// Press Tab for autocomplete suggestions`}
-                spellCheck={false}
-              />
+          <CardContent className="p-0">
+            <div className="relative flex bg-slate-950 border-slate-800">
+              {/* Line Numbers */}
+              <div 
+                ref={lineNumbersRef}
+                className="bg-slate-900/50 border-r border-slate-800 text-slate-500 text-xs font-mono py-3 px-2 select-none overflow-hidden"
+                style={{ minWidth: '3.5rem' }}
+              >
+                {lineNumbers.map(num => (
+                  <div key={num} className="h-[1.5rem] text-right pr-2 leading-6">
+                    {num}
+                  </div>
+                ))}
+              </div>
               
-              {/* Autocomplete dropdown */}
-              {showAutocomplete && (
-                <div className="absolute z-10 bg-popover border rounded-md shadow-lg p-1 min-w-[200px]"
-                     style={{
-                       top: `${(cursorPosition.line * 20) + 20}px`,
-                       left: `${Math.min(cursorPosition.column * 8, 400)}px`
-                     }}>
-                  {autocompleteSuggestions.map((suggestion, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => applySuggestion(suggestion)}
-                      className="block w-full text-left px-2 py-1 text-sm hover:bg-accent rounded"
-                    >
-                      {suggestion}
-                    </button>
-                  ))}
-                </div>
-              )}
+              {/* Code Editor */}
+              <div className="relative flex-1">
+                <textarea
+                  ref={editorRef}
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  onKeyUp={handleCursorChange}
+                  onClick={handleCursorChange}
+                  onScroll={(e) => {
+                    if (lineNumbersRef.current) {
+                      lineNumbersRef.current.scrollTop = e.currentTarget.scrollTop;
+                    }
+                  }}
+                  className="w-full h-[400px] p-3 font-mono text-sm bg-transparent text-slate-100 resize-none focus:outline-none leading-6"
+                  placeholder={`// Enter your ${language} code here...\n// Press Tab for autocomplete suggestions`}
+                  spellCheck={false}
+                  style={{
+                    caretColor: '#3b82f6',
+                    tabSize: 2,
+                  }}
+                />
+                
+                {/* Autocomplete dropdown */}
+                {showAutocomplete && (
+                  <div className="absolute z-10 bg-slate-900 border border-slate-700 rounded-md shadow-2xl p-1 min-w-[250px] max-h-[200px] overflow-y-auto"
+                       style={{
+                         top: `${Math.min((cursorPosition.line * 24) + 4, 350)}px`,
+                         left: `${Math.min(cursorPosition.column * 8, 400)}px`
+                       }}>
+                    {autocompleteSuggestions.map((suggestion, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => applySuggestion(suggestion)}
+                        className="block w-full text-left px-3 py-2 text-sm text-slate-300 hover:bg-slate-800 hover:text-white rounded transition-colors font-mono"
+                      >
+                        <span className="text-blue-400">→</span> {suggestion}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
             
             {/* Error indicators */}
             {errors.length > 0 && (
-              <div className="mt-2 space-y-1">
+              <div className="mt-3 space-y-1 px-3 pb-3">
                 {errors.slice(0, 3).map((error, idx) => (
-                  <Alert key={idx} variant={error.severity === 'error' ? 'destructive' : 'default'}>
+                  <Alert key={idx} variant={error.severity === 'error' ? 'destructive' : 'default'} className="bg-slate-900/50 border-slate-800">
                     <AlertCircle className="h-4 w-4" />
-                    <AlertDescription className="text-xs">
+                    <AlertDescription className="text-xs font-mono">
                       Line {error.line}: {error.message}
                     </AlertDescription>
                   </Alert>
@@ -362,8 +395,8 @@ export function CADScriptEditor() {
         </Card>
 
         {/* Analysis & Translation Panel */}
-        <Card>
-          <CardContent className="p-0">
+        <Card className="overflow-hidden">
+          <CardContent className="p-0 bg-slate-900/30">
             <Tabs defaultValue="analysis" className="h-full">
               <TabsList className="w-full rounded-none">
                 <TabsTrigger value="analysis" className="flex-1">
@@ -481,7 +514,7 @@ export function CADScriptEditor() {
                       <textarea
                         value={translatedCode}
                         readOnly
-                        className="w-full h-[300px] p-3 font-mono text-sm bg-background border rounded-md resize-none"
+                        className="w-full h-[300px] p-3 font-mono text-sm bg-slate-950 border border-slate-800 rounded-md resize-none text-slate-100 focus:outline-none"
                       />
                       <Button
                         onClick={() => {
@@ -509,7 +542,7 @@ export function CADScriptEditor() {
                     </label>
                     <textarea
                       id="description"
-                      className="w-full h-[100px] p-3 text-sm bg-background border rounded-md resize-none"
+                      className="w-full h-[100px] p-3 text-sm bg-slate-950 border border-slate-800 rounded-md resize-none text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary"
                       placeholder="e.g., Create a parametric gear with 20 teeth, 50mm diameter..."
                     />
                   </div>
