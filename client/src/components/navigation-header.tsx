@@ -35,7 +35,6 @@ export function NavigationHeader() {
     { href: '/datasets', label: 'CAD Models', icon: Database },
     { href: '/dev-resources', label: 'Dev Resources', icon: Sparkles },
     { href: '/api-hub', label: 'API Hub', icon: Globe },
-    { href: '/collaborative', label: 'Collaborate', icon: Users },
     { href: '/hub', label: 'Crowe Hub', icon: Building }
   ];
 

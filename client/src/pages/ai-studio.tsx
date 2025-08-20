@@ -6,7 +6,7 @@ import { Link } from "wouter";
 import { GPT5CADStudio } from "@/components/gpt5-cad-studio";
 import { GPT5CodeStudio } from "@/components/gpt5-code-studio";
 import { AppWireframeStudio } from "@/components/app-wireframe-studio";
-import { CADScriptEditor } from "@/components/cad-script-editor";
+import { MonacoCodeEditor } from "@/components/monaco-code-editor";
 import { AgentConsole } from '@/components/agent-console';
 import { AICodeAssistant } from '@/components/ai-code-assistant';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -70,7 +70,7 @@ export function AIStudioPage() {
           </TabsContent>
 
           <TabsContent value="cursor" className="mt-6 h-full">
-            <CADScriptEditor />
+            <MonacoCodeEditor />
           </TabsContent>
 
           <TabsContent value="assistant" className="mt-6 h-full">
