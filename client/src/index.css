@@ -3,9 +3,22 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Apply dark mode by default */
+/* Apply dark mode by default and fix scrolling */
 html {
   @apply dark;
+  height: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+#root {
+  height: 100%;
+  min-height: 100vh;
 }
 
 /* Performance Optimizations */

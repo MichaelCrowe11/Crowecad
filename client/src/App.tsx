@@ -21,7 +21,7 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <div className="min-h-screen flex flex-col bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
           <NavigationHeader />
-          <main className="flex-1 overflow-auto">
+          <main className="flex-1">
             <Switch>
               <Route path="/" component={Landing} />
               <Route path="/workspace" component={CADWorkspace} />
