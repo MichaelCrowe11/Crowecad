@@ -73,7 +73,6 @@ import {
 } from "lucide-react";
 import { croweCadCore, INDUSTRIES, type ChatMessage, type IndustryProfile } from "@/lib/crowecad-core";
 import { CroweCADInterface } from "./crowe-cad-interface";
-import { CollaborationPanel } from "./collaboration-panel";
 import { CommandPalette } from "./command-palette";
 import { ProfessionalToolbar } from "./professional-toolbar";
 import { useToast } from "@/hooks/use-toast";
@@ -113,7 +112,6 @@ export function CroweCadIDE({ projectId, onClose }: CroweCadIDEProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [showCADView, setShowCADView] = useState(true);
   const [showChat, setShowChat] = useState(true);
-  const [showCollaboration, setShowCollaboration] = useState(false);
   const [activeWorkbench, setActiveWorkbench] = useState('design');
   const [isVoiceActive, setIsVoiceActive] = useState(false);
   const [showCommandPalette, setShowCommandPalette] = useState(false);
@@ -336,9 +334,6 @@ export function CroweCadIDE({ projectId, onClose }: CroweCadIDEProps) {
           <Button variant="ghost" size="icon" onClick={() => setShowChat(!showChat)}>
             <MessageSquare className="w-4 h-4" />
           </Button>
-          <Button variant="ghost" size="icon" onClick={() => setShowCollaboration(!showCollaboration)}>
-            <Users className="w-4 h-4" />
-          </Button>
           <Button variant="ghost" size="icon" onClick={() => setShowCADView(!showCADView)}>
             <Eye className="w-4 h-4" />
           </Button>
@@ -365,24 +360,11 @@ export function CroweCadIDE({ projectId, onClose }: CroweCadIDEProps) {
 
       {/* Main Content */}
       <ResizablePanelGroup direction="horizontal" className="flex-1">
-        {/* Collaboration Panel */}
-        {showCollaboration && (
-          <>
-            <ResizablePanel defaultSize={20} minSize={15}>
-              <CollaborationPanel
-                projectId={projectId || 'default'}
-                userName={userName}
-                userAvatar={userAvatar}
-              />
-            </ResizablePanel>
-            <ResizableHandle withHandle />
-          </>
-        )}
         
         {/* CAD View Panel */}
         {showCADView && (
           <>
-            <ResizablePanel defaultSize={showChat ? (showCollaboration ? 50 : 70) : (showCollaboration ? 80 : 100)} minSize={30}>
+            <ResizablePanel defaultSize={showChat ? 70 : 100} minSize={30}>
               <div className="h-full bg-[#1a1a1a]">
                 <CroweCADInterface
                   facilityId={projectId || 'default'}
