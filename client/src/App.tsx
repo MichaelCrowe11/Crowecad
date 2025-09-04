@@ -20,8 +20,12 @@ function App() {
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <div className="min-h-screen flex flex-col bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
+          {/* Skip to main content link for keyboard navigation */}
+          <a href="#main-content" className="skip-link">
+            Skip to main content
+          </a>
           <NavigationHeader />
-          <main className="flex-1">
+          <main id="main-content" className="flex-1" tabIndex={-1} role="main">
             <Switch>
               <Route path="/" component={Landing} />
               <Route path="/workspace" component={CADWorkspace} />

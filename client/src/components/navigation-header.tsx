@@ -39,14 +39,14 @@ export function NavigationHeader() {
   ];
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-white/10 backdrop-blur-xl bg-slate-950/75">
+    <nav className="sticky top-0 z-50 border-b border-white/10 backdrop-blur-xl bg-slate-950/75" role="navigation" aria-label="Main navigation">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           {/* Logo and Desktop Navigation */}
           <div className="flex items-center gap-8">
-            <Link href="/">
+            <Link href="/" aria-label="CroweCad Home">
               <div className="flex items-center gap-2 text-white hover:text-blue-400 transition cursor-pointer">
-                <Box className="w-8 h-8 text-blue-500" />
+                <Box className="w-8 h-8 text-blue-500" aria-hidden="true" />
                 <span className="text-xl font-bold">CroweCad</span>
               </div>
             </Link>
@@ -59,8 +59,9 @@ export function NavigationHeader() {
                     variant={location === link.href ? "secondary" : "ghost"}
                     size="sm"
                     className="text-gray-300 hover:text-white"
+                    aria-current={location === link.href ? 'page' : undefined}
                   >
-                    <link.icon className="w-4 h-4 mr-2" />
+                    <link.icon className="w-4 h-4 mr-2" aria-hidden="true" />
                     {link.label}
                   </Button>
                 </Link>
@@ -75,8 +76,9 @@ export function NavigationHeader() {
               target="_blank"
               rel="noopener noreferrer"
               className="hidden md:flex text-gray-400 hover:text-white transition"
+              aria-label="View CroweCad on GitHub"
             >
-              <Github className="w-5 h-5" />
+              <Github className="w-5 h-5" aria-hidden="true" />
             </a>
             
             {location !== '/ai-studio' && (
@@ -98,15 +100,18 @@ export function NavigationHeader() {
               size="sm"
               className="md:hidden"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+              aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-navigation"
             >
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {mobileMenuOpen ? <X className="w-5 h-5" aria-hidden="true" /> : <Menu className="w-5 h-5" aria-hidden="true" />}
             </Button>
           </div>
         </div>
 
         {/* Mobile Navigation */}
         {mobileMenuOpen && (
-          <div className="md:hidden py-4 border-t border-white/10">
+          <div id="mobile-navigation" className="md:hidden py-4 border-t border-white/10" role="navigation" aria-label="Mobile navigation">
             {navLinks.map((link) => (
               <Link key={link.href} href={link.href}>
                 <div
@@ -116,8 +121,9 @@ export function NavigationHeader() {
                       : 'text-gray-400 hover:text-white hover:bg-white/5'
                   }`}
                   onClick={() => setMobileMenuOpen(false)}
+                  aria-current={location === link.href ? 'page' : undefined}
                 >
-                  <link.icon className="w-5 h-5" />
+                  <link.icon className="w-5 h-5" aria-hidden="true" />
                   {link.label}
                 </div>
               </Link>
