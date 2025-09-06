@@ -1,50 +1,54 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
-import { setupVite, serveStatic, log } from "./vite";
+import { setupVite, serveStatic } from "./vite";
+import { config } from "./config/environment";
+import { logger, requestLogger, errorLogger } from "./config/logger";
+import { applySecurityMiddleware, securityErrorHandler } from "./middleware/security";
+import healthRoutes from "./middleware/health";
 
 const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
 
-app.use((req, res, next) => {
-  const start = Date.now();
-  const path = req.path;
-  let capturedJsonResponse: Record<string, any> | undefined = undefined;
+// Apply security middleware first
+applySecurityMiddleware(app);
 
-  const originalResJson = res.json;
-  res.json = function (bodyJson, ...args) {
-    capturedJsonResponse = bodyJson;
-    return originalResJson.apply(res, [bodyJson, ...args]);
-  };
+// Body parsing middleware
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 
-  res.on("finish", () => {
-    const duration = Date.now() - start;
-    if (path.startsWith("/api")) {
-      let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
-      if (capturedJsonResponse) {
-        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
-      }
+// Health check routes (before authentication)
+app.use('/', healthRoutes);
 
-      if (logLine.length > 80) {
-        logLine = logLine.slice(0, 79) + "…";
-      }
-
-      log(logLine);
-    }
-  });
-
-  next();
-});
+// Request logging (only in development or if LOG_LEVEL is debug)
+if (config.isDevelopment || config.logLevel === 'debug') {
+  app.use(requestLogger);
+}
 
 (async () => {
   const server = await registerRoutes(app);
 
+  // Error logging middleware
+  app.use(errorLogger);
+  
+  // Security error handler
+  app.use(securityErrorHandler);
+  
+  // General error handler
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
+    const message = config.isProduction 
+      ? "Internal Server Error" 
+      : err.message || "Internal Server Error";
 
-    res.status(status).json({ message });
-    throw err;
+    logger.error('Unhandled error', {
+      error: err.message,
+      stack: err.stack,
+      status
+    });
+
+    res.status(status).json({ 
+      error: message,
+      ...(config.isDevelopment && { stack: err.stack })
+    });
   });
 
   // importantly only setup vite in development and after
@@ -56,16 +60,32 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  // ALWAYS serve the app on the port specified in the environment variable PORT
-  // Other ports are firewalled. Default to 5000 if not specified.
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
-  const port = parseInt(process.env.PORT || '5000', 10);
+  // Server configuration
+  const port = config.port;
+  const host = config.isProduction ? '0.0.0.0' : 'localhost';
+  
   server.listen({
     port,
-    host: "0.0.0.0",
+    host,
     reusePort: true,
   }, () => {
-    log(`serving on port ${port}`);
+    logger.info('🚀 Server started', {
+      port,
+      host,
+      environment: config.nodeEnv,
+      pid: process.pid
+    });
+    
+    console.log(`
+╔════════════════════════════════════════════╗
+║         CroweCad Server Started            ║
+╠════════════════════════════════════════════╣
+║  Environment: ${config.nodeEnv.padEnd(28)} ║
+║  Port: ${String(port).padEnd(36)} ║
+║  Health: http://${host}:${port}/health ${' '.repeat(14 - host.length)} ║
+║  API: http://${host}:${port}/api ${' '.repeat(18 - host.length)} ║
+║  APS Viewer: http://${host}:${port}/aps-viewer ${' '.repeat(6 - host.length)} ║
+╚════════════════════════════════════════════╝
+    `);
   });
 })();

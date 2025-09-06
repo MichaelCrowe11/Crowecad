@@ -14,6 +14,7 @@ import DatasetsPage from "@/pages/datasets";
 import DevResourcesPage from "@/pages/dev-resources";
 import APIHubPage from "@/pages/api-hub";
 import CodeStudioPage from "@/pages/code-studio";
+import ApsViewerDemo from "@/pages/aps-viewer-demo";
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
               <Route path="/dev-resources" component={DevResourcesPage} />
               <Route path="/api-hub" component={APIHubPage} />
               <Route path="/code-studio" component={CodeStudioPage} />
+              <Route path="/aps-viewer" component={ApsViewerDemo} />
               <Route component={NotFound} />
             </Switch>
           </main>

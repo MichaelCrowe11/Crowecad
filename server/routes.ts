@@ -3,6 +3,8 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { seedEquipmentTypes } from "./seed";
 import collaborationManager from "./collaboration";
+import fileUpload from "express-fileupload";
+import apsRoutes from "./routes/aps";
 import { 
   insertProjectSchema,
   insertFacilitySchema,
@@ -13,6 +15,16 @@ import {
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Configure file upload middleware
+  app.use(fileUpload({
+    limits: { fileSize: 50 * 1024 * 1024 }, // 50MB max file size
+    useTempFiles: true,
+    tempFileDir: '/tmp/'
+  }));
+
+  // Register APS routes for Autodesk Platform Services
+  app.use("/api/aps", apsRoutes);
+
   // Initialize equipment types unless in-memory or test
   if (process.env.STORAGE_TYPE !== "memory" && process.env.NODE_ENV !== "test") {
     await seedEquipmentTypes();

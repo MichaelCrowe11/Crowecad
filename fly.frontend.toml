@@ -1,0 +1,43 @@
+# fly.frontend.toml - Frontend configuration for Fly.io
+app = "crowecad-frontend"
+primary_region = "lax"
+kill_signal = "SIGINT"
+kill_timeout = "5s"
+
+[build]
+  builder = "heroku/buildpacks:20"
+  
+[build.args]
+  NODE_VERSION = "18"
+
+[env]
+  NODE_ENV = "production"
+  PORT = "8080"
+
+[experimental]
+  auto_rollback = true
+
+[[services]]
+  protocol = "tcp"
+  internal_port = 8080
+  processes = ["app"]
+
+  [[services.ports]]
+    port = 80
+    handlers = ["http"]
+    force_https = true
+
+  [[services.ports]]
+    port = 443
+    handlers = ["tls", "http"]
+
+  [services.concurrency]
+    type = "connections"
+    hard_limit = 25
+    soft_limit = 20
+
+  [[services.tcp_checks]]
+    interval = "15s"
+    timeout = "2s"
+    grace_period = "1s"
+    restart_limit = 0
