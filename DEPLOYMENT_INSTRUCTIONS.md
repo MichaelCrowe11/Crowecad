@@ -73,6 +73,11 @@ chmod +x scripts/deploy-fly.sh
 - Frontend: https://crowecad-frontend.fly.dev
 - API Docs: https://crowecad-backend.fly.dev/api
 
+### Railway Deployment (Alternative)
+- A ready-to-use Railway configuration is available in `railway.json`
+- Follow `DEPLOYMENT_RAILWAY.md` for CLI steps and required environment variables
+- Use `.env.railway.example` plus `scripts/deploy-railway.sh` to push environment variables and deploy from the CLI
+
 ### Monitor Logs
 ```bash
 # Backend logs

@@ -9,6 +9,7 @@ crowecad_skills.json
 crowecad_skills_embeddings.pkl
 .env
 .env.*
+!.env.railway.example
 !.env.example
 backups/
 *.log
