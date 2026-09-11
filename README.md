@@ -1,157 +1,65 @@
-# CroweCad - Revolutionary Universal CAD Platform
+# Crowecad
 
-<div align="center">
-  <img src="https://img.shields.io/badge/version-3.0.0-blue.svg" alt="Version">
-  <img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License">
-  <img src="https://img.shields.io/badge/build-passing-brightgreen.svg" alt="Build">
-  <img src="https://img.shields.io/badge/coverage-98%25-brightgreen.svg" alt="Coverage">
-</div>
+Web app for laying out mycology facilities as projects, zones, and equipment, with a Three.js CAD workspace and an Autodesk model viewer.
 
-<div align="center">
-  <h3>The most advanced AI-powered CAD system ever created</h3>
-  <p>Natural language design • IDE-style interface • Universal industry support</p>
-</div>
+## Status
 
-## 🚀 Quick Start
+archived
 
-```bash
-# Install CroweCad CLI globally
-npm install -g crowecad-cli
+Development stopped on 2025-09-06 (last commit on `main`, from `git log`). The code is kept for reference. On 2026-09-10 the dependencies installed and the browser bundle built, but the server did not start, the tests did not run, and the command line scripts did not run. Details below.
 
-# Create a new project
-crowecad init my-project
+## Install and first run
 
-# Start the IDE
-crowecad start
+Not maintained. No supported install path.
 
-# Design with natural language
-crowecad design "Create a gear with 20 teeth, 50mm diameter"
+What was tried on 2026-09-10 with Node 26.5.0 and npm 11.17.0, from a fresh clone:
+
+```
+npm ci             # completed in 8 s
+npm run build      # vite build completed; wrote dist/public (index.html + assets, main bundle 3.9 MB)
+npx vite preview   # served dist/public on http://localhost:4173, HTTP 200
+npm run dev        # failed: SyntaxError: The requested module '@aps_sdk/oss' does not provide
+                   #   an export named 'CreateBucketsPayloadPolicyKey' (server/routes/aps.ts:4)
+npx tsc --noEmit   # 106 type errors
+npx vitest run     # failed: Cannot find package 'vitest' (it is not in package.json)
+node crowecad-cli.cjs --help     # failed: Cannot find module 'ora' (not in package.json)
+node crowecad-simple.cjs --help  # failed: Cannot find module 'figlet' (not in package.json)
 ```
 
-## Features
+Not run: the Docker images (`Dockerfile`, `Dockerfile.fly`, `docker-compose.yml`), the Fly.io configs, database setup (`init.sql`, `drizzle-kit push`), the Playwright tests, and the `packages/codex` sub-package.
 
-### 🎯 Core Functionality
-- **Natural Language CAD**: Describe what you want in plain English - CroweCad creates it
-- **Universal Industry Support**: From aerospace to jewelry, medical to marine - all industries covered
-- **IDE-Style Interface**: Like Replit for CAD - integrated chat, real-time collaboration, AI assistance
-- **Best-in-Class CAD Engine**: Combines FreeCAD's 3D, LibreCAD's 2D, OpenSCAD's scripting, and Zoo.dev's AI
-- **Professional Standards**: Full support for STEP, DXF, STL, GLTF with industry-specific constraints
+The server needs `DATABASE_URL` (Postgres). The viewer and chat routes need Autodesk APS (the `@aps_sdk` packages), OpenAI, or Anthropic keys. See `.env.example`. None were supplied for this run.
 
-### 🚀 Revolutionary Features
-1. **CroweCad IDE** - Complete CAD development environment:
-   - Natural language design: "Create a gear with 20 teeth"
-   - Integrated AI chat assistant
-   - Real-time collaboration
-   - Industry workbenches
+## What runs today
 
-2. **Multi-Industry Support**:
-   - **Mechanical**: Gears, brackets, assemblies
-   - **Architecture**: Floor plans, BIM models
-   - **Electronics**: PCB design, schematics
-   - **Automotive**: Body design, aerodynamics
-   - **Aerospace**: Fuselage, wing design
-   - **Medical**: Implants, surgical tools
-   - **Consumer**: Products, packaging
-   - **Jewelry**: Rings, custom designs
-   - **Marine**: Hull design, naval architecture
-   - **Energy**: Turbines, solar systems
+Nothing is maintained.
 
-3. **AI-Powered Design**:
-   - Text-to-CAD generation
-   - Sketch-to-model conversion
-   - Voice-controlled design
-   - Automatic optimization
+The browser bundle builds and serves as static files, but every page calls the Express API, and the API does not start.
 
-## 🛠️ Installation
+What the code contains, for reference:
 
-### Method 1: NPM (Recommended)
-```bash
-npm install -g crowecad-cli
-crowecad --version
-```
+- `server/routes.ts`: Express routes for projects, facilities, zones, equipment types and instances, typed commands, and report generation. Rows are stored in Postgres through Drizzle (`shared/schema.ts`).
+- `server/seed.ts`: seeded equipment types (stirred tank bioreactor, wave reactor, incubator, laminar flow hood, centrifuge, cold storage, and others).
+- `server/routes/aps.ts`: token, upload, translate, and manifest calls to Autodesk APS (the `@aps_sdk` packages) for the model viewer.
+- `server/routes/openai.ts`: chat, image analysis, and code interpreter calls to the OpenAI API.
+- `client/src/pages/`: facility designer, CAD workspace (Three.js), Autodesk viewer demo, datasets browser, and a landing page.
+- `client/src/lib/dxf-renderer.ts`: draws DXF files parsed with `dxf-parser`.
+- `packages/codex`: a separate command line tool that calls the OpenAI and Anthropic APIs to generate code. Not built or run here.
 
-### Method 2: Direct Download
-```bash
-curl -L https://github.com/MichaelCrowe11/Crowecad/releases/latest/download/crowecad-cli.js -o crowecad
-chmod +x crowecad
-./crowecad --version
-```
+## Limits
 
-### Method 3: From Source
-```bash
-git clone https://github.com/MichaelCrowe11/Crowecad.git
-cd Crowecad
-npm install
-npm link
-```
+- This is not a CAD program. It stores layouts as database rows and draws them in the browser. It does not read or write DWG files.
+- Export is not implemented. `exportToSTEP`, `exportToDXF`, `exportToSTL`, and `exportToGLTF` in `client/src/lib/crowecad-core.ts` return the model object unchanged.
+- The `/api/commands` handler matches keywords in the command text (`server/routes.ts`, comment: "Simple command processing"). It is not a language model.
+- The old README described npm packages `crowecad-cli` and `crowecad`. Neither exists on the npm registry (checked 2026-09-10).
+- `fly.backend.toml` and `fly.frontend.toml` name the apps `crowecad-backend` and `crowecad-frontend`. Neither hostname resolves (checked 2026-09-10).
+- `.github/workflows/ci.yml` calls `npm run lint`, `npm run type-check`, and `npm run format:check`. None of those scripts exist in `package.json`.
+- `Crowe.py` and `package.json.new` are empty files.
+- The old README's badges claimed an MIT license, a passing build, and 98% coverage. There is no license file, the CI scripts do not exist, and no coverage report is in the repository.
+- Do not use this to plan a real facility. Equipment sizes and placements are not checked against any standard.
 
-## 📖 Documentation
+## License and contact
 
-### CLI Commands
+No license file. All rights reserved by default.
 
-| Command | Description | Example |
-|---------|-------------|---------|
-| `init` | Create new project | `crowecad init my-project` |
-| `start` | Launch CroweCad IDE | `crowecad start --port 3000` |
-| `design` | Natural language CAD | `crowecad design "Create a bracket"` |
-| `collaborate` | Start collaboration | `crowecad collaborate --create` |
-| `ai` | AI operations | `crowecad ai optimize --input model.step` |
-| `export` | Export to formats | `crowecad export model.step --format stl` |
-| `plugin` | Manage plugins | `crowecad plugin install materials` |
-| `benchmark` | Performance test | `crowecad benchmark` |
-
-### Natural Language Examples
-
-```bash
-# Mechanical Engineering
-crowecad design "Create a gear with 20 teeth, module 2, pressure angle 20 degrees"
-
-# Architecture
-crowecad design "Generate a floor plan for a 3-bedroom house, 150 square meters"
-
-# Electronics
-crowecad design "Design a PCB for an Arduino shield with 20 GPIO pins"
-
-# Jewelry
-crowecad design "Create a ring band 2mm thick, size 7, with diamond setting"
-```
-
-## Using the Application
-
-### Access Points:
-1. **Landing Page**: Visit `/` for the main platform overview
-2. **CAD Workspace**: Navigate to `/workspace` for professional CAD interface
-3. **CroweCad IDE**: Click "Launch IDE" from any page
-
-### Interface Components:
-- **Model Tree**: Hierarchical part/assembly organization
-- **Layers Panel**: Layer management with visibility controls
-- **Properties Panel**: Object properties and constraints
-- **Professional Toolbar**: Industry-standard CAD tools
-- **Command Palette**: Quick access with Cmd+K
-
-## Stack
-- **Frontend**: React 18, TypeScript, Three.js, Tailwind CSS
-- **Backend**: Node.js, Express, PostgreSQL
-- **AI**: Anthropic Claude API integration
-- **Build**: Vite
-
-## Environment Variables
-Create a `.env` file with:
-```
-OPENAI_API_KEY=your_api_key_here
-DATABASE_URL=your_postgres_url
-```
-
-## Development
-```bash
-npm install
-npm run dev
-```
-
-## Deployment
-Ready for deployment on Replit. Click the Deploy button in your Replit workspace.
-
----
-
-Built with ❤️ using cutting-edge AI and CAD technologies
+Contact: michael@crowelogic.com
